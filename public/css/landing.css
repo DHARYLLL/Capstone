@@ -1,0 +1,32 @@
+html {
+    scroll-behavior: smooth;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f4ede2;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c8b39b;
+    border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #9a785a;
+}
+
+.card,
+.btn,
+.input,
+.badge {
+    transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease, border-color 180ms ease;
+}
+
+.card:hover,
+.btn:hover {
+    transform: translateY(-2px);
+}

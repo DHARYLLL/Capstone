@@ -1,0 +1,13 @@
+{
+    "agents": [
+        "antigravity",
+        "kiro",
+        "copilot"
+    ],
+    "cloud": false,
+    "skills": [
+        "laravel-best-practices",
+        "pest-testing",
+        "tailwindcss-development"
+    ]
+}
