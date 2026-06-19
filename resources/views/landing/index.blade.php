@@ -16,23 +16,38 @@
         $assistantTitle = data_get($business, 'assistant_title') ?? 'One AI assistant connecting multiple businesses';
         $assistantDescription = data_get($business, 'assistant_description') ?? 'Ask once and get clear information about services, locations, offers, and FAQs across all partner businesses.';
         $businessName = data_get($business, 'name') ?? 'Your Business';
-        $featureOneLabel = data_get($business, 'feature_one_label') ?? 'Featured Business One';
-        $featureTwoLabel = data_get($business, 'feature_two_label') ?? 'Featured Business Two';
-        $featureThreeLabel = data_get($business, 'feature_three_label') ?? 'Featured Business Three';
-        $featureOneDescription = data_get($business, 'feature_one_description') ?? 'A warm dining destination for authentic cuisine, family gatherings, and memorable meals in a welcoming setting.';
-        $featureTwoDescription = data_get($business, 'feature_two_description') ?? 'Relax, unwind, and enjoy a refreshing experience with amenities ideal for leisure, celebrations, and weekend escapes.';
-        $featureThreeDescription = data_get($business, 'feature_three_description') ?? 'A comfortable hospitality destination for stays, gatherings, and poolside moments designed for relaxation and convenience.';
+        $businessCards = collect([
+            [
+                'label' => data_get($business, 'feature_one_label') ?? 'Featured Business One',
+                'description' => data_get($business, 'feature_one_description') ?? 'A warm dining destination for authentic cuisine, family gatherings, and memorable meals in a welcoming setting.',
+            ],
+            [
+                'label' => data_get($business, 'feature_two_label') ?? 'Featured Business Two',
+                'description' => data_get($business, 'feature_two_description') ?? 'Relax, unwind, and enjoy a refreshing experience with amenities ideal for leisure, celebrations, and weekend escapes.',
+            ],
+            [
+                'label' => data_get($business, 'feature_three_label') ?? 'Featured Business Three',
+                'description' => data_get($business, 'feature_three_description') ?? 'A comfortable hospitality destination for stays, gatherings, and poolside moments designed for relaxation and convenience.',
+            ],
+        ]);
+        $featureOneLabel = $businessCards[0]['label'];
+        $featureTwoLabel = $businessCards[1]['label'];
+        $featureThreeLabel = $businessCards[2]['label'];
+        $featureOneDescription = $businessCards[0]['description'];
+        $featureTwoDescription = $businessCards[1]['description'];
+        $featureThreeDescription = $businessCards[2]['description'];
         $galleryOneTitle = data_get($business, 'gallery_one_title') ?? $featureOneLabel;
         $galleryTwoTitle = data_get($business, 'gallery_two_title') ?? 'Dining Moments';
         $galleryThreeTitle = data_get($business, 'gallery_three_title') ?? 'Poolside Views';
         $galleryOneDescription = data_get($business, 'gallery_one_description') ?? 'Warm dining spaces and inviting hospitality.';
         $galleryTwoDescription = data_get($business, 'gallery_two_description') ?? 'Memorable meals and shared experiences.';
         $galleryThreeDescription = data_get($business, 'gallery_three_description') ?? 'Relaxing scenes from leisure and stay destinations.';
-        $footerBusinesses = [
-            ['label' => $featureOneLabel, 'href' => '#businesses'],
-            ['label' => $featureTwoLabel, 'href' => '#businesses'],
-            ['label' => $featureThreeLabel, 'href' => '#businesses'],
-        ];
+        $footerBusinesses = $businessCards->map(function ($businessCard) {
+            return [
+                'label' => $businessCard['label'],
+                'href' => '#businesses',
+            ];
+        });
         $roomBusinessName = data_get($business, 'room_business_name') ?? $businessName;
         $roomModalTitle = data_get($business, 'room_modal_title') ?? "{$roomBusinessName} Rooms & Availability";
         $roomModalDescription = data_get($business, 'room_modal_description') ?? "View real-time room rates and vacancies at {$roomBusinessName}";
