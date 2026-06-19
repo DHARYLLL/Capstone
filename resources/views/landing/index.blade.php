@@ -2,28 +2,72 @@
 @extends('layouts.landing')
 
 @section('content')
+    @php
+        $business = $business ?? null;
+
+        $badgeLabel = data_get($business, 'badge_label') ?? 'AI-Powered Business Platform';
+        $businessHeadline = data_get($business, 'headline') ?? 'Experience All Our Services in One Smart Platform';
+        $businessTagline = data_get($business, 'tagline') ?? 'Explore services, locations, offers, and FAQs through a single polished business experience.';
+        $businessDescription = data_get($business, 'description') ?? 'Discover services, locations, offers, and FAQs through a polished landing page experience tailored to your business.';
+        $primaryCtaLabel = data_get($business, 'primary_cta_label') ?? 'Explore Businesses';
+        $primaryCtaUrl = data_get($business, 'primary_cta_url') ?? '#businesses';
+        $secondaryCtaLabel = data_get($business, 'secondary_cta_label') ?? 'Start Chat';
+        $secondaryCtaUrl = data_get($business, 'secondary_cta_url') ?? '#chatbot';
+        $assistantTitle = data_get($business, 'assistant_title') ?? 'One AI assistant connecting multiple businesses';
+        $assistantDescription = data_get($business, 'assistant_description') ?? 'Ask once and get clear information about services, locations, offers, and FAQs across all partner businesses.';
+        $businessName = data_get($business, 'name') ?? 'Your Business';
+        $featureOneLabel = data_get($business, 'feature_one_label') ?? 'Featured Business One';
+        $featureTwoLabel = data_get($business, 'feature_two_label') ?? 'Featured Business Two';
+        $featureThreeLabel = data_get($business, 'feature_three_label') ?? 'Featured Business Three';
+        $featureOneDescription = data_get($business, 'feature_one_description') ?? 'A warm dining destination for authentic cuisine, family gatherings, and memorable meals in a welcoming setting.';
+        $featureTwoDescription = data_get($business, 'feature_two_description') ?? 'Relax, unwind, and enjoy a refreshing experience with amenities ideal for leisure, celebrations, and weekend escapes.';
+        $featureThreeDescription = data_get($business, 'feature_three_description') ?? 'A comfortable hospitality destination for stays, gatherings, and poolside moments designed for relaxation and convenience.';
+        $galleryOneTitle = data_get($business, 'gallery_one_title') ?? $featureOneLabel;
+        $galleryTwoTitle = data_get($business, 'gallery_two_title') ?? 'Dining Moments';
+        $galleryThreeTitle = data_get($business, 'gallery_three_title') ?? 'Poolside Views';
+        $galleryOneDescription = data_get($business, 'gallery_one_description') ?? 'Warm dining spaces and inviting hospitality.';
+        $galleryTwoDescription = data_get($business, 'gallery_two_description') ?? 'Memorable meals and shared experiences.';
+        $galleryThreeDescription = data_get($business, 'gallery_three_description') ?? 'Relaxing scenes from leisure and stay destinations.';
+        $footerBusinesses = [
+            ['label' => $featureOneLabel, 'href' => '#businesses'],
+            ['label' => $featureTwoLabel, 'href' => '#businesses'],
+            ['label' => $featureThreeLabel, 'href' => '#businesses'],
+        ];
+        $roomBusinessName = data_get($business, 'room_business_name') ?? $businessName;
+        $roomModalTitle = data_get($business, 'room_modal_title') ?? "{$roomBusinessName} Rooms & Availability";
+        $roomModalDescription = data_get($business, 'room_modal_description') ?? "View real-time room rates and vacancies at {$roomBusinessName}";
+        $roomInquiryText = data_get($business, 'room_inquiry_text') ?? 'For booking inquiries, select "Chat with Assistant" or call support.';
+        $businessCoverPath = data_get($business, 'cover_photo_path');
+        $businessCoverImage = filled($businessCoverPath)
+            ? asset('storage/' . ltrim($businessCoverPath, '/'))
+            : asset('images/business-fallback.svg');
+    @endphp
+
     <section id="home" class="mx-auto max-w-7xl px-4 py-10 lg:px-8 lg:py-16">
         <div class="grid items-center gap-12 lg:grid-cols-2">
             <div class="space-y-6">
                 <div class="badge border-0 bg-[#F1E4D2] px-4 py-3 text-xs font-semibold text-[#5A3E2B]">
-                    AI-Powered Business Platform
+                    {{ $badgeLabel }}
                 </div>
 
                 <div class="space-y-5">
                     <h1 class="max-w-2xl text-4xl font-extrabold leading-tight tracking-tight text-gray-900 md:text-6xl">
-                        Experience All Our Services in One Smart Platform
+                        {{ $businessHeadline }}
                     </h1>
                     <p class="max-w-xl text-base leading-7 text-gray-600 md:text-lg">
-                        Explore Dakong Balay Restaurant, Monclaire Pool, and Villa Carmelita through one unified digital experience powered by a single intelligent assistant.
+                        {{ $businessDescription }}
+                    </p>
+                    <p class="max-w-xl text-sm leading-6 text-gray-500 md:text-base">
+                        {{ $businessTagline }}
                     </p>
                 </div>
 
                 <div class="flex flex-col gap-3 sm:flex-row">
-                    <a href="#businesses" class="btn rounded-full border-0 bg-[#5A3E2B] px-6 text-white hover:bg-[#453020]">
-                        Explore Businesses
+                    <a href="{{ $primaryCtaUrl }}" class="btn rounded-full border-0 bg-[#5A3E2B] px-6 text-white hover:bg-[#453020]">
+                        {{ $primaryCtaLabel }}
                     </a>
-                    <a href="#chatbot" class="btn btn-outline rounded-full border-[#5A3E2B] px-6 text-[#5A3E2B] hover:bg-[#F4EEDF]">
-                        Start Chat
+                    <a href="{{ $secondaryCtaUrl }}" class="btn btn-outline rounded-full border-[#5A3E2B] px-6 text-[#5A3E2B] hover:bg-[#F4EEDF]">
+                        {{ $secondaryCtaLabel }}
                     </a>
                 </div>
 
@@ -35,9 +79,9 @@
                             </svg>
                         </div>
                         <div>
-                            <h2 class="text-sm font-bold text-gray-900">One AI assistant connecting multiple businesses</h2>
+                            <h2 class="text-sm font-bold text-gray-900">{{ $assistantTitle }}</h2>
                             <p class="mt-1 text-sm leading-6 text-gray-600">
-                                Ask once and get clear information about services, locations, offers, and FAQs across all partner businesses.
+                                {{ $assistantDescription }}
                             </p>
                         </div>
                     </div>
@@ -46,47 +90,12 @@
 
             <div class="space-y-4">
                 <div class="overflow-hidden rounded-[2rem] border border-white/70 bg-white shadow-[0_20px_60px_rgba(90,62,43,0.12)]">
-                    <div class="border-b border-[#F1E7DB] bg-[#FCFBF8] px-5 py-4">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-semibold text-gray-900">Dashboard Preview</p>
-                                <p class="text-xs text-gray-500">Centralized business support</p>
-                            </div>
-                            <div class="badge badge-success badge-outline">Live</div>
-                        </div>
-                    </div>
-
-                    <div class="grid gap-4 p-5">
-                        <div class="rounded-3xl bg-gradient-to-br from-[#EFE3D2] to-[#D8C1AA] p-6 shadow-inner">
-                            <div class="flex items-end justify-between">
-                                <div class="space-y-3">
-                                    <div class="h-3 w-24 rounded-full bg-white/70"></div>
-                                    <div class="h-4 w-40 rounded-full bg-white/70"></div>
-                                    <div class="mt-4 grid grid-cols-3 gap-2">
-                                        <div class="h-24 rounded-2xl bg-white/50"></div>
-                                        <div class="h-24 rounded-2xl bg-white/65"></div>
-                                        <div class="h-24 rounded-2xl bg-white/50"></div>
-                                    </div>
-                                </div>
-                                <div class="hidden rounded-2xl bg-white/60 p-4 text-right md:block">
-                                    <div class="text-xs font-semibold text-gray-600">Assistant Activity</div>
-                                    <div class="mt-2 text-3xl font-extrabold text-gray-900">24/7</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-3 gap-3">
-                            <div class="rounded-2xl bg-white p-4 text-center shadow-sm">
-                                <div class="text-2xl font-extrabold text-gray-900">3</div>
-                                <div class="text-xs text-gray-500">Businesses</div>
-                            </div>
-                            <div class="rounded-2xl bg-white p-4 text-center shadow-sm">
-                                <div class="text-2xl font-extrabold text-gray-900">1</div>
-                                <div class="text-xs text-gray-500">Assistant</div>
-                            </div>
-                            <div class="rounded-2xl bg-white p-4 text-center shadow-sm">
-                                <div class="text-2xl font-extrabold text-gray-900">24/7</div>
-                                <div class="text-xs text-gray-500">Info</div>
+                    <div class="relative aspect-[4/5] min-h-[320px] overflow-hidden bg-[#FCFBF8]">
+                        <img src="{{ $businessCoverImage }}" alt="{{ $businessName }} cover photo" class="h-full w-full object-cover">
+                        <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.04)_0%,rgba(34,24,17,0.32)_100%)]"></div>
+                        <div class="absolute inset-x-0 bottom-0 p-5">
+                            <div class="inline-flex rounded-2xl bg-white/80 px-4 py-2 text-sm font-semibold text-gray-800 backdrop-blur">
+                                {{ $businessName }}
                             </div>
                         </div>
                     </div>
@@ -107,7 +116,7 @@
             <div class="grid items-center gap-8 lg:grid-cols-2">
                 <div class="rounded-[2rem] bg-gradient-to-br from-[#EED9C4] to-[#D9C0A5] p-6 shadow-lg">
                     <div class="flex min-h-[320px] items-end rounded-[1.6rem] bg-[linear-gradient(135deg,rgba(255,255,255,0.25),rgba(255,255,255,0.08))] p-6">
-                        <div class="rounded-2xl bg-white/70 px-4 py-2 text-sm font-semibold text-gray-800">Dakong Balay Restaurant</div>
+                        <div class="rounded-2xl bg-white/70 px-4 py-2 text-sm font-semibold text-gray-800">{{ $featureOneLabel }}</div>
                     </div>
                 </div>
 
@@ -118,10 +127,10 @@
                                 <path d="M4 5h16v2H4V5zm2 3h12v11H6V8zm2 2v7h8v-7H8z"/>
                             </svg>
                         </div>
-                        <h3 class="text-2xl font-bold text-gray-900">Dakong Balay</h3>
+                        <h3 class="text-2xl font-bold text-gray-900">{{ $featureOneLabel }}</h3>
                     </div>
                     <p class="text-gray-600">
-                        A warm dining destination for authentic Filipino cuisine, family gatherings, and memorable meals in a welcoming setting.
+                        {{ $featureOneDescription }}
                     </p>
 
                     <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -149,10 +158,10 @@
                                 <path d="M12 3C8 3 5 6 5 10v10h14V10c0-4-3-7-7-7zm0 4a3 3 0 0 1 3 3v6H9v-6a3 3 0 0 1 3-3z"/>
                             </svg>
                         </div>
-                        <h3 class="text-2xl font-bold text-gray-900">Monclaire Pool</h3>
+                        <h3 class="text-2xl font-bold text-gray-900">{{ $featureTwoLabel }}</h3>
                     </div>
                     <p class="text-gray-600">
-                        Relax, unwind, and enjoy a refreshing pool experience with amenities ideal for leisure, celebrations, and weekend escapes.
+                        {{ $featureTwoDescription }}
                     </p>
 
                     <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -173,7 +182,7 @@
 
                 <div class="order-1 rounded-[2rem] bg-gradient-to-br from-[#EED9C4] to-[#D9C0A5] p-6 shadow-lg lg:order-2">
                     <div class="flex min-h-[320px] items-end rounded-[1.6rem] bg-[linear-gradient(135deg,rgba(255,255,255,0.25),rgba(255,255,255,0.08))] p-6">
-                        <div class="rounded-2xl bg-white/70 px-4 py-2 text-sm font-semibold text-gray-800">Monclaire Pool</div>
+                        <div class="rounded-2xl bg-white/70 px-4 py-2 text-sm font-semibold text-gray-800">{{ $featureTwoLabel }}</div>
                     </div>
                 </div>
             </div>
@@ -181,7 +190,7 @@
             <div class="grid items-center gap-8 lg:grid-cols-2">
                 <div class="rounded-[2rem] bg-gradient-to-br from-[#EED9C4] to-[#D9C0A5] p-6 shadow-lg">
                     <div class="flex min-h-[320px] items-end rounded-[1.6rem] bg-[linear-gradient(135deg,rgba(255,255,255,0.25),rgba(255,255,255,0.08))] p-6">
-                        <div class="rounded-2xl bg-white/70 px-4 py-2 text-sm font-semibold text-gray-800">Villa Carmelita</div>
+                        <div class="rounded-2xl bg-white/70 px-4 py-2 text-sm font-semibold text-gray-800">{{ $featureThreeLabel }}</div>
                     </div>
                 </div>
 
@@ -192,10 +201,10 @@
                                 <path d="M4 20h16v-2H4v2zm2-4h12V8l-6-4-6 4v8zm2-2V9.1l4-2.67 4 2.67V14H8z"/>
                             </svg>
                         </div>
-                        <h3 class="text-2xl font-bold text-gray-900">Villa Carmelita</h3>
+                        <h3 class="text-2xl font-bold text-gray-900">{{ $featureThreeLabel }}</h3>
                     </div>
                     <p class="text-gray-600">
-                        A comfortable hospitality destination for stays, gatherings, and poolside moments designed for relaxation and convenience.
+                        {{ $featureThreeDescription }}
                     </p>
 
                     <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -308,28 +317,31 @@
             <div class="overflow-hidden rounded-[2rem] bg-white shadow-lg">
                 <div class="h-56 bg-gradient-to-br from-[#DCC0A4] to-[#F0E3D2]"></div>
                 <div class="space-y-2 p-5">
-                    <h3 class="font-bold text-gray-900">Dakong Balay</h3>
-                    <p class="text-sm text-gray-600">Warm dining spaces and inviting hospitality.</p>
+                    <h3 class="font-bold text-gray-900">{{ $galleryOneTitle }}</h3>
+                    <p class="text-sm text-gray-600">{{ $galleryOneDescription }}</p>
                 </div>
             </div>
 
             <div class="overflow-hidden rounded-[2rem] bg-white shadow-lg">
                 <div class="h-56 bg-gradient-to-br from-[#D9D4C8] to-[#F4EFE6]"></div>
                 <div class="space-y-2 p-5">
-                    <h3 class="font-bold text-gray-900">Dining Moments</h3>
-                    <p class="text-sm text-gray-600">Memorable meals and shared experiences.</p>
+                    <h3 class="font-bold text-gray-900">{{ $galleryTwoTitle }}</h3>
+                    <p class="text-sm text-gray-600">{{ $galleryTwoDescription }}</p>
                 </div>
             </div>
 
             <div class="overflow-hidden rounded-[2rem] bg-white shadow-lg">
                 <div class="h-56 bg-gradient-to-br from-[#D8C1AA] to-[#EFE3D2]"></div>
                 <div class="space-y-2 p-5">
-                    <h3 class="font-bold text-gray-900">Poolside Views</h3>
-                    <p class="text-sm text-gray-600">Relaxing scenes from leisure and stay destinations.</p>
+                    <h3 class="font-bold text-gray-900">{{ $galleryThreeTitle }}</h3>
+                    <p class="text-sm text-gray-600">{{ $galleryThreeDescription }}</p>
                 </div>
             </div>
         </div>
     </section>
+
+    @include('partials.footer', ['footerBusinesses' => $footerBusinesses])
+    @include('partials.chatbot')
 
     <!-- Room Availability Modal -->
     <dialog id="room_availability_modal" class="modal modal-bottom sm:modal-middle">
@@ -347,8 +359,8 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="text-2xl font-bold text-gray-950">Villa Carmelita Rooms & Availability</h3>
-                        <p class="text-sm text-gray-500">View real-time room rates and vacancies at Villa Carmelita</p>
+                        <h3 class="text-2xl font-bold text-gray-950">{{ $roomModalTitle }}</h3>
+                        <p class="text-sm text-gray-500">{{ $roomModalDescription }}</p>
                     </div>
                 </div>
 
@@ -554,7 +566,7 @@
 
                 <!-- Modal Actions -->
                 <div class="flex flex-col sm:flex-row gap-3 justify-between items-center pt-4 border-t border-gray-100 text-center sm:text-left">
-                    <span class="text-xs text-gray-500">For booking inquiries, select "Chat with Assistant" or call Villa Carmelita support.</span>
+                    <span class="text-xs text-gray-500">{{ $roomInquiryText }}</span>
                     <form method="dialog">
                         <button class="btn btn-sm rounded-full border-0 bg-[#5A3E2B] text-white hover:bg-[#453020] px-5 w-full sm:w-auto">Close Window</button>
                     </form>
