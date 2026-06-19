@@ -39,3 +39,21 @@ Route::prefix('admin')->name('admin.')->group(function () {
         return view('admin.businesses.staff');
     })->name('businesses.staff');
 });
+
+Route::prefix('super-admin')->name('super-admin.')->group(function () {
+    Route::get('/', function () {
+        return view('admin.super-admin.dashboard');
+    })->name('dashboard');
+
+    Route::get('/tenants', function () {
+        return view('admin.super-admin.tenants');
+    })->name('tenants');
+
+    Route::get('/resources', function () {
+        return view('admin.super-admin.resources');
+    })->name('resources');
+
+    Route::get('/audit-logs', function () {
+        return view('admin.super-admin.audit-logs');
+    })->name('audit-logs');
+});
