@@ -27,14 +27,14 @@
     <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
 </head>
 <body class="bg-[#F9F8F6] font-sans text-gray-800 antialiased">
-    <div class="flex h-screen overflow-hidden">
+    <div class="flex min-h-screen overflow-hidden">
         @include('partials.admin-sidebar')
 
         <div class="flex min-w-0 flex-1 flex-col overflow-hidden">
             @include('partials.admin-header')
 
             <main class="flex-1 overflow-y-auto">
-                <div class="p-4 sm:p-6 lg:p-8">
+                <div class="mx-auto w-full max-w-[1600px] p-4 sm:p-6 lg:p-8">
                     @yield('content')
                 </div>
             </main>

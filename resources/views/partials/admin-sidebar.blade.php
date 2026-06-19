@@ -1,4 +1,10 @@
 {{-- filepath: c:\Users\dhary\Desktop\Capstone\capstone1\resources\views\partials\admin-sidebar.blade.php --}}
+@php
+    $tenantName = $tenantName ?? 'Villa Carmelita';
+    $tenantType = $tenantType ?? 'Business Tenant';
+    $tenantStatus = $tenantStatus ?? 'Live';
+@endphp
+
 <aside class="hidden w-72 shrink-0 flex-col border-r border-gray-200 bg-base-100 md:flex">
     <div class="border-b border-gray-200 px-6 py-5">
         <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3">
@@ -9,9 +15,17 @@
             </div>
             <div>
                 <div class="text-lg font-extrabold tracking-tight text-gray-900">Project RED AI</div>
-                <div class="text-xs text-gray-500">Admin Panel</div>
+                <div class="text-xs text-gray-500">Tenant Portal</div>
             </div>
         </a>
+        <div class="mt-4 rounded-2xl border border-[#E9E2D6] bg-[#FAF8F4] px-4 py-3">
+            <div class="text-xs font-semibold uppercase tracking-wider text-gray-400">Current tenant</div>
+            <div class="mt-1 text-sm font-bold text-gray-900">{{ $tenantName }}</div>
+            <div class="mt-1 flex items-center gap-2 text-xs text-gray-500">
+                <span class="inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
+                {{ $tenantType }} · {{ $tenantStatus }}
+            </div>
+        </div>
     </div>
 
     <nav class="flex-1 px-4 py-5">
@@ -25,7 +39,7 @@
                 </a>
             </li>
             <li>
-                <a href="#" class="flex items-center gap-3 rounded-2xl px-4 py-3 font-medium text-gray-700 hover:bg-[#F4EEDF]">
+                <a href="{{ route('admin.businesses.index') }}" class="flex items-center gap-3 rounded-2xl px-4 py-3 font-medium text-gray-700 hover:bg-[#F4EEDF]">
                     <svg viewBox="0 0 24 24" class="h-5 w-5 fill-current" aria-hidden="true">
                         <path d="M4 5h16v14H4V5zm2 2v10h12V7H6zm2 2h8v2H8V9zm0 4h6v2H8v-2z"/>
                     </svg>
@@ -33,27 +47,43 @@
                 </a>
             </li>
             <li>
-                <a href="#" class="flex items-center gap-3 rounded-2xl px-4 py-3 font-medium text-gray-700 hover:bg-[#F4EEDF]">
+                <a href="{{ route('admin.businesses.knowledge-base') }}" class="flex items-center gap-3 rounded-2xl px-4 py-3 font-medium text-gray-700 hover:bg-[#F4EEDF]">
                     <svg viewBox="0 0 24 24" class="h-5 w-5 fill-current" aria-hidden="true">
                         <path d="M12 2a7 7 0 0 0-7 7v13h14V9a7 7 0 0 0-7-7zm-2 8h4v2h-4v-2zm0 4h4v2h-4v-2z"/>
                     </svg>
-                    Products &amp; Services
+                    Knowledge Base
                 </a>
             </li>
             <li>
-                <a href="#" class="flex items-center gap-3 rounded-2xl px-4 py-3 font-medium text-gray-700 hover:bg-[#F4EEDF]">
+                <a href="{{ route('admin.businesses.analytics') }}" class="flex items-center gap-3 rounded-2xl px-4 py-3 font-medium text-gray-700 hover:bg-[#F4EEDF]">
                     <svg viewBox="0 0 24 24" class="h-5 w-5 fill-current" aria-hidden="true">
                         <path d="M12 3C7.03 3 3 6.58 3 11c0 2.47 1.22 4.7 3.22 6.29L5 21l3.9-1.96c.97.25 2 .38 3.1.38 4.97 0 9-3.58 9-8s-4.03-8-9-8zm-3 9H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2z"/>
                     </svg>
-                    Chatbot Data
+                    Reporting &amp; Analytics
                 </a>
             </li>
             <li>
-                <a href="#" class="flex items-center gap-3 rounded-2xl px-4 py-3 font-medium text-gray-700 hover:bg-[#F4EEDF]">
+                <a href="{{ route('admin.businesses.seo') }}" class="flex items-center gap-3 rounded-2xl px-4 py-3 font-medium text-gray-700 hover:bg-[#F4EEDF]">
                     <svg viewBox="0 0 24 24" class="h-5 w-5 fill-current" aria-hidden="true">
                         <path d="M19.14 12.94a7.14 7.14 0 0 0 .05-.94 7.14 7.14 0 0 0-.05-.94l2.03-1.58a.5.5 0 0 0 .12-.63l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.08 7.08 0 0 0-1.62-.94l-.36-2.54A.5.5 0 0 0 14 2h-4a.5.5 0 0 0-.49.42L9.15 4.96c-.57.23-1.11.53-1.62.88l-2.39-.96a.5.5 0 0 0-.6.22L2.62 8.42a.5.5 0 0 0 .12.63l2.03 1.58c-.04.31-.05.62-.05.94s.01.63.05.94L2.74 14.1a.5.5 0 0 0-.12.63l1.92 3.32a.5.5 0 0 0 .6.22l2.39-.96c.51.35 1.05.65 1.62.88l.36 2.54A.5.5 0 0 0 10 22h4a.5.5 0 0 0 .49-.42l.36-2.54c.57-.23 1.11-.53 1.62-.88l2.39.96a.5.5 0 0 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.63l-2.02-1.57zM12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5z"/>
                     </svg>
-                    Settings
+                    SEO &amp; Profile
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('admin.businesses.chat') }}" class="flex items-center gap-3 rounded-2xl px-4 py-3 font-medium text-gray-700 hover:bg-[#F4EEDF]">
+                    <svg viewBox="0 0 24 24" class="h-5 w-5 fill-current" aria-hidden="true">
+                        <path d="M4 4h16v12H7l-3 3V4zm4 5h8v2H8V9zm0 4h6v2H8v-2z"/>
+                    </svg>
+                    Chat &amp; Handoff
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('admin.businesses.staff') }}" class="flex items-center gap-3 rounded-2xl px-4 py-3 font-medium text-gray-700 hover:bg-[#F4EEDF]">
+                    <svg viewBox="0 0 24 24" class="h-5 w-5 fill-current" aria-hidden="true">
+                        <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm0 2c-4.4 0-8 2.2-8 5v1h16v-1c0-2.8-3.6-5-8-5z"/>
+                    </svg>
+                    Staff &amp; Roles
                 </a>
             </li>
         </ul>
