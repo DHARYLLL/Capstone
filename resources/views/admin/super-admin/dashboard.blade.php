@@ -31,7 +31,7 @@
                 <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                     @foreach ($kpis as $kpi)
                         <div class="rounded-[1.5rem] border border-[#E8DFD2] bg-[#FBF8F2] p-4 shadow-sm">
-                            <div class="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">{{ $kpi['label'] }}</div>
+                            <div class="text-xs font-semibold text-gray-400">{{ $kpi['label'] }}</div>
                             <div class="mt-2 text-3xl font-black text-gray-900">{{ $kpi['value'] }}</div>
                             <div class="mt-1 text-xs text-[#5A3E2B]">{{ $kpi['delta'] }}</div>
                         </div>
@@ -48,7 +48,10 @@
                             <h3 class="text-xl font-bold text-gray-900">Global activity timeline</h3>
                             <p class="mt-1 text-sm text-gray-500">Line metric tracking total queries across the platform.</p>
                         </div>
-                        <span class="badge badge-success badge-outline">Live</span>
+                        <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200">
+                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                            Live
+                        </span>
                     </div>
 
                     <div class="mt-6 h-72 rounded-[2rem] bg-[#FAF8F4] p-6">

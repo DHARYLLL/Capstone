@@ -150,7 +150,7 @@
         ];
     @endphp
 
-    <div class="space-y-8 bg-base-200">
+    <div class="space-y-8 bg-base-200 border-rounded px-4 py-8">
         <section class="space-y-2">
             <h1 class="text-3xl font-black tracking-tight text-gray-900 sm:text-4xl">Business Details</h1>
             <p class="max-w-2xl text-sm leading-6 text-gray-500 sm:text-base">

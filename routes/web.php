@@ -13,7 +13,7 @@ Route::get('/', function () {
 Route::prefix('admin')->name('admin.')->group(function () {
 
     Route::get('/', function () {
-        return view('admin.businesses.index');
+        return view('admin.dashboard');
     })->name('dashboard');
 
     Route::get('/businesses', function () {

@@ -1,113 +1,462 @@
+{{-- filepath: c:\Users\dhary\Desktop\Capstone\capstone1\resources\views\admin\businesses\index.blade.php --}}
 @extends('layouts.admin')
 
-@section('page_title', 'Tenant Portal Overview')
-@section('page_description', 'Configure operations, manage knowledge files, monitor assisted conversations, and keep the tenant experience aligned.')
-@section('breadcrumbs', 'Admin / Businesses / Overview')
+@section('page_title', 'Manage Businesses')
+@section('page_description', 'View, edit, and manage all registered businesses on the platform.')
+@section('breadcrumbs', 'Admin / Businesses')
 
 @section('content')
-    @php
-        $tenantName = 'Villa Carmelita';
-        $tenantType = 'Hotel / Villa';
-        $tenantStatus = 'Live';
-
-        $kpis = [
-            ['label' => 'Answered queries', 'value' => '1,284', 'delta' => '+18%'],
-            ['label' => 'Unanswered queries', 'value' => '34', 'delta' => '-6%'],
-            ['label' => 'Human-routed queries', 'value' => '126', 'delta' => '+11%'],
-            ['label' => 'Knowledge files', 'value' => '18', 'delta' => '+3'],
-        ];
-
-        $modules = [
-            ['title' => 'Business Profile', 'desc' => 'Identity, hours, locations, contact, and public metadata.', 'href' => route('admin.businesses.edit', 'villa-carmelita')],
-            ['title' => 'Knowledge Base Upload', 'desc' => 'Drop PDFs and CSVs, inspect ingestion results, and approve data.', 'href' => route('admin.businesses.knowledge-base')],
-            ['title' => 'Reporting & Analytics', 'desc' => 'Review answered, unanswered, and human-routed query volume.', 'href' => route('admin.businesses.analytics')],
-            ['title' => 'SEO & Profile Wizard', 'desc' => 'Edit metadata, landing pages, and QR code assets.', 'href' => route('admin.businesses.seo')],
-            ['title' => 'Chat & Handoff', 'desc' => 'Monitor queue, assign operators, and resolve escalations.', 'href' => route('admin.businesses.chat')],
-            ['title' => 'Staff & Roles', 'desc' => 'Manage operators, shifts, permissions, and routing rules.', 'href' => route('admin.businesses.staff')],
-        ];
-
-        $activity = [
-            ['label' => 'Knowledge base indexed', 'meta' => '18 minutes ago · 4 files processed'],
-            ['label' => 'Human handoff accepted', 'meta' => '42 minutes ago · Operator: Mae'],
-            ['label' => 'SEO preview updated', 'meta' => 'Today · Landing path regenerated'],
-        ];
-    @endphp
-
     <div class="space-y-8">
-        <section class="rounded-[2rem] border border-[#eadfce] bg-white p-6 shadow-sm lg:p-8">
-            <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-                <div class="space-y-3">
-                    <div class="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">
-                        <span>{{ $tenantName }}</span>
-                        <span class="h-1 w-1 rounded-full bg-gray-300"></span>
-                        <span>{{ $tenantType }}</span>
-                        <span class="h-1 w-1 rounded-full bg-gray-300"></span>
-                        <span class="text-emerald-600">{{ $tenantStatus }}</span>
-                    </div>
-                    <h1 class="text-3xl font-black tracking-tight text-gray-900 md:text-5xl">Tenant Portal Overview</h1>
-                    <p class="max-w-3xl text-sm leading-6 text-gray-500 md:text-base">
-                        Configure operations, manage knowledge files, monitor assisted conversations, and keep the tenant experience aligned across every public touchpoint.
-                    </p>
+        <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div class="card bg-base-100 shadow-sm">
+                <div class="card-body p-6">
+                    <div class="text-sm font-medium text-gray-500">Total Businesses</div>
+                    <div class="mt-2 text-4xl font-black text-gray-800">3</div>
+                    <p class="mt-2 text-sm leading-6 text-gray-500">Dakong Balay, Monclaire Pool, and Villa Carmelita</p>
                 </div>
-                <div class="flex flex-wrap gap-3">
-                    <a href="{{ route('admin.businesses.analytics') }}" class="btn rounded-full border-0 bg-[#5A3E2B] text-white hover:bg-[#453020]">Open analytics</a>
-                    <a href="{{ route('admin.businesses.knowledge-base') }}" class="btn btn-outline rounded-full border-gray-300 text-gray-700 hover:bg-[#F4EEDF]">Upload knowledge</a>
+            </div>
+
+            <div class="card bg-base-100 shadow-sm">
+                <div class="card-body p-6">
+                    <div class="text-sm font-medium text-gray-500">Active Products/Services</div>
+                    <div class="mt-2 text-4xl font-black text-gray-800">42</div>
+                    <p class="mt-2 text-sm leading-6 text-gray-500">Currently visible in the platform for guest access</p>
+                </div>
+            </div>
+
+            <div class="card bg-base-100 shadow-sm">
+                <div class="card-body p-6">
+                    <div class="text-sm font-medium text-gray-500">Inactive (Archived)</div>
+                    <div class="mt-2 text-4xl font-black text-gray-800">7</div>
+                    <p class="mt-2 text-sm leading-6 text-gray-500">Archived items hidden from the public experience</p>
+                </div>
+            </div>
+
+            <div class="card bg-base-100 shadow-sm">
+                <div class="card-body p-6">
+                    <div class="text-sm font-medium text-gray-500">Last Updated</div>
+                    <div class="mt-2 text-4xl font-black text-gray-800">11:24 AM</div>
+                    <p class="mt-2 text-sm leading-6 text-gray-500">Latest sync across business records and chatbot data</p>
                 </div>
             </div>
         </section>
 
-        <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            @foreach ($kpis as $kpi)
-                <div class="card bg-base-100 shadow-sm">
-                    <div class="card-body p-6">
-                        <div class="text-sm font-medium text-gray-500">{{ $kpi['label'] }}</div>
-                        <div class="mt-2 text-4xl font-black text-gray-800">{{ $kpi['value'] }}</div>
-                        <p class="mt-2 text-sm leading-6 text-emerald-600">{{ $kpi['delta'] }} vs last period</p>
-                    </div>
-                </div>
-            @endforeach
-        </section>
-
-        <section class="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
+        <section class="grid gap-6 lg:grid-cols-[2fr_1fr]">
             <div class="card bg-base-100 shadow-sm">
-                <div class="card-body p-6 lg:p-8">
+                <div class="card-body p-6">
                     <div class="flex items-start justify-between gap-4">
                         <div>
-                            <h2 class="text-xl font-bold text-gray-900">Operational Modules</h2>
-                            <p class="mt-1 text-sm text-gray-500">Jump directly into the major workspaces used by tenant operators.</p>
+                            <h2 class="text-xl font-bold text-gray-800">Recent activity</h2>
+                            <p class="mt-1 text-sm text-gray-500">Latest updates from business management and content edits.</p>
                         </div>
-                        <span class="badge badge-success badge-outline">All systems ready</span>
+                        <button class="btn btn-sm rounded-full border border-gray-300 bg-white text-gray-700 transition-colors duration-200 hover:border-[#D8C3A7] hover:bg-[#F4EEDF] hover:text-gray-900">
+                            View history
+                        </button>
                     </div>
 
-                    <div class="mt-6 grid gap-4 md:grid-cols-2">
-                        @foreach ($modules as $module)
-                            <a href="{{ $module['href'] }}" class="group rounded-[1.5rem] border border-[#eadfce] bg-[#FAF8F4] p-5 transition hover:-translate-y-0.5 hover:shadow-md">
-                                <div class="flex items-center justify-between gap-4">
-                                    <h3 class="text-lg font-bold text-gray-900">{{ $module['title'] }}</h3>
-                                    <span class="text-[#5A3E2B] transition group-hover:translate-x-1">→</span>
-                                </div>
-                                <p class="mt-2 text-sm leading-6 text-gray-500">{{ $module['desc'] }}</p>
-                            </a>
-                        @endforeach
+                    <div class="mt-6 space-y-3">
+                        <div class="flex gap-4 rounded-2xl border border-gray-100 bg-[#FAF8F4] p-4">
+                            <div class="mt-1 h-10 w-1 rounded-full bg-[#5A3E2B]"></div>
+                            <div>
+                                <div class="font-semibold text-gray-800">Updated Dakong Balay description</div>
+                                <p class="mt-1 text-sm text-gray-500">Refined the restaurant overview and highlighted Filipino cuisine offerings.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-4 rounded-2xl border border-gray-100 bg-[#FAF8F4] p-4">
+                            <div class="mt-1 h-10 w-1 rounded-full bg-emerald-500"></div>
+                            <div>
+                                <div class="font-semibold text-gray-800">Archived pool service</div>
+                                <p class="mt-1 text-sm text-gray-500">Moved an outdated seasonal package to inactive records.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-4 rounded-2xl border border-gray-100 bg-[#FAF8F4] p-4">
+                            <div class="mt-1 h-10 w-1 rounded-full bg-sky-500"></div>
+                            <div>
+                                <div class="font-semibold text-gray-800">Synced chatbot knowledge base</div>
+                                <p class="mt-1 text-sm text-gray-500">Aligned assistant responses with the newest business details.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="card bg-base-100 shadow-sm">
-                <div class="card-body p-6 lg:p-8">
-                    <h2 class="text-xl font-bold text-gray-900">Recent activity</h2>
-                    <p class="mt-1 text-sm text-gray-500">Latest portal updates and tenant actions.</p>
+                <div class="card-body p-6">
+                    <h2 class="text-xl font-bold text-gray-800">Dashboard note</h2>
+                    <p class="mt-1 text-sm text-gray-500">Quick reminders for maintaining accurate and consistent content.</p>
 
-                    <div class="mt-5 space-y-3">
-                        @foreach ($activity as $item)
-                            <div class="rounded-2xl bg-[#F8F1E7] p-4">
-                                <div class="font-semibold text-gray-800">{{ $item['label'] }}</div>
-                                <p class="mt-1 text-sm text-gray-500">{{ $item['meta'] }}</p>
-                            </div>
-                        @endforeach
+                    <div class="mt-5 space-y-4">
+                        <div class="rounded-2xl bg-[#F8F1E7] p-4">
+                            <div class="font-semibold text-gray-800">Centralized business control</div>
+                            <p class="mt-1 text-sm leading-6 text-gray-600">All business records are updated in one place to keep public pages aligned.</p>
+                        </div>
+
+                        <div class="rounded-2xl bg-[#F8F1E7] p-4">
+                            <div class="font-semibold text-gray-800">Chatbot-aware content</div>
+                            <p class="mt-1 text-sm leading-6 text-gray-600">Keep descriptions concise so the assistant can answer quickly and clearly.</p>
+                        </div>
                     </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="card bg-base-100 shadow-sm">
+            <div class="card-body p-6">
+                <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-800">Manage Businesses</h2>
+                        <p class="mt-1 text-sm text-gray-500">View and edit the core business records shown across the platform.</p>
+                    </div>
+                    <button class="btn rounded-full border-0 bg-[#5A3E2B] text-white transition-colors duration-200 hover:bg-[#453020] hover:text-white">
+                        <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current" aria-hidden="true">
+                            <path d="M19 11H13V5h-2v6H5v2h6v6h2v-6h6z"/>
+                        </svg>
+                        Add business
+                    </button>
+                </div>
+
+                <div class="mt-6 overflow-x-auto">
+                    <table class="table table-zebra">
+                        <thead>
+                            <tr class="text-gray-500">
+                                <th>Business</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="cursor-pointer hover:bg-base-200 transition-colors business-row border-l-4 border-transparent"
+                                data-name="Dakong Balay"
+                                data-category="Restaurant"
+                                data-description="Authentic Filipino cuisine and family-style dining in a warm, inviting setting."
+                                data-image="dakong-balay-cover.jpg"
+                                data-status="active">
+                                <td>
+                                    <div class="flex items-center gap-3">
+                                        <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-[#EED9C4] to-[#D9C0A5]"></div>
+                                        <div>
+                                            <div class="font-semibold text-gray-800">Dakong Balay</div>
+                                            <div class="text-sm text-gray-500">Restaurant and dining experience</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-gray-600">Restaurant</td>
+                                <td class="max-w-[320px] truncate text-gray-600">Authentic Filipino cuisine and family-style dining in a warm, inviting setting.</td>
+                                <td><span class="badge badge-success badge-outline">Active</span></td>
+                                <td>
+                                    <div class="flex justify-end">
+                                        <a href="{{ route('admin.businesses.edit', 'dakong-balay') }}" class="btn btn-sm inline-flex items-center gap-2 rounded-full border border-gray-300 bg-white whitespace-nowrap text-gray-700 transition-colors duration-200 hover:border-[#D8C3A7] hover:bg-[#F4EEDF] hover:text-gray-900">
+                                            <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current" aria-hidden="true">
+                                                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm18-10.5a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                                            </svg>
+                                            Edit
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr class="cursor-pointer hover:bg-base-200 transition-colors business-row border-l-4 border-transparent"
+                                data-name="Monclaire Pool"
+                                data-category="Swimming Pool"
+                                data-description="A relaxing space for leisure, family gatherings, and refreshing weekend escapes."
+                                data-image="monclaire-pool-cover.jpg"
+                                data-status="active">
+                                <td>
+                                    <div class="flex items-center gap-3">
+                                        <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-[#D7E6EE] to-[#B8D0DD]"></div>
+                                        <div>
+                                            <div class="font-semibold text-gray-800">Monclaire Pool</div>
+                                            <div class="text-sm text-gray-500">Swimming and leisure destination</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-gray-600">Swimming Pool</td>
+                                <td class="max-w-[320px] truncate text-gray-600">A relaxing space for leisure, family gatherings, and refreshing weekend escapes.</td>
+                                <td><span class="badge badge-success badge-outline">Active</span></td>
+                                <td>
+                                    <div class="flex justify-end">
+                                        <a href="{{ route('admin.businesses.edit', 'monclaire-pool') }}" class="btn btn-sm inline-flex items-center gap-2 rounded-full border border-gray-300 bg-white whitespace-nowrap text-gray-700 transition-colors duration-200 hover:border-[#D8C3A7] hover:bg-[#F4EEDF] hover:text-gray-900">
+                                            <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current" aria-hidden="true">
+                                                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm18-10.5a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                                            </svg>
+                                            Edit
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr class="cursor-pointer hover:bg-base-200 transition-colors business-row border-l-4 border-transparent"
+                                data-name="Villa Carmelita"
+                                data-category="Hotel / Villa"
+                                data-description="Comfortable stay options with a welcoming ambiance for guests and groups."
+                                data-image="villa-carmelita-cover.jpg"
+                                data-status="active">
+                                <td>
+                                    <div class="flex items-center gap-3">
+                                        <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-[#EFE3D4] to-[#D8C1AA]"></div>
+                                        <div>
+                                            <div class="font-semibold text-gray-800">Villa Carmelita</div>
+                                            <div class="text-sm text-gray-500">Stay and hospitality destination</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-gray-600">Hotel / Villa</td>
+                                <td class="max-w-[320px] truncate text-gray-600">Comfortable stay options with a welcoming ambiance for guests and groups.</td>
+                                <td><span class="badge badge-success badge-outline">Active</span></td>
+                                <td>
+                                    <div class="flex justify-end">
+                                        <a href="{{ route('admin.businesses.edit', 'villa-carmelita') }}" class="btn btn-sm inline-flex items-center gap-2 rounded-full border border-gray-300 bg-white whitespace-nowrap text-gray-700 transition-colors duration-200 hover:border-[#D8C3A7] hover:bg-[#F4EEDF] hover:text-gray-900">
+                                            <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current" aria-hidden="true">
+                                                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm18-10.5a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                                            </svg>
+                                            Edit
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-gray-100 pt-4 mt-4">
+                    <div class="text-xs text-gray-500">
+                        Showing <strong>1</strong> to <strong>3</strong> of <strong>3</strong> businesses
+                    </div>
+                    <div class="join">
+                        <button type="button" class="join-item btn btn-xs border border-gray-300 bg-white text-gray-700 transition-colors duration-200 hover:border-[#D8C3A7] hover:bg-[#F4EEDF] hover:text-gray-900" disabled>«</button>
+                        <button type="button" class="join-item btn btn-xs btn-active border-0 bg-[#5A3E2B] text-white transition-colors duration-200 hover:bg-[#453020] hover:text-white">1</button>
+                        <button type="button" class="join-item btn btn-xs border border-gray-300 bg-white text-gray-700 transition-colors duration-200 hover:border-[#D8C3A7] hover:bg-[#F4EEDF] hover:text-gray-900" disabled>»</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="edit-form-section" class="grid gap-6 lg:grid-cols-[2fr_1fr]">
+            <div class="card bg-base-100 shadow-sm">
+                <div class="card-body p-6">
+                    <div class="flex items-center justify-between gap-4">
+                        <div>
+                            <div class="flex items-center gap-3">
+                                <h2 class="text-xl font-bold text-gray-800">Edit Business Details</h2>
+                                <span id="edit-business-badge" class="badge badge-success badge-outline">Active</span>
+                            </div>
+                            <p class="mt-1 text-sm text-gray-500">Update the selected business record and keep chatbot content aligned.</p>
+                        </div>
+                    </div>
+
+                    <form id="edit-business-form" class="mt-6 space-y-6">
+                        <div class="grid gap-4 md:grid-cols-2">
+                            <label class="form-control">
+                                <div class="label">
+                                    <span class="label-text font-medium text-gray-700">Business Name</span>
+                                </div>
+                                <input type="text" id="edit-business-name" value="Dakong Balay" class="input input-bordered bg-base-100">
+                            </label>
+
+                            <label class="form-control">
+                                <div class="label">
+                                    <span class="label-text font-medium text-gray-700">Category</span>
+                                </div>
+                                <select id="edit-business-category" class="select select-bordered bg-base-100">
+                                    <option value="Restaurant">Restaurant</option>
+                                    <option value="Swimming Pool">Swimming Pool</option>
+                                    <option value="Hotel / Villa">Hotel / Villa</option>
+                                </select>
+                            </label>
+                        </div>
+
+                        <label class="form-control">
+                            <div class="label">
+                                <span class="label-text font-medium text-gray-700">Description</span>
+                            </div>
+                            <textarea id="edit-business-description" class="textarea textarea-bordered min-h-32 bg-base-100">Authentic Filipino cuisine and family-style dining in a warm, inviting setting.</textarea>
+                        </label>
+
+                        <div class="flex flex-col gap-3 rounded-2xl border border-dashed border-gray-300 bg-[#FAF8F4] p-4 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <div class="font-medium text-gray-800">Image</div>
+                                <p id="edit-business-image-text" class="text-sm text-gray-500">dakong-balay-cover.jpg</p>
+                            </div>
+                            <button type="button" class="btn rounded-full border border-gray-300 bg-white text-gray-700 transition-colors duration-200 hover:border-[#D8C3A7] hover:bg-[#F4EEDF] hover:text-gray-900">
+                                Replace image
+                            </button>
+                        </div>
+
+                        <div class="rounded-2xl bg-[#FAF8F4] p-4">
+                            <div class="flex items-center justify-between gap-4">
+                                <div>
+                                    <div class="font-medium text-gray-800">Business Status</div>
+                                    <p class="text-sm text-gray-500">Active businesses appear in the public platform and chatbot responses.</p>
+                                </div>
+                                <input type="checkbox" id="edit-business-status" class="toggle toggle-success" checked>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col gap-3 sm:flex-row">
+                            <button type="submit" class="btn rounded-full border-0 bg-[#5A3E2B] text-white transition-colors duration-200 hover:bg-[#453020] hover:text-white">
+                                Save changes
+                            </button>
+                            <button type="button" class="btn rounded-full border border-gray-300 bg-white text-gray-700 transition-colors duration-200 hover:border-[#D8C3A7] hover:bg-[#F4EEDF] hover:text-gray-900">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="space-y-6">
+                <div class="card bg-base-100 shadow-sm">
+                    <div class="card-body p-6">
+                        <h3 class="text-lg font-bold text-gray-800">Selected business summary</h3>
+                        <div class="mt-4 space-y-3 text-sm text-gray-600">
+                            <div class="flex items-center justify-between gap-4">
+                                <span class="text-gray-500">Business Name</span>
+                                <span id="summary-name" class="font-medium text-gray-800">Dakong Balay</span>
+                            </div>
+                            <div class="flex items-center justify-between gap-4">
+                                <span class="text-gray-500">Type</span>
+                                <span id="summary-category" class="font-medium text-gray-800">Restaurant</span>
+                            </div>
+                            <div class="flex items-center justify-between gap-4">
+                                <span class="text-gray-500">Visibility</span>
+                                <span id="summary-visibility" class="font-medium text-emerald-600">Currently visible to users</span>
+                            </div>
+                            <div class="flex items-center justify-between gap-4">
+                                <span class="text-gray-500">Last editor</span>
+                                <span class="font-medium text-gray-800">Admin User</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card bg-base-100 shadow-sm">
+                    <div class="card-body p-6">
+                        <h3 class="text-lg font-bold text-gray-800">Editing guidelines</h3>
+                        <div class="mt-4 rounded-2xl bg-[#F8F1E7] p-4 text-sm leading-6 text-gray-600">
+                            Keep business descriptions short, accurate, and chatbot-friendly. Use consistent naming, clear service categories, and updated images for the best user experience.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rounded-3xl bg-emerald-600 p-6 text-white shadow-sm">
+                    <h3 class="text-lg font-bold">Active status reminder</h3>
+                    <p class="mt-2 text-sm leading-6 text-white/90">
+                        Active businesses are searchable on the platform and may be referenced by the AI assistant in customer queries.
+                    </p>
                 </div>
             </div>
         </section>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const rows = document.querySelectorAll('.business-row');
+            const formName = document.querySelector('#edit-business-name');
+            const formCategory = document.querySelector('#edit-business-category');
+            const formDescription = document.querySelector('#edit-business-description');
+            const formImageText = document.querySelector('#edit-business-image-text');
+            const formStatus = document.querySelector('#edit-business-status');
+            const formBadge = document.querySelector('#edit-business-badge');
+            
+            // Summary elements
+            const summaryName = document.querySelector('#summary-name');
+            const summaryCategory = document.querySelector('#summary-category');
+            const summaryVisibility = document.querySelector('#summary-visibility');
+
+            // Set initial highlight for the first row (Dakong Balay)
+            if (rows.length > 0) {
+                rows[0].classList.add('bg-[#FAF8F4]', 'border-l-[#5A3E2B]');
+            }
+
+            rows.forEach(row => {
+                row.addEventListener('click', (e) => {
+                    // Ignore clicks if they were on the Edit link button itself
+                    if (e.target.closest('a')) {
+                        return;
+                    }
+
+                    const name = row.getAttribute('data-name');
+                    const category = row.getAttribute('data-category');
+                    const description = row.getAttribute('data-description');
+                    const image = row.getAttribute('data-image');
+                    const status = row.getAttribute('data-status');
+
+                    // Update form fields
+                    if (formName) formName.value = name;
+                    if (formCategory) formCategory.value = category;
+                    if (formDescription) formDescription.value = description;
+                    if (formImageText) formImageText.textContent = image;
+                    if (formStatus) formStatus.checked = (status === 'active');
+                    
+                    // Update badge
+                    if (formBadge) {
+                        formBadge.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+                        if (status === 'active') {
+                            formBadge.className = 'badge badge-success badge-outline';
+                        } else {
+                            formBadge.className = 'badge badge-warning badge-outline';
+                        }
+                    }
+
+                    // Update summary card
+                    if (summaryName) summaryName.textContent = name;
+                    if (summaryCategory) summaryCategory.textContent = category;
+                    if (summaryVisibility) {
+                        if (status === 'active') {
+                            summaryVisibility.textContent = 'Currently visible to users';
+                            summaryVisibility.className = 'font-medium text-emerald-600';
+                        } else {
+                            summaryVisibility.textContent = 'Hidden from users';
+                            summaryVisibility.className = 'font-medium text-amber-600';
+                        }
+                    }
+
+                    // Smooth scroll to form on small screens
+                    const formSection = document.querySelector('#edit-form-section');
+                    if (formSection && window.innerWidth < 1024) {
+                        formSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+
+                    // Highlight selected row
+                    rows.forEach(r => {
+                        r.classList.remove('bg-[#FAF8F4]', 'border-l-[#5A3E2B]');
+                        r.classList.add('border-transparent');
+                    });
+                    row.classList.remove('border-transparent');
+                    row.classList.add('bg-[#FAF8F4]', 'border-l-[#5A3E2B]');
+                });
+            });
+            
+            // Handle form submit simulation
+            const editForm = document.querySelector('#edit-business-form');
+            if (editForm) {
+                editForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    
+                    // Create visual toast notification
+                    const toast = document.createElement('div');
+                    toast.className = 'fixed bottom-4 right-4 z-50';
+                    toast.innerHTML = `
+                        <div class="alert alert-success bg-[#5A3E2B] text-white border-0 shadow-2xl rounded-2xl p-4 flex items-center gap-3">
+                            <svg class="h-6 w-6 shrink-0 stroke-current text-white" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            <div>
+                                <span class="font-bold">Success!</span>
+                                <div class="text-xs text-white/80">Changes saved for ${formName.value}.</div>
+                            </div>
+                        </div>
+                    `;
+                    document.body.appendChild(toast);
+                    setTimeout(() => {
+                        toast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                        setTimeout(() => toast.remove(), 500);
+                    }, 3000);
+                });
+            }
+        });
+    </script>
 @endsection
