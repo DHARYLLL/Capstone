@@ -92,7 +92,7 @@
                         {{ $primaryCtaLabel }}
                     </a>
                     <a href="#feature-tour"
-                        class="btn btn-outline rounded-full border-[#5A3E2B] px-6 text-[#5A3E2B] hover:bg-[#F4EEDF]">
+                        class="btn rounded-full border border-[#5A3E2B] bg-transparent px-6 text-[#5A3E2B] hover:bg-[#F4EEDF] hover:text-[#5A3E2B]">
                         {{ $secondaryCtaLabel }}
                     </a>
                 </div>

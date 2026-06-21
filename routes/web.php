@@ -7,15 +7,7 @@ Route::get('/', function () {
     return view('landing.index');
 })->name('home');
 
-// ── Public: per-tenant dynamic landing page ────────────────────────────────────────────
-// Customers reach this by scanning a QR code or visiting a link like /dakong-balay.
-// The view falls back to placeholder defaults until a Business model is wired in.
-Route::get('/{slug}', function (string $slug) {
-    // TODO: swap the null below for a real model lookup once the Business model exists:
-    // $business = \App\Models\Business::where('slug', $slug)->firstOrFail();
-    $business = null;
-    return view('landing.dynamic', compact('business'));
-})->name('business.landing');
+
 
 // ── Admin panel ────────────────────────────────────────────────────────────────────────
 Route::prefix('admin')->name('admin.')->group(function () {
@@ -76,3 +68,14 @@ Route::prefix('super-admin')->name('super-admin.')->group(function () {
     })->name('audit-logs');
 
 });
+
+
+// ── Public: per-tenant dynamic landing page ────────────────────────────────────────────
+// Customers reach this by scanning a QR code or visiting a link like /dakong-balay.
+// The view falls back to placeholder defaults until a Business model is wired in.
+Route::get('/{slug}', function (string $slug) {
+    // TODO: swap the null below for a real model lookup once the Business model exists:
+    // $business = \App\Models\Business::where('slug', $slug)->firstOrFail();
+    $business = null;
+    return view('landing.dynamic', compact('business'));
+})->name('business.landing');

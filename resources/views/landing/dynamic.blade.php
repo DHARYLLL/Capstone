@@ -129,7 +129,7 @@
                 <a href="{{ $primaryCtaUrl }}" class="btn rounded-full border-0 bg-[#5A3E2B] px-6 text-white hover:bg-[#453020]">
                     {{ $primaryCtaLabel }}
                 </a>
-                <label for="chatbot-toggle" class="btn btn-outline cursor-pointer rounded-full border-[#5A3E2B] px-6 text-[#5A3E2B] hover:bg-[#F4EEDF]">
+                <label for="chatbot-toggle" class="btn cursor-pointer rounded-full border border-[#5A3E2B] bg-transparent px-6 text-[#5A3E2B] hover:bg-[#F4EEDF] hover:text-[#5A3E2B]">
                     {{ $secondaryCtaLabel }}
                 </label>
             </div>
@@ -367,11 +367,11 @@
                 <span class="text-xs font-bold uppercase tracking-wider text-gray-500">Filter Room Type:</span>
                 <div class="flex flex-wrap gap-1.5" id="guest-filter-container">
                     <button type="button" class="btn btn-xs sm:btn-sm rounded-full guest-filter-btn border-0 bg-[#5A3E2B] text-white hover:bg-[#453020]" data-filter="all">All Rooms</button>
-                    <button type="button" class="btn btn-xs sm:btn-sm rounded-full guest-filter-btn btn-outline border-gray-300 text-gray-700 hover:bg-[#FAF8F4]" data-filter="Standard">Standard (PHP 1,800)</button>
-                    <button type="button" class="btn btn-xs sm:btn-sm rounded-full guest-filter-btn btn-outline border-gray-300 text-gray-700 hover:bg-[#FAF8F4]" data-filter="Junior Suite">Junior Suite (PHP 1,950)</button>
-                    <button type="button" class="btn btn-xs sm:btn-sm rounded-full guest-filter-btn btn-outline border-gray-300 text-gray-700 hover:bg-[#FAF8F4]" data-filter="Deluxe Twin">Deluxe Twin (PHP 2,250)</button>
-                    <button type="button" class="btn btn-xs sm:btn-sm rounded-full guest-filter-btn btn-outline border-gray-300 text-gray-700 hover:bg-[#FAF8F4]" data-filter="Family Suite">Family Suite (PHP 3,500)</button>
-                    <button type="button" class="btn btn-xs sm:btn-sm rounded-full guest-filter-btn btn-outline border-gray-300 text-gray-700 hover:bg-[#FAF8F4]" data-filter="Super Deluxe Room">Super Deluxe (PHP 3,000)</button>
+                    <button type="button" class="btn btn-xs sm:btn-sm rounded-full guest-filter-btn border border-gray-300 bg-white text-gray-700 hover:bg-[#FAF8F4] hover:text-gray-700" data-filter="Standard">Standard (PHP 1,800)</button>
+                    <button type="button" class="btn btn-xs sm:btn-sm rounded-full guest-filter-btn border border-gray-300 bg-white text-gray-700 hover:bg-[#FAF8F4] hover:text-gray-700" data-filter="Junior Suite">Junior Suite (PHP 1,950)</button>
+                    <button type="button" class="btn btn-xs sm:btn-sm rounded-full guest-filter-btn border border-gray-300 bg-white text-gray-700 hover:bg-[#FAF8F4] hover:text-gray-700" data-filter="Deluxe Twin">Deluxe Twin (PHP 2,250)</button>
+                    <button type="button" class="btn btn-xs sm:btn-sm rounded-full guest-filter-btn border border-gray-300 bg-white text-gray-700 hover:bg-[#FAF8F4] hover:text-gray-700" data-filter="Family Suite">Family Suite (PHP 3,500)</button>
+                    <button type="button" class="btn btn-xs sm:btn-sm rounded-full guest-filter-btn border border-gray-300 bg-white text-gray-700 hover:bg-[#FAF8F4] hover:text-gray-700" data-filter="Super Deluxe Room">Super Deluxe (PHP 3,000)</button>
                 </div>
             </div>
 
@@ -461,10 +461,10 @@
             btn.addEventListener('click', () => {
                 filterBtns.forEach(b => {
                     b.classList.remove('bg-[#5A3E2B]', 'text-white', 'border-0');
-                    b.classList.add('btn-outline', 'border-gray-300', 'text-gray-700');
+                    b.classList.add('border', 'border-gray-300', 'bg-white', 'text-gray-700');
                 });
                 btn.classList.add('bg-[#5A3E2B]', 'text-white', 'border-0');
-                btn.classList.remove('btn-outline', 'border-gray-300', 'text-gray-700');
+                btn.classList.remove('border', 'border-gray-300', 'bg-white', 'text-gray-700');
 
                 const filter = btn.dataset.filter;
                 let visible  = 0;

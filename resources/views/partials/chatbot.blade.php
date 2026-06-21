@@ -47,7 +47,7 @@
             <!-- Starter buttons wrapper -->
             <div id="starter-buttons-wrapper" class="space-y-2 pt-2">
                 @foreach ($chatPrompts as $prompt)
-                    <button class="btn btn-outline btn-sm w-full justify-start border-[#d8c6b0] bg-white text-gray-700 hover:border-[#5A3E2B] hover:bg-[#f7efe4] text-xs font-semibold rounded-xl chat-prompt-btn"
+                    <button class="btn btn-sm w-full justify-start border border-[#d8c6b0] bg-white text-gray-700 hover:border-[#5A3E2B] hover:bg-[#f7efe4] hover:text-gray-700 text-xs font-semibold rounded-xl chat-prompt-btn"
                             data-question="{{ $prompt['question'] }}">
                         {{ $prompt['icon'] ?? '💬' }} {{ $prompt['label'] }}
                     </button>

@@ -21,7 +21,7 @@
                 <div class="card-body p-6 lg:p-8 space-y-6">
                     <div class="grid gap-4 md:grid-cols-2">
                         <label class="form-control"><div class="label"><span class="label-text font-medium text-gray-700">Business name</span></div><input class="input input-bordered bg-base-100" value="Villa Carmelita"></label>
-                        <label class="form-control"><div class="label"><span class="label-text font-medium text-gray-700">Slug</span></div><input class="input input-bordered bg-base-100" value="villa-carmelita"></label>
+                        <label class="form-control"><div class="label"><span class="label-text font-medium text-gray-700">URL</span></div><input class="input input-bordered bg-base-100" value="villa-carmelita"></label>
                         <label class="form-control"><div class="label"><span class="label-text font-medium text-gray-700">Meta title</span></div><input class="input input-bordered bg-base-100" value="Villa Carmelita | Rooms, Events, and Poolside Stay"></label>
                         <label class="form-control"><div class="label"><span class="label-text font-medium text-gray-700">Meta description</span></div><input class="input input-bordered bg-base-100" value="Discover rooms, event spaces, and hospitality details for Villa Carmelita."></label>
                     </div>
