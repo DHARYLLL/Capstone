@@ -1,4 +1,18 @@
 {{-- filepath: c:\Users\dhary\Desktop\Capstone\capstone1\resources\views\partials\chatbot.blade.php --}}
+@php
+    $chatBusiness   = $business ?? null;
+    $chatBizName    = data_get($chatBusiness, 'name', 'us');
+    $chatGreeting   = data_get($chatBusiness, 'chat_greeting', "Hello! I'm the AI assistant for {$chatBizName}. How can I help you today?");
+    $chatPrompts    = collect(data_get($chatBusiness, 'chat_prompts') ?? [
+        ['icon' => '📋', 'label' => 'What services do you offer?',    'question' => 'What services do you offer?'],
+        ['icon' => '📍', 'label' => 'Where are you located?',         'question' => 'Where are you located?'],
+        ['icon' => '⏰', 'label' => 'What are your operating hours?', 'question' => 'What are your operating hours?'],
+        ['icon' => '📞', 'label' => 'Show me contact details',        'question' => 'Show me contact details'],
+    ]);
+    $chatPlaceholder = data_get($chatBusiness, 'chat_placeholder', "Ask about {$chatBizName}...");
+    $chatTitle       = data_get($chatBusiness, 'chat_title', $chatBizName . ' AI Assistant');
+@endphp
+
 <div id="chatbot" class="fixed bottom-4 right-4 z-50">
     <input id="chatbot-toggle" type="checkbox" class="peer hidden" checked>
 
@@ -10,7 +24,7 @@
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h8M8 14h5m-7 7l-4 1 1-4A9 9 0 1118 6 9 9 0 016 21z" />
                     </svg>
-                    Project RED AI Assistant
+                    {{ $chatTitle }}
                 </div>
                 <div class="mt-1 flex items-center gap-2 text-xs text-white/80">
                     <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -27,30 +41,24 @@
         <!-- Chat messages container -->
         <div id="chat-messages-container" class="h-[24rem] overflow-y-auto p-4 space-y-4 bg-gray-50/50">
             <div class="chat-message-item max-w-[85%] rounded-2xl rounded-tl-md bg-white border border-gray-100 p-4 text-sm leading-6 text-gray-700 shadow-sm">
-                Hello! I can help you with Dakong Balay, Monclaire Pool, and Villa Carmelita. What would you like to know today?
+                {{ $chatGreeting }}
             </div>
 
             <!-- Starter buttons wrapper -->
             <div id="starter-buttons-wrapper" class="space-y-2 pt-2">
-                <button class="btn btn-outline btn-sm w-full justify-start border-[#d8c6b0] bg-white text-gray-700 hover:border-[#5A3E2B] hover:bg-[#f7efe4] text-xs font-semibold rounded-xl chat-prompt-btn" data-question="Tell me about Dakong Balay">
-                    🍽️ Tell me about Dakong Balay
-                </button>
-                <button class="btn btn-outline btn-sm w-full justify-start border-[#d8c6b0] bg-white text-gray-700 hover:border-[#5A3E2B] hover:bg-[#f7efe4] text-xs font-semibold rounded-xl chat-prompt-btn" data-question="What can I do at Monclaire Pool?">
-                    🏊 What can I do at Monclaire Pool?
-                </button>
-                <button class="btn btn-outline btn-sm w-full justify-start border-[#d8c6b0] bg-white text-gray-700 hover:border-[#5A3E2B] hover:bg-[#f7efe4] text-xs font-semibold rounded-xl chat-prompt-btn" data-question="Do you have accommodation at Villa Carmelita?">
-                    🏨 Do you have accommodation at Villa Carmelita?
-                </button>
-                <button class="btn btn-outline btn-sm w-full justify-start border-[#d8c6b0] bg-white text-gray-700 hover:border-[#5A3E2B] hover:bg-[#f7efe4] text-xs font-semibold rounded-xl chat-prompt-btn" data-question="Show me contact details">
-                    📞 Show me contact details
-                </button>
+                @foreach ($chatPrompts as $prompt)
+                    <button class="btn btn-outline btn-sm w-full justify-start border-[#d8c6b0] bg-white text-gray-700 hover:border-[#5A3E2B] hover:bg-[#f7efe4] text-xs font-semibold rounded-xl chat-prompt-btn"
+                            data-question="{{ $prompt['question'] }}">
+                        {{ $prompt['icon'] ?? '💬' }} {{ $prompt['label'] }}
+                    </button>
+                @endforeach
             </div>
         </div>
 
         <!-- Chat Input field -->
         <div class="border-t border-[#eadfce] p-3 bg-white">
             <form id="chat-input-form" class="join w-full">
-                <input type="text" id="chat-input-field" class="input join-item w-full border-[#d8c6b0] bg-white focus:border-[#5A3E2B] focus:outline-none text-sm" placeholder="Ask about our businesses..." autocomplete="off">
+                <input type="text" id="chat-input-field" class="input join-item w-full border-[#d8c6b0] bg-white focus:border-[#5A3E2B] focus:outline-none text-sm" placeholder="{{ $chatPlaceholder }}" autocomplete="off">
                 <button type="submit" class="btn join-item border-0 bg-[#5A3E2B] text-white hover:bg-[#4a3223]">
                     <svg class="h-4 w-4 fill-current" viewBox="0 0 24 24">
                         <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />

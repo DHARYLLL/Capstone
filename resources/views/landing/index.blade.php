@@ -1,102 +1,129 @@
-{{-- filepath: c:\Users\dhary\Desktop\Capstone\capstone1\resources\views\landing\index.blade.php --}}
 @extends('layouts.landing')
 
 @section('content')
     @php
-        $business = $business ?? null;
-
-        $badgeLabel = data_get($business, 'badge_label') ?? 'AI-Powered Business Platform';
-        $businessHeadline = data_get($business, 'headline') ?? 'Experience All Our Services in One Smart Platform';
-        $businessTagline = data_get($business, 'tagline') ?? 'Explore services, locations, offers, and FAQs through a single polished business experience.';
-        $businessDescription = data_get($business, 'description') ?? 'Discover services, locations, offers, and FAQs through a polished landing page experience tailored to your business.';
-        $primaryCtaLabel = data_get($business, 'primary_cta_label') ?? 'Explore Businesses';
-        $primaryCtaUrl = data_get($business, 'primary_cta_url') ?? '#businesses';
-        $secondaryCtaLabel = data_get($business, 'secondary_cta_label') ?? 'Start Chat';
-        $secondaryCtaUrl = data_get($business, 'secondary_cta_url') ?? '#chatbot';
-        $assistantTitle = data_get($business, 'assistant_title') ?? 'One AI assistant connecting multiple businesses';
-        $assistantDescription = data_get($business, 'assistant_description') ?? 'Ask once and get clear information about services, locations, offers, and FAQs across all partner businesses.';
-        $businessName = data_get($business, 'name') ?? 'Your Business';
-        $businessCards = collect([
+        $heroBadge = 'Now Onboarding New Businesses';
+        $heroHeadline = 'Automate customer interactions across every branch with localized AI built for multi-unit operations.';
+        $heroDescription = 'Project RED AI centralizes customer support, branch knowledge, and staff handoff for hotels, restaurants, pools, and other business groups that need one system with many tailored experiences.';
+        $heroSupportLine = 'One core database. Many business instances. Faster service for owners, staff, and customers.';
+        $primaryCtaLabel = 'Register Your Business';
+        $secondaryCtaLabel = 'Take the Feature Tour';
+        $heroHighlights = [
+            'Multi-tenant knowledge base architecture',
+            'PDF and CSV ingestion workflows',
+            'Live staff handoff terminal',
+        ];
+        $unitCards = [
             [
-                'label' => data_get($business, 'feature_one_label') ?? 'Featured Business One',
-                'description' => data_get($business, 'feature_one_description') ?? 'A warm dining destination for authentic cuisine, family gatherings, and memorable meals in a welcoming setting.',
+                'title' => 'Accommodations & Hotels',
+                'description' => 'Manage guest stays, property guidelines, room policies, and service details from one connected instance.',
+                'points' => ['Guest stay FAQs', 'House rules and policies', 'Booking and arrival guidance'],
             ],
             [
-                'label' => data_get($business, 'feature_two_label') ?? 'Featured Business Two',
-                'description' => data_get($business, 'feature_two_description') ?? 'Relax, unwind, and enjoy a refreshing experience with amenities ideal for leisure, celebrations, and weekend escapes.',
+                'title' => 'Food & Dining',
+                'description' => 'Keep menus, operating hours, reservations, and service updates in sync with the live business context.',
+                'points' => ['Active menus', 'Operating hours', 'Dining support replies'],
             ],
             [
-                'label' => data_get($business, 'feature_three_label') ?? 'Featured Business Three',
-                'description' => data_get($business, 'feature_three_description') ?? 'A comfortable hospitality destination for stays, gatherings, and poolside moments designed for relaxation and convenience.',
+                'title' => 'Leisure & Pools',
+                'description' => 'Control facility rules, booking instructions, and usage details with branch-aware support logic.',
+                'points' => ['Facility rules', 'Booking details', 'Usage and safety guidance'],
             ],
-        ]);
-        $featureOneLabel = $businessCards[0]['label'];
-        $featureTwoLabel = $businessCards[1]['label'];
-        $featureThreeLabel = $businessCards[2]['label'];
-        $featureOneDescription = $businessCards[0]['description'];
-        $featureTwoDescription = $businessCards[1]['description'];
-        $featureThreeDescription = $businessCards[2]['description'];
-        $galleryOneTitle = data_get($business, 'gallery_one_title') ?? $featureOneLabel;
-        $galleryTwoTitle = data_get($business, 'gallery_two_title') ?? 'Dining Moments';
-        $galleryThreeTitle = data_get($business, 'gallery_three_title') ?? 'Poolside Views';
-        $galleryOneDescription = data_get($business, 'gallery_one_description') ?? 'Warm dining spaces and inviting hospitality.';
-        $galleryTwoDescription = data_get($business, 'gallery_two_description') ?? 'Memorable meals and shared experiences.';
-        $galleryThreeDescription = data_get($business, 'gallery_three_description') ?? 'Relaxing scenes from leisure and stay destinations.';
-        $footerBusinesses = $businessCards->map(function ($businessCard) {
-            return [
-                'label' => $businessCard['label'],
-                'href' => '#businesses',
-            ];
-        });
-        $roomBusinessName = data_get($business, 'room_business_name') ?? $businessName;
-        $roomModalTitle = data_get($business, 'room_modal_title') ?? "{$roomBusinessName} Rooms & Availability";
-        $roomModalDescription = data_get($business, 'room_modal_description') ?? "View real-time room rates and vacancies at {$roomBusinessName}";
-        $roomInquiryText = data_get($business, 'room_inquiry_text') ?? 'For booking inquiries, select "Chat with Assistant" or call support.';
-        $businessCoverPath = data_get($business, 'cover_photo_path');
-        $businessCoverImage = filled($businessCoverPath)
-            ? asset('storage/' . ltrim($businessCoverPath, '/'))
-            : asset('images/business-fallback.svg');
+        ];
+        $wizardSteps = [
+            [
+                'step' => '01',
+                'title' => 'Account Creation',
+                'description' => 'Create the owner account that will control the business workspace and registration flow.',
+                'fields' => ['Owner name', 'Email address', 'Master secure credentials'],
+            ],
+            [
+                'step' => '02',
+                'title' => 'Company Setup',
+                'description' => 'Define the legal business profile and operating context used to shape the AI instance.',
+                'fields' => ['Legal business name', 'Primary industry category', 'Operating hours'],
+            ],
+            [
+                'step' => '03',
+                'title' => 'Platform Subpath Provisioning',
+                'description' => 'Claim a branded system URL subpath and validate availability and resource bounds in real time.',
+                'fields' => ['Custom URL subpath', 'Availability check', 'Resource limit validation'],
+            ],
+        ];
+        $comparisonRows = [
+            ['Capability', 'Project RED AI', 'Rigid Old-School Chat Setup'],
+            ['Multi-tenant knowledge base', 'Branch-specific, centrally managed, and scalable', 'Single shared script with limited tenant awareness'],
+            ['PDF parsing workflows', 'Structured onboarding from business documents', 'Manual copy-paste or no document ingestion'],
+            ['CSV parsing workflows', 'Bulk operational data can be imported and organized', 'Weak or no structured file support'],
+            ['Branch-specific responses', 'Answers adapt to hotels, dining, and leisure contexts', 'Generic replies regardless of business type'],
+            ['Live staff handoff', 'Active handoff terminal routes unresolved issues to humans', 'Bot-only loop or dead-end escalation'],
+            ['Operational control', 'One core database framework for all branches', 'Disconnected setups across separate tools'],
+        ];
+        $benefitCards = [
+            'Faster onboarding without custom bot rebuilding',
+            'Better customer response quality across units',
+            'Clear visibility into live support handoff needs',
+            'Less manual upkeep for owners and operators',
+        ];
     @endphp
 
     <section id="home" class="mx-auto max-w-7xl px-4 py-10 lg:px-8 lg:py-16">
-        <div class="grid items-center gap-12 lg:grid-cols-2">
+        <div class="grid items-center gap-10 lg:grid-cols-[1.05fr_0.95fr]">
             <div class="space-y-6">
-                <div class="badge border-0 bg-[#F1E4D2] px-4 py-3 text-xs font-semibold text-[#5A3E2B]">
-                    {{ $badgeLabel }}
+                <div
+                    class="badge border-0 bg-[#F1E4D2] px-4 py-3 text-xs font-semibold uppercase tracking-[0.22em] text-[#5A3E2B]">
+                    {{ $heroBadge }}
                 </div>
 
                 <div class="space-y-5">
-                    <h1 class="max-w-2xl text-4xl font-extrabold leading-tight tracking-tight text-gray-900 md:text-6xl">
-                        {{ $businessHeadline }}
+                    <h1 class="max-w-2xl text-4xl font-black leading-tight tracking-tight text-gray-950 md:text-6xl">
+                        {{ $heroHeadline }}
                     </h1>
-                    <p class="max-w-xl text-base leading-7 text-gray-600 md:text-lg">
-                        {{ $businessDescription }}
+                    <p class="max-w-2xl text-base leading-7 text-gray-600 md:text-lg">
+                        {{ $heroDescription }}
                     </p>
-                    <p class="max-w-xl text-sm leading-6 text-gray-500 md:text-base">
-                        {{ $businessTagline }}
+                    <p class="max-w-xl text-sm font-medium leading-6 text-gray-500 md:text-base">
+                        {{ $heroSupportLine }}
                     </p>
                 </div>
 
                 <div class="flex flex-col gap-3 sm:flex-row">
-                    <a href="{{ $primaryCtaUrl }}" class="btn rounded-full border-0 bg-[#5A3E2B] px-6 text-white hover:bg-[#453020]">
+                    <a href="#register" class="btn rounded-full border-0 bg-[#5A3E2B] px-6 text-white hover:bg-[#453020]">
                         {{ $primaryCtaLabel }}
                     </a>
-                    <a href="{{ $secondaryCtaUrl }}" class="btn btn-outline rounded-full border-[#5A3E2B] px-6 text-[#5A3E2B] hover:bg-[#F4EEDF]">
+                    <a href="#feature-tour"
+                        class="btn btn-outline rounded-full border-[#5A3E2B] px-6 text-[#5A3E2B] hover:bg-[#F4EEDF]">
                         {{ $secondaryCtaLabel }}
                     </a>
                 </div>
 
-                <div class="rounded-3xl border border-[#E8DFD2] bg-[#F8F1E7] p-5 shadow-sm">
+                <div class="flex flex-wrap gap-3">
+                    @foreach ($heroHighlights as $highlight)
+                        <div
+                            class="rounded-full border border-[#E8DFD2] bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm">
+                            {{ $highlight }}
+                        </div>
+                    @endforeach
+                </div>
+
+                <div class="rounded-[2rem] border border-[#E8DFD2] bg-[#F8F1E7] p-5 shadow-sm">
                     <div class="flex items-start gap-4">
-                        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#5A3E2B] text-white">
+                        <div
+                            class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#5A3E2B] text-white">
                             <svg viewBox="0 0 24 24" class="h-5 w-5 fill-current" aria-hidden="true">
-                                <path d="M12 2a4 4 0 0 0-4 4v1H7a3 3 0 0 0-3 3v7a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-7a3 3 0 0 0-3-3h-1V6a4 4 0 0 0-4-4zm-2 5V6a2 2 0 1 1 4 0v1h-4zm2 5a1.5 1.5 0 0 1 .75 2.8V16h-1.5v-1.2A1.5 1.5 0 0 1 12 12z"/>
+                                <path
+                                    d="M12 2a4 4 0 0 0-4 4v1H7a3 3 0 0 0-3 3v7a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-7a3 3 0 0 0-3-3h-1V6a4 4 0 0 0-4-4zm-2 5V6a2 2 0 1 1 4 0v1h-4zm2 5a1.5 1.5 0 0 1 .75 2.8V16h-1.5v-1.2A1.5 1.5 0 0 1 12 12z" />
                             </svg>
                         </div>
                         <div>
-                            <h2 class="text-sm font-bold text-gray-900">{{ $assistantTitle }}</h2>
+                            <div class="flex items-center gap-2">
+                                <h2 class="text-sm font-bold text-gray-950">Active multi-tenant support</h2>
+                                <span
+                                    class="rounded-full bg-emerald-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-700">Live</span>
+                            </div>
                             <p class="mt-1 text-sm leading-6 text-gray-600">
-                                {{ $assistantDescription }}
+                                Each business instance can be configured separately while still feeding the same centralized
+                                knowledge and support framework.
                             </p>
                         </div>
                     </div>
@@ -104,13 +131,55 @@
             </div>
 
             <div class="space-y-4">
-                <div class="overflow-hidden rounded-[2rem] border border-white/70 bg-white shadow-[0_20px_60px_rgba(90,62,43,0.12)]">
-                    <div class="relative aspect-[4/5] min-h-[320px] overflow-hidden bg-[#FCFBF8]">
-                        <img src="{{ $businessCoverImage }}" alt="{{ $businessName }} cover photo" class="h-full w-full object-cover">
-                        <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.04)_0%,rgba(34,24,17,0.32)_100%)]"></div>
-                        <div class="absolute inset-x-0 bottom-0 p-5">
-                            <div class="inline-flex rounded-2xl bg-white/80 px-4 py-2 text-sm font-semibold text-gray-800 backdrop-blur">
-                                {{ $businessName }}
+                <div
+                    class="rounded-[2rem] border border-white/70 bg-white p-5 shadow-[0_20px_60px_rgba(90,62,43,0.12)] lg:p-6">
+                    <div class="space-y-4 rounded-[1.6rem] bg-[#FBF8F2] p-5">
+                        <div class="flex items-center justify-between gap-3">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-[0.22em] text-gray-400">System status</p>
+                                <p class="mt-1 text-lg font-black text-gray-950">Tenant orchestration online</p>
+                            </div>
+                            <div class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700">Healthy
+                            </div>
+                        </div>
+
+                        <div class="grid gap-3 sm:grid-cols-2">
+                            <div class="rounded-2xl border border-[#E8DFD2] bg-white p-4">
+                                <div class="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Core framework
+                                </div>
+                                <div class="mt-2 text-lg font-black text-gray-950">Single database spine</div>
+                                <div class="mt-1 text-sm text-gray-600">Every branch feeds one shared support model.</div>
+                            </div>
+                            <div class="rounded-2xl border border-[#E8DFD2] bg-white p-4">
+                                <div class="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Availability
+                                </div>
+                                <div class="mt-2 flex items-center gap-2 text-lg font-black text-gray-950">
+                                    <span class="h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
+                                    Ready for onboarding
+                                </div>
+                                <div class="mt-1 text-sm text-gray-600">New tenants can register immediately.</div>
+                            </div>
+                        </div>
+
+                        <div class="rounded-2xl border border-[#E8DFD2] bg-[#F8F1E7] p-4">
+                            <div class="flex items-center justify-between gap-4">
+                                <div>
+                                    <p class="text-sm font-semibold text-gray-900">Branch support model</p>
+                                    <p class="text-sm text-gray-600">Hotels, dining, pools, and more all branch from the
+                                        same core.</p>
+                                </div>
+                                <div class="rounded-full bg-[#5A3E2B] px-3 py-1 text-xs font-semibold text-white">Core</div>
+                            </div>
+                            <div class="mt-4 grid grid-cols-3 gap-3">
+                                <div
+                                    class="rounded-2xl bg-white p-3 text-center text-xs font-semibold text-gray-700 shadow-sm">
+                                    Branch A</div>
+                                <div
+                                    class="rounded-2xl bg-white p-3 text-center text-xs font-semibold text-gray-700 shadow-sm">
+                                    Branch B</div>
+                                <div
+                                    class="rounded-2xl bg-white p-3 text-center text-xs font-semibold text-gray-700 shadow-sm">
+                                    Branch C</div>
                             </div>
                         </div>
                     </div>
@@ -119,512 +188,220 @@
         </div>
     </section>
 
-    <section id="businesses" class="mx-auto max-w-7xl px-4 py-14 lg:px-8">
-        <div class="max-w-2xl space-y-3">
-            <h2 class="text-3xl font-extrabold tracking-tight text-gray-900 md:text-4xl">Our Businesses</h2>
-            <p class="text-gray-600">
-                Discover the businesses connected through one intelligent platform for faster browsing, better support, and easier inquiries.
-            </p>
+    <section id="feature-tour" class="mx-auto max-w-7xl px-4 py-14 lg:px-8">
+        <div class="max-w-3xl space-y-3">
+            <div
+                class="badge border-0 bg-[#F1E4D2] px-4 py-3 text-xs font-semibold uppercase tracking-[0.22em] text-[#5A3E2B]">
+                Multi-unit architecture showcase</div>
+            <h2 class="text-3xl font-black tracking-tight text-gray-950 md:text-5xl">One centralized system, tailored
+                support for every branch.</h2>
+            <p class="text-gray-600">Each unit is represented as a distinct operational node, but all of them feed the same
+                core database framework so knowledge, updates, and support stay consistent.</p>
         </div>
 
-        <div class="mt-12 space-y-16">
-            <div class="grid items-center gap-8 lg:grid-cols-2">
-                <div class="rounded-[2rem] bg-gradient-to-br from-[#EED9C4] to-[#D9C0A5] p-6 shadow-lg">
-                    <div class="flex min-h-[320px] items-end rounded-[1.6rem] bg-[linear-gradient(135deg,rgba(255,255,255,0.25),rgba(255,255,255,0.08))] p-6">
-                        <div class="rounded-2xl bg-white/70 px-4 py-2 text-sm font-semibold text-gray-800">{{ $featureOneLabel }}</div>
+        <div class="mt-10 grid gap-6 lg:grid-cols-3">
+            @foreach ($unitCards as $unitCard)
+                <div class="rounded-[2rem] border border-[#E8DFD2] bg-white p-6 shadow-sm">
+                    <div class="flex items-start justify-between gap-4">
+                        <div class="space-y-3">
+                            <div
+                                class="inline-flex rounded-full bg-[#F1E4D2] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#5A3E2B]">
+                                Branch instance</div>
+                            <h3 class="text-2xl font-black tracking-tight text-gray-950">{{ $unitCard['title'] }}</h3>
+                        </div>
+                        <span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700">Synced</span>
+                    </div>
+
+                    <p class="mt-4 text-sm leading-6 text-gray-600">{{ $unitCard['description'] }}</p>
+
+                    <div class="mt-6 space-y-3">
+                        @foreach ($unitCard['points'] as $point)
+                            <div class="flex items-center gap-3 rounded-2xl bg-[#FBF8F2] p-3 text-sm text-gray-700">
+                                <span class="flex h-8 w-8 items-center justify-center rounded-full bg-[#5A3E2B] text-white">
+                                    <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current" aria-hidden="true">
+                                        <path d="M9.2 16.2 4.8 11.8l1.4-1.4 3 3 8.6-8.6 1.4 1.4-10 10z" />
+                                    </svg>
+                                </span>
+                                {{ $point }}
+                            </div>
+                        @endforeach
+                    </div>
+
+                    <div class="mt-6 rounded-2xl border border-[#E8DFD2] bg-[#F8F1E7] p-4">
+                        <div class="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Database feed</div>
+                        <div class="mt-1 text-sm font-semibold text-gray-950">All updates flow into the centralized core
+                            framework.</div>
                     </div>
                 </div>
+            @endforeach
+        </div>
+    </section>
 
+    <section id="register" class="bg-[#F4EEDF] py-16">
+        <div class="mx-auto max-w-7xl px-4 lg:px-8">
+            <div class="grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
                 <div class="space-y-5">
-                    <div class="flex items-center gap-3">
-                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#5A3E2B] text-white">
-                            <svg viewBox="0 0 24 24" class="h-6 w-6 fill-current" aria-hidden="true">
-                                <path d="M4 5h16v2H4V5zm2 3h12v11H6V8zm2 2v7h8v-7H8z"/>
-                            </svg>
-                        </div>
-                        <h3 class="text-2xl font-bold text-gray-900">{{ $featureOneLabel }}</h3>
-                    </div>
-                    <p class="text-gray-600">
-                        {{ $featureOneDescription }}
-                    </p>
+                    <div
+                        class="badge border-0 bg-white px-4 py-3 text-xs font-semibold uppercase tracking-[0.22em] text-[#5A3E2B]">
+                        Self-service onboarding</div>
+                    <h2 class="max-w-xl text-3xl font-black tracking-tight text-gray-950 md:text-5xl">Register your company
+                        in a three-step guided setup.</h2>
+                    <p class="max-w-xl text-gray-600">The wizard is designed to keep the experience calm and low-friction
+                        while still collecting everything needed to create a secure tenant, configure the company, and
+                        provision the platform subpath.</p>
 
-                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                        <div class="flex items-start gap-3 rounded-2xl bg-white p-4 shadow-sm">
-                            <span class="mt-0.5 text-[#5A3E2B]">✓</span><p class="text-sm text-gray-700">Authentic Filipino cuisine</p>
+                    <div class="grid gap-3 sm:grid-cols-2">
+                        <div class="rounded-2xl border border-[#E8DFD2] bg-white p-4 shadow-sm">
+                            <div class="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Step guidance</div>
+                            <div class="mt-2 text-lg font-black text-gray-950">Clear progress at every stage</div>
+                            <div class="mt-1 text-sm text-gray-600">Progressive disclosure keeps the form manageable.</div>
                         </div>
-                        <div class="flex items-start gap-3 rounded-2xl bg-white p-4 shadow-sm">
-                            <span class="mt-0.5 text-[#5A3E2B]">✓</span><p class="text-sm text-gray-700">Family-style dining</p>
-                        </div>
-                        <div class="flex items-start gap-3 rounded-2xl bg-white p-4 shadow-sm">
-                            <span class="mt-0.5 text-[#5A3E2B]">✓</span><p class="text-sm text-gray-700">Event-ready venue</p>
-                        </div>
-                        <div class="flex items-start gap-3 rounded-2xl bg-white p-4 shadow-sm">
-                            <span class="mt-0.5 text-[#5A3E2B]">✓</span><p class="text-sm text-gray-700">Comfortable hospitality</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid items-center gap-8 lg:grid-cols-2">
-                <div class="order-2 space-y-5 lg:order-1">
-                    <div class="flex items-center gap-3">
-                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#5A3E2B] text-white">
-                            <svg viewBox="0 0 24 24" class="h-6 w-6 fill-current" aria-hidden="true">
-                                <path d="M12 3C8 3 5 6 5 10v10h14V10c0-4-3-7-7-7zm0 4a3 3 0 0 1 3 3v6H9v-6a3 3 0 0 1 3-3z"/>
-                            </svg>
-                        </div>
-                        <h3 class="text-2xl font-bold text-gray-900">{{ $featureTwoLabel }}</h3>
-                    </div>
-                    <p class="text-gray-600">
-                        {{ $featureTwoDescription }}
-                    </p>
-
-                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                        <div class="flex items-start gap-3 rounded-2xl bg-white p-4 shadow-sm">
-                            <span class="mt-0.5 text-[#5A3E2B]">✓</span><p class="text-sm text-gray-700">Swimming and leisure area</p>
-                        </div>
-                        <div class="flex items-start gap-3 rounded-2xl bg-white p-4 shadow-sm">
-                            <span class="mt-0.5 text-[#5A3E2B]">✓</span><p class="text-sm text-gray-700">Family-friendly atmosphere</p>
-                        </div>
-                        <div class="flex items-start gap-3 rounded-2xl bg-white p-4 shadow-sm">
-                            <span class="mt-0.5 text-[#5A3E2B]">✓</span><p class="text-sm text-gray-700">Private event packages</p>
-                        </div>
-                        <div class="flex items-start gap-3 rounded-2xl bg-white p-4 shadow-sm">
-                            <span class="mt-0.5 text-[#5A3E2B]">✓</span><p class="text-sm text-gray-700">Clean and relaxing space</p>
+                        <div class="rounded-2xl border border-[#E8DFD2] bg-white p-4 shadow-sm">
+                            <div class="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Validation</div>
+                            <div class="mt-2 text-lg font-black text-gray-950">Immediate checks and feedback</div>
+                            <div class="mt-1 text-sm text-gray-600">Email, credentials, and subpath claims are verified
+                                inline.</div>
                         </div>
                     </div>
                 </div>
 
-                <div class="order-1 rounded-[2rem] bg-gradient-to-br from-[#EED9C4] to-[#D9C0A5] p-6 shadow-lg lg:order-2">
-                    <div class="flex min-h-[320px] items-end rounded-[1.6rem] bg-[linear-gradient(135deg,rgba(255,255,255,0.25),rgba(255,255,255,0.08))] p-6">
-                        <div class="rounded-2xl bg-white/70 px-4 py-2 text-sm font-semibold text-gray-800">{{ $featureTwoLabel }}</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid items-center gap-8 lg:grid-cols-2">
-                <div class="rounded-[2rem] bg-gradient-to-br from-[#EED9C4] to-[#D9C0A5] p-6 shadow-lg">
-                    <div class="flex min-h-[320px] items-end rounded-[1.6rem] bg-[linear-gradient(135deg,rgba(255,255,255,0.25),rgba(255,255,255,0.08))] p-6">
-                        <div class="rounded-2xl bg-white/70 px-4 py-2 text-sm font-semibold text-gray-800">{{ $featureThreeLabel }}</div>
-                    </div>
-                </div>
-
-                <div class="space-y-5">
-                    <div class="flex items-center gap-3">
-                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#5A3E2B] text-white">
-                            <svg viewBox="0 0 24 24" class="h-6 w-6 fill-current" aria-hidden="true">
-                                <path d="M4 20h16v-2H4v2zm2-4h12V8l-6-4-6 4v8zm2-2V9.1l4-2.67 4 2.67V14H8z"/>
-                            </svg>
-                        </div>
-                        <h3 class="text-2xl font-bold text-gray-900">{{ $featureThreeLabel }}</h3>
-                    </div>
-                    <p class="text-gray-600">
-                        {{ $featureThreeDescription }}
-                    </p>
-
-                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                        <div class="flex items-start gap-3 rounded-2xl bg-white p-4 shadow-sm">
-                            <span class="mt-0.5 text-[#5A3E2B]">✓</span><p class="text-sm text-gray-700">Accommodating stay options</p>
-                        </div>
-                        <div class="flex items-start gap-3 rounded-2xl bg-white p-4 shadow-sm">
-                            <span class="mt-0.5 text-[#5A3E2B]">✓</span><p class="text-sm text-gray-700">Poolside relaxation</p>
-                        </div>
-                        <div class="flex items-start gap-3 rounded-2xl bg-white p-4 shadow-sm">
-                            <span class="mt-0.5 text-[#5A3E2B]">✓</span><p class="text-sm text-gray-700">Event and group hosting</p>
-                        </div>
-                        <div class="flex items-start gap-3 rounded-2xl bg-white p-4 shadow-sm">
-                            <span class="mt-0.5 text-[#5A3E2B]">✓</span><p class="text-sm text-gray-700">Quiet and inviting ambiance</p>
-                        </div>
+                <div class="rounded-[2rem] border border-[#E8DFD2] bg-white p-6 shadow-sm lg:p-8">
+                    <div class="flex flex-wrap items-center gap-3">
+                        @foreach ($wizardSteps as $wizardStep)
+                            <div class="flex items-center gap-3 rounded-full border border-[#E8DFD2] px-4 py-2">
+                                <div
+                                    class="flex h-8 w-8 items-center justify-center rounded-full bg-[#5A3E2B] text-xs font-bold text-white">
+                                    {{ $wizardStep['step'] }}</div>
+                                <div class="text-sm font-semibold text-gray-700">{{ $wizardStep['title'] }}</div>
+                            </div>
+                        @endforeach
                     </div>
 
-                    <div class="pt-4 flex flex-col gap-3 sm:flex-row">
-                        <button onclick="room_availability_modal.showModal()" class="btn rounded-full border-0 bg-[#5A3E2B] text-white hover:bg-[#453020]">
-                            <svg viewBox="0 0 24 24" class="h-5 w-5 fill-current" aria-hidden="true">
-                                <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
-                            </svg>
-                            Check Rooms & Live Availability
-                        </button>
+                    <div class="mt-6 space-y-4">
+                        @foreach ($wizardSteps as $wizardStep)
+                            <div class="rounded-[1.75rem] border border-[#E8DFD2] bg-[#FBF8F2] p-5">
+                                <div class="flex items-start justify-between gap-4">
+                                    <div>
+                                        <div class="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Step
+                                            {{ $wizardStep['step'] }}</div>
+                                        <h3 class="mt-1 text-xl font-black text-gray-950">{{ $wizardStep['title'] }}</h3>
+                                        <p class="mt-2 text-sm leading-6 text-gray-600">{{ $wizardStep['description'] }}</p>
+                                    </div>
+                                    <div class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700">Guided
+                                    </div>
+                                </div>
+
+                                <div class="mt-5 grid gap-3 sm:grid-cols-3">
+                                    @foreach ($wizardStep['fields'] as $field)
+                                        <div class="rounded-2xl border border-white bg-white p-4 shadow-sm">
+                                            <div class="text-sm font-semibold text-gray-900">{{ $field }}</div>
+                                            <div class="mt-2 text-xs leading-5 text-gray-500">
+                                                @if ($loop->first && $wizardStep['step'] === '03')
+                                                    Dynamic availability and resource validation apply here.
+                                                @elseif ($wizardStep['step'] === '03' && $loop->last)
+                                                    The system checks whether the claim fits available platform bounds.
+                                                @elseif ($wizardStep['step'] === '01' && $loop->last)
+                                                    Strong password rules should be shown inline.
+                                                @else
+                                                    Collect this value as a structured onboarding input.
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    <div
+                        class="mt-6 grid gap-4 rounded-[1.75rem] border border-[#E8DFD2] bg-[#F8F1E7] p-5 sm:grid-cols-[1fr_auto] sm:items-center">
+                        <div>
+                            <div class="text-sm font-semibold text-gray-900">Subpath claim behavior</div>
+                            <p class="mt-1 text-sm text-gray-600">Users can claim a custom system URL subpath while the
+                                interface checks availability, invalid characters, length limits, and resource bounds in
+                                real time.</p>
+                        </div>
+                        <div class="rounded-full bg-[#5A3E2B] px-4 py-2 text-sm font-semibold text-white">Availability Check
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <section id="about" class="bg-[#F4EEDF] py-16">
-        <div class="mx-auto grid max-w-7xl gap-10 px-4 lg:grid-cols-2 lg:px-8">
-            <div class="space-y-5">
-                <div class="badge border-0 bg-white px-4 py-3 text-xs font-semibold text-[#5A3E2B]">About Project RED AI</div>
-                <h2 class="max-w-xl text-3xl font-extrabold tracking-tight text-gray-900 md:text-5xl">
-                    One platform. One assistant. Multiple businesses.
-                </h2>
-                <p class="max-w-xl text-gray-600">
-                    Project RED AI simplifies discovery and support by centralizing key business information into a single, elegant experience for customers across every connected business.
-                </p>
-
-                <div class="rounded-3xl border border-[#E7D9C8] bg-white p-6 shadow-sm">
-                    <p class="text-lg font-semibold text-gray-900">
-                        “Fast answers, consistent information, and a smoother customer journey across all our businesses.”
-                    </p>
-                </div>
-            </div>
-
-            <div class="grid gap-4 sm:grid-cols-2">
-                <div class="card bg-white shadow-sm">
-                    <div class="card-body">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F4EEDF] text-[#5A3E2B]">
-                            <svg viewBox="0 0 24 24" class="h-5 w-5 fill-current" aria-hidden="true">
-                                <path d="M4 4h16v2H4V4zm0 6h16v2H4v-2zm0 6h10v2H4v-2z"/>
-                            </svg>
-                        </div>
-                        <h3 class="card-title mt-3 text-lg">Centralized Business Information</h3>
-                        <p class="text-sm text-gray-600">One place for locations, services, offerings, and essential details.</p>
-                    </div>
-                </div>
-
-                <div class="card bg-white shadow-sm">
-                    <div class="card-body">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F4EEDF] text-[#5A3E2B]">
-                            <svg viewBox="0 0 24 24" class="h-5 w-5 fill-current" aria-hidden="true">
-                                <path d="M12 2a7 7 0 0 0-7 7v4a5 5 0 0 0 5 5h1v-5H8l4-11zm0 0 4 11h-3v5h1a5 5 0 0 0 5-5V9a7 7 0 0 0-7-7z"/>
-                            </svg>
-                        </div>
-                        <h3 class="card-title mt-3 text-lg">AI-Powered Assistant</h3>
-                        <p class="text-sm text-gray-600">A helpful virtual guide ready to answer business questions instantly.</p>
-                    </div>
-                </div>
-
-                <div class="card bg-white shadow-sm">
-                    <div class="card-body">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F4EEDF] text-[#5A3E2B]">
-                            <svg viewBox="0 0 24 24" class="h-5 w-5 fill-current" aria-hidden="true">
-                                <path d="M13 3L4 14h7l-1 7 10-12h-7l0-6z"/>
-                            </svg>
-                        </div>
-                        <h3 class="card-title mt-3 text-lg">Faster and Easier Inquiries</h3>
-                        <p class="text-sm text-gray-600">Get quick answers without searching across multiple channels.</p>
-                    </div>
-                </div>
-
-                <div class="card bg-white shadow-sm">
-                    <div class="card-body">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F4EEDF] text-[#5A3E2B]">
-                            <svg viewBox="0 0 24 24" class="h-5 w-5 fill-current" aria-hidden="true">
-                                <path d="M7 3h10l4 4v14H3V3h4zm0 2v4h10V5H7zm0 8v6h10v-6H7z"/>
-                            </svg>
-                        </div>
-                        <h3 class="card-title mt-3 text-lg">Seamless User Experience</h3>
-                        <p class="text-sm text-gray-600">A clean interface that feels consistent, modern, and easy to use.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="gallery" class="mx-auto max-w-7xl px-4 py-16 lg:px-8">
-        <div class="max-w-2xl space-y-3">
-            <h2 class="text-3xl font-extrabold tracking-tight text-gray-900 md:text-4xl">Gallery</h2>
-            <p class="text-gray-600">
-                A visual preview of the experiences and spaces connected through Project RED AI.
-            </p>
+    <section class="mx-auto max-w-7xl px-4 py-16 lg:px-8">
+        <div class="max-w-3xl space-y-3">
+            <div
+                class="badge border-0 bg-[#F1E4D2] px-4 py-3 text-xs font-semibold uppercase tracking-[0.22em] text-[#5A3E2B]">
+                Comparison matrix</div>
+            <h2 class="text-3xl font-black tracking-tight text-gray-950 md:text-5xl">Why Project RED AI outperforms rigid
+                chat setups.</h2>
+            <p class="text-gray-600">This section should read like an executive decision table, showing the platform’s
+                practical advantage in knowledge management, support routing, and multi-unit scale.</p>
         </div>
 
-        <div class="mt-12 grid gap-6 md:grid-cols-3">
-            <div class="overflow-hidden rounded-[2rem] bg-white shadow-lg">
-                <div class="h-56 bg-gradient-to-br from-[#DCC0A4] to-[#F0E3D2]"></div>
-                <div class="space-y-2 p-5">
-                    <h3 class="font-bold text-gray-900">{{ $galleryOneTitle }}</h3>
-                    <p class="text-sm text-gray-600">{{ $galleryOneDescription }}</p>
-                </div>
+        <div class="mt-10 overflow-hidden rounded-[2rem] border border-[#E8DFD2] bg-white shadow-sm">
+            <div class="grid grid-cols-3 border-b border-[#E8DFD2] bg-[#FBF8F2] px-6 py-4 text-sm font-bold text-gray-900">
+                <div>Capability</div>
+                <div>Project RED AI</div>
+                <div>Rigid Old-School Chat Setup</div>
             </div>
-
-            <div class="overflow-hidden rounded-[2rem] bg-white shadow-lg">
-                <div class="h-56 bg-gradient-to-br from-[#D9D4C8] to-[#F4EFE6]"></div>
-                <div class="space-y-2 p-5">
-                    <h3 class="font-bold text-gray-900">{{ $galleryTwoTitle }}</h3>
-                    <p class="text-sm text-gray-600">{{ $galleryTwoDescription }}</p>
-                </div>
-            </div>
-
-            <div class="overflow-hidden rounded-[2rem] bg-white shadow-lg">
-                <div class="h-56 bg-gradient-to-br from-[#D8C1AA] to-[#EFE3D2]"></div>
-                <div class="space-y-2 p-5">
-                    <h3 class="font-bold text-gray-900">{{ $galleryThreeTitle }}</h3>
-                    <p class="text-sm text-gray-600">{{ $galleryThreeDescription }}</p>
-                </div>
+            <div class="divide-y divide-[#E8DFD2]">
+                @foreach (array_slice($comparisonRows, 1) as $comparisonRow)
+                    <div class="grid grid-cols-1 gap-4 px-6 py-5 md:grid-cols-3 md:items-start">
+                        <div class="text-sm font-semibold text-gray-900">{{ $comparisonRow[0] }}</div>
+                        <div class="text-sm leading-6 text-gray-600">{{ $comparisonRow[1] }}</div>
+                        <div class="text-sm leading-6 text-gray-600">{{ $comparisonRow[2] }}</div>
+                    </div>
+                @endforeach
             </div>
         </div>
-    </section>
 
-    @include('partials.footer', ['footerBusinesses' => $footerBusinesses])
-    @include('partials.chatbot')
-
-    <!-- Room Availability Modal -->
-    <dialog id="room_availability_modal" class="modal modal-bottom sm:modal-middle">
-        <div class="modal-box max-w-5xl bg-[#FCFBF8] rounded-[2rem] border border-[#eadfce] p-6 lg:p-8">
-            <form method="dialog">
-                <button class="btn btn-sm btn-circle btn-ghost absolute right-4 top-4 text-gray-500 hover:bg-[#F4EEDF]">✕</button>
-            </form>
-            
-            <div class="space-y-6">
-                <!-- Header -->
-                <div class="flex items-center gap-3">
-                    <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#5A3E2B] text-white shadow-sm">
-                        <svg viewBox="0 0 24 24" class="h-6 w-6 fill-current" aria-hidden="true">
-                            <path d="M12 3C8 3 5 6 5 10v10h14V10c0-4-3-7-7-7zm0 4a3 3 0 0 1 3 3v6H9v-6a3 3 0 0 1 3-3z"/>
+        <div class="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            @foreach ($benefitCards as $benefitCard)
+                <div class="rounded-2xl border border-[#E8DFD2] bg-[#FBF8F2] p-4 shadow-sm">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+                        <svg viewBox="0 0 24 24" class="h-5 w-5 fill-current" aria-hidden="true">
+                            <path d="M9.2 16.2 4.8 11.8l1.4-1.4 3 3 8.6-8.6 1.4 1.4-10 10z" />
                         </svg>
                     </div>
-                    <div>
-                        <h3 class="text-2xl font-bold text-gray-950">{{ $roomModalTitle }}</h3>
-                        <p class="text-sm text-gray-500">{{ $roomModalDescription }}</p>
-                    </div>
+                    <div class="mt-3 text-sm font-semibold text-gray-900">{{ $benefitCard }}</div>
                 </div>
+            @endforeach
+        </div>
+    </section>
 
-                <!-- Info summary -->
-                <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    <div class="rounded-2xl border border-gray-150 bg-white p-4">
-                        <span class="text-xs text-gray-400 font-semibold uppercase tracking-wider block">Standard Room Rate</span>
-                        <span class="text-xl font-black text-[#5A3E2B] block mt-1">PHP 1,800 / night</span>
-                        <span class="text-xs text-emerald-600 font-medium block mt-1">✓ 3 of 4 rooms vacant</span>
-                    </div>
-                    <div class="rounded-2xl border border-gray-150 bg-white p-4">
-                        <span class="text-xs text-gray-400 font-semibold uppercase tracking-wider block">Deluxe Twin Rate</span>
-                        <span class="text-xl font-black text-[#5A3E2B] block mt-1">PHP 2,250 / night</span>
-                        <span class="text-xs text-emerald-600 font-medium block mt-1">✓ 5 of 8 rooms vacant</span>
-                    </div>
-                    <div class="rounded-2xl border border-gray-150 bg-white p-4">
-                        <span class="text-xs text-gray-400 font-semibold uppercase tracking-wider block">Family Suite Rate</span>
-                        <span class="text-xl font-black text-[#5A3E2B] block mt-1">PHP 3,500 / night</span>
-                        <span class="text-xs text-emerald-600 font-medium block mt-1">✓ 2 of 4 rooms vacant</span>
-                    </div>
+    <section class="bg-[#F4EEDF] py-16">
+        <div class="mx-auto grid max-w-7xl gap-6 px-4 lg:grid-cols-[1.15fr_0.85fr] lg:px-8">
+            <div class="space-y-4">
+                <div
+                    class="badge border-0 bg-white px-4 py-3 text-xs font-semibold uppercase tracking-[0.22em] text-[#5A3E2B]">
+                    Why owners choose it</div>
+                <h2 class="text-3xl font-black tracking-tight text-gray-950 md:text-4xl">Reduce manual support, keep
+                    knowledge structured, and launch faster.</h2>
+                <p class="max-w-2xl text-gray-600">The public experience should make the platform feel trustworthy, easy to
+                    start, and clearly suited to businesses that need one support system across multiple operational units.
+                </p>
+            </div>
+
+            <div class="grid gap-3">
+                <div class="rounded-2xl border border-[#E8DFD2] bg-white p-4 shadow-sm">
+                    <div class="text-sm font-semibold text-gray-900">Centralized customer support</div>
+                    <div class="mt-1 text-sm text-gray-600">One system handles inquiries across the business group.</div>
                 </div>
-
-                <!-- Category Filters -->
-                <div class="flex flex-col gap-2 bg-gray-50 p-4 rounded-2xl">
-                    <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Filter Room Type:</span>
-                    <div class="flex flex-wrap gap-1.5" id="guest-filter-container">
-                        <button type="button" class="btn btn-xs sm:btn-sm rounded-full guest-filter-btn active border-0 bg-[#5A3E2B] text-white hover:bg-[#453020]" data-filter="all">All Rooms</button>
-                        <button type="button" class="btn btn-xs sm:btn-sm rounded-full guest-filter-btn btn-outline border-gray-300 text-gray-700 hover:bg-[#FAF8F4]" data-filter="Standard">Standard (PHP 1,800)</button>
-                        <button type="button" class="btn btn-xs sm:btn-sm rounded-full guest-filter-btn btn-outline border-gray-300 text-gray-700 hover:bg-[#FAF8F4]" data-filter="Junior Suite">Junior Suite (PHP 1,950)</button>
-                        <button type="button" class="btn btn-xs sm:btn-sm rounded-full guest-filter-btn btn-outline border-gray-300 text-gray-700 hover:bg-[#FAF8F4]" data-filter="Deluxe Twin">Deluxe Twin (PHP 2,250)</button>
-                        <button type="button" class="btn btn-xs sm:btn-sm rounded-full guest-filter-btn btn-outline border-gray-300 text-gray-700 hover:bg-[#FAF8F4]" data-filter="Family Suite">Family Suite (PHP 3,500)</button>
-                        <button type="button" class="btn btn-xs sm:btn-sm rounded-full guest-filter-btn btn-outline border-gray-300 text-gray-700 hover:bg-[#FAF8F4]" data-filter="Super Deluxe Room">Super Deluxe (PHP 3,000)</button>
-                    </div>
+                <div class="rounded-2xl border border-[#E8DFD2] bg-white p-4 shadow-sm">
+                    <div class="text-sm font-semibold text-gray-900">Live staff handoff terminal</div>
+                    <div class="mt-1 text-sm text-gray-600">Escalate to humans when automation is not enough.</div>
                 </div>
-
-                <!-- Grid of rooms -->
-                <div class="grid gap-3 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5" id="guest-rooms-grid">
-                    <!-- Standard Rooms -->
-                    <div class="guest-room-card rounded-2xl border border-gray-150 bg-white p-3.5 space-y-2 hover:shadow-sm transition-all" data-room-type="Standard">
-                        <div class="flex items-center justify-between">
-                            <span class="font-extrabold text-gray-900">RM 310</span>
-                            <span class="badge badge-success border-0 bg-emerald-100 text-emerald-800 font-bold px-2 py-1.5 text-[9px]">VACANT</span>
-                        </div>
-                        <div class="text-[11px] text-gray-500">Standard Room</div>
+                <div class="rounded-2xl border border-[#E8DFD2] bg-white p-4 shadow-sm">
+                    <div class="text-sm font-semibold text-gray-900">Multi-location scalability</div>
+                    <div class="mt-1 text-sm text-gray-600">Add new business instances without breaking the core framework.
                     </div>
-                    <div class="guest-room-card rounded-2xl border border-gray-150 bg-white p-3.5 space-y-2 hover:shadow-sm transition-all" data-room-type="Standard">
-                        <div class="flex items-center justify-between">
-                            <span class="font-extrabold text-gray-900">RM 312</span>
-                            <span class="badge badge-success border-0 bg-emerald-100 text-emerald-800 font-bold px-2 py-1.5 text-[9px]">VACANT</span>
-                        </div>
-                        <div class="text-[11px] text-gray-500">Standard Room</div>
-                    </div>
-                    <div class="guest-room-card rounded-2xl border border-gray-150 bg-white p-3.5 space-y-2 opacity-50 transition-all" data-room-type="Standard">
-                        <div class="flex items-center justify-between">
-                            <span class="font-extrabold text-gray-400">RM 314</span>
-                            <span class="badge border-0 bg-rose-100 text-rose-800 font-bold px-2 py-1.5 text-[9px]">BOOKED</span>
-                        </div>
-                        <div class="text-[11px] text-gray-400">Standard Room</div>
-                    </div>
-                    <div class="guest-room-card rounded-2xl border border-gray-150 bg-white p-3.5 space-y-2 hover:shadow-sm transition-all" data-room-type="Standard">
-                        <div class="flex items-center justify-between">
-                            <span class="font-extrabold text-gray-900">RM 315</span>
-                            <span class="badge badge-success border-0 bg-emerald-100 text-emerald-800 font-bold px-2 py-1.5 text-[9px]">VACANT</span>
-                        </div>
-                        <div class="text-[11px] text-gray-500">Standard Room</div>
-                    </div>
-
-                    <!-- Junior Suites -->
-                    <div class="guest-room-card rounded-2xl border border-gray-150 bg-white p-3.5 space-y-2 hover:shadow-sm transition-all" data-room-type="Junior Suite">
-                        <div class="flex items-center justify-between">
-                            <span class="font-extrabold text-gray-900">RM 301</span>
-                            <span class="badge badge-success border-0 bg-emerald-100 text-emerald-800 font-bold px-2 py-1.5 text-[9px]">VACANT</span>
-                        </div>
-                        <div class="text-[11px] text-gray-500">Junior Suite</div>
-                    </div>
-                    <div class="guest-room-card rounded-2xl border border-gray-150 bg-white p-3.5 space-y-2 opacity-50 transition-all" data-room-type="Junior Suite">
-                        <div class="flex items-center justify-between">
-                            <span class="font-extrabold text-gray-400">RM 308</span>
-                            <span class="badge border-0 bg-rose-100 text-rose-800 font-bold px-2 py-1.5 text-[9px]">BOOKED</span>
-                        </div>
-                        <div class="text-[11px] text-gray-400">Junior Suite</div>
-                    </div>
-
-                    <!-- Deluxe Twin -->
-                    <div class="guest-room-card rounded-2xl border border-gray-150 bg-white p-3.5 space-y-2 hover:shadow-sm transition-all" data-room-type="Deluxe Twin">
-                        <div class="flex items-center justify-between">
-                            <span class="font-extrabold text-gray-900">RM 302</span>
-                            <span class="badge badge-success border-0 bg-emerald-100 text-emerald-800 font-bold px-2 py-1.5 text-[9px]">VACANT</span>
-                        </div>
-                        <div class="text-[11px] text-gray-500">Deluxe Twin</div>
-                    </div>
-                    <div class="guest-room-card rounded-2xl border border-gray-150 bg-white p-3.5 space-y-2 hover:shadow-sm transition-all" data-room-type="Deluxe Twin">
-                        <div class="flex items-center justify-between">
-                            <span class="font-extrabold text-gray-900">RM 303</span>
-                            <span class="badge badge-success border-0 bg-emerald-100 text-emerald-800 font-bold px-2 py-1.5 text-[9px]">VACANT</span>
-                        </div>
-                        <div class="text-[11px] text-gray-500">Deluxe Twin</div>
-                    </div>
-                    <div class="guest-room-card rounded-2xl border border-gray-150 bg-white p-3.5 space-y-2 opacity-60 transition-all" data-room-type="Deluxe Twin">
-                        <div class="flex items-center justify-between">
-                            <span class="font-extrabold text-gray-400">RM 304</span>
-                            <span class="badge border-0 bg-amber-100 text-amber-800 font-bold px-2 py-1.5 text-[9px]">MAINTENANCE</span>
-                        </div>
-                        <div class="text-[11px] text-gray-400">Deluxe Twin</div>
-                    </div>
-                    <div class="guest-room-card rounded-2xl border border-gray-150 bg-white p-3.5 space-y-2 hover:shadow-sm transition-all" data-room-type="Deluxe Twin">
-                        <div class="flex items-center justify-between">
-                            <span class="font-extrabold text-gray-900">RM 305</span>
-                            <span class="badge badge-success border-0 bg-emerald-100 text-emerald-800 font-bold px-2 py-1.5 text-[9px]">VACANT</span>
-                        </div>
-                        <div class="text-[11px] text-gray-500">Deluxe Twin</div>
-                    </div>
-                    <div class="guest-room-card rounded-2xl border border-gray-150 bg-white p-3.5 space-y-2 opacity-50 transition-all" data-room-type="Deluxe Twin">
-                        <div class="flex items-center justify-between">
-                            <span class="font-extrabold text-gray-400">RM 306</span>
-                            <span class="badge border-0 bg-rose-100 text-rose-800 font-bold px-2 py-1.5 text-[9px]">BOOKED</span>
-                        </div>
-                        <div class="text-[11px] text-gray-400">Deluxe Twin</div>
-                    </div>
-                    <div class="guest-room-card rounded-2xl border border-gray-150 bg-white p-3.5 space-y-2 hover:shadow-sm transition-all" data-room-type="Deluxe Twin">
-                        <div class="flex items-center justify-between">
-                            <span class="font-extrabold text-gray-900">RM 307</span>
-                            <span class="badge badge-success border-0 bg-emerald-100 text-emerald-800 font-bold px-2 py-1.5 text-[9px]">VACANT</span>
-                        </div>
-                        <div class="text-[11px] text-gray-500">Deluxe Twin</div>
-                    </div>
-                    <div class="guest-room-card rounded-2xl border border-gray-150 bg-white p-3.5 space-y-2 hover:shadow-sm transition-all" data-room-type="Deluxe Twin">
-                        <div class="flex items-center justify-between">
-                            <span class="font-extrabold text-gray-900">RM 309</span>
-                            <span class="badge badge-success border-0 bg-emerald-100 text-emerald-800 font-bold px-2 py-1.5 text-[9px]">VACANT</span>
-                        </div>
-                        <div class="text-[11px] text-gray-500">Deluxe Twin</div>
-                    </div>
-                    <div class="guest-room-card rounded-2xl border border-gray-150 bg-white p-3.5 space-y-2 opacity-50 transition-all" data-room-type="Deluxe Twin">
-                        <div class="flex items-center justify-between">
-                            <span class="font-extrabold text-gray-400">RM 311</span>
-                            <span class="badge border-0 bg-rose-100 text-rose-800 font-bold px-2 py-1.5 text-[9px]">BOOKED</span>
-                        </div>
-                        <div class="text-[11px] text-gray-400">Deluxe Twin</div>
-                    </div>
-
-                    <!-- Family Suites -->
-                    <div class="guest-room-card rounded-2xl border border-gray-150 bg-white p-3.5 space-y-2 hover:shadow-sm transition-all" data-room-type="Family Suite">
-                        <div class="flex items-center justify-between">
-                            <span class="font-extrabold text-gray-900">RM 201</span>
-                            <span class="badge badge-success border-0 bg-emerald-100 text-emerald-800 font-bold px-2 py-1.5 text-[9px]">VACANT</span>
-                        </div>
-                        <div class="text-[11px] text-gray-500">Family Suite</div>
-                    </div>
-                    <div class="guest-room-card rounded-2xl border border-gray-150 bg-white p-3.5 space-y-2 opacity-50 transition-all" data-room-type="Family Suite">
-                        <div class="flex items-center justify-between">
-                            <span class="font-extrabold text-gray-400">RM 202</span>
-                            <span class="badge border-0 bg-rose-100 text-rose-800 font-bold px-2 py-1.5 text-[9px]">BOOKED</span>
-                        </div>
-                        <div class="text-[11px] text-gray-400">Family Suite</div>
-                    </div>
-                    <div class="guest-room-card rounded-2xl border border-gray-150 bg-white p-3.5 space-y-2 hover:shadow-sm transition-all" data-room-type="Family Suite">
-                        <div class="flex items-center justify-between">
-                            <span class="font-extrabold text-gray-900">RM 206</span>
-                            <span class="badge badge-success border-0 bg-emerald-100 text-emerald-800 font-bold px-2 py-1.5 text-[9px]">VACANT</span>
-                        </div>
-                        <div class="text-[11px] text-gray-500">Family Suite</div>
-                    </div>
-                    <div class="guest-room-card rounded-2xl border border-gray-150 bg-white p-3.5 space-y-2 opacity-60 transition-all" data-room-type="Family Suite">
-                        <div class="flex items-center justify-between">
-                            <span class="font-extrabold text-gray-400">RM 207</span>
-                            <span class="badge border-0 bg-amber-100 text-amber-800 font-bold px-2 py-1.5 text-[9px]">MAINTENANCE</span>
-                        </div>
-                        <div class="text-[11px] text-gray-400">Family Suite</div>
-                    </div>
-
-                    <!-- Super Deluxe Rooms -->
-                    <div class="guest-room-card rounded-2xl border border-gray-150 bg-white p-3.5 space-y-2 hover:shadow-sm transition-all" data-room-type="Super Deluxe Room">
-                        <div class="flex items-center justify-between">
-                            <span class="font-extrabold text-gray-900">RM 203</span>
-                            <span class="badge badge-success border-0 bg-emerald-100 text-emerald-800 font-bold px-2 py-1.5 text-[9px]">VACANT</span>
-                        </div>
-                        <div class="text-[11px] text-gray-500">Super Deluxe Room</div>
-                    </div>
-                    <div class="guest-room-card rounded-2xl border border-gray-150 bg-white p-3.5 space-y-2 opacity-50 transition-all" data-room-type="Super Deluxe Room">
-                        <div class="flex items-center justify-between">
-                            <span class="font-extrabold text-gray-400">RM 204</span>
-                            <span class="badge border-0 bg-rose-100 text-rose-800 font-bold px-2 py-1.5 text-[9px]">BOOKED</span>
-                        </div>
-                        <div class="text-[11px] text-gray-400">Super Deluxe Room</div>
-                    </div>
-                    <div class="guest-room-card rounded-2xl border border-gray-150 bg-white p-3.5 space-y-2 hover:shadow-sm transition-all" data-room-type="Super Deluxe Room">
-                        <div class="flex items-center justify-between">
-                            <span class="font-extrabold text-gray-900">RM 205</span>
-                            <span class="badge badge-success border-0 bg-emerald-100 text-emerald-800 font-bold px-2 py-1.5 text-[9px]">VACANT</span>
-                        </div>
-                        <div class="text-[11px] text-gray-500">Super Deluxe Room</div>
-                    </div>
-                </div>
-
-                <!-- Empty State -->
-                <div id="guest-no-rooms" class="hidden text-center py-10 rounded-[1.5rem] border border-dashed border-gray-200">
-                    <svg class="mx-auto h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                    </svg>
-                    <p class="mt-2 text-sm text-gray-500 font-medium">No rooms match this category filter.</p>
-                </div>
-
-                <!-- Modal Actions -->
-                <div class="flex flex-col sm:flex-row gap-3 justify-between items-center pt-4 border-t border-gray-100 text-center sm:text-left">
-                    <span class="text-xs text-gray-500">{{ $roomInquiryText }}</span>
-                    <form method="dialog">
-                        <button class="btn btn-sm rounded-full border-0 bg-[#5A3E2B] text-white hover:bg-[#453020] px-5 w-full sm:w-auto">Close Window</button>
-                    </form>
                 </div>
             </div>
         </div>
-    </dialog>
+    </section>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const filterBtns = document.querySelectorAll('.guest-filter-btn');
-            const cards = document.querySelectorAll('.guest-room-card');
-            const noRooms = document.querySelector('#guest-no-rooms');
-
-            filterBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    filterBtns.forEach(b => {
-                        b.classList.remove('active', 'bg-[#5A3E2B]', 'text-white');
-                        b.classList.add('btn-outline', 'border-gray-300', 'text-gray-700');
-                    });
-                    btn.classList.add('active', 'bg-[#5A3E2B]', 'text-white');
-                    btn.classList.remove('btn-outline', 'border-gray-300', 'text-gray-700');
-
-                    const filter = btn.getAttribute('data-filter');
-                    let count = 0;
-
-                    cards.forEach(card => {
-                        const type = card.getAttribute('data-room-type');
-                        if (filter === 'all' || type === filter) {
-                            card.style.display = 'block';
-                            count++;
-                        } else {
-                            card.style.display = 'none';
-                        }
-                    });
-
-                    if (count === 0) {
-                        noRooms.classList.remove('hidden');
-                    } else {
-                        noRooms.classList.add('hidden');
-                    }
-                });
-            });
-        });
-    </script>
+    @include('partials.footer')
+    @include('partials.chatbot')
 @endsection

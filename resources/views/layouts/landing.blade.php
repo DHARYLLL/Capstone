@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project RED AI</title>
+    <title>@yield('page_title', 'Project RED AI')</title>
+    <meta name="description" content="@yield('page_description', 'AI-powered business support platform.')">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
