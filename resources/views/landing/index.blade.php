@@ -403,5 +403,5 @@
     </section>
 
     @include('partials.footer')
-    @include('partials.chatbot')
+    {{-- @include('partials.chatbot') --}}
 @endsection
