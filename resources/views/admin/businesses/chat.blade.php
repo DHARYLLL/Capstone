@@ -1,8 +1,24 @@
-@extends('layouts.admin')
+@php $isManager = isset($slug); @endphp
+@if($isManager)
+    @php
+        if ($slug === 'villa-carmelita') { $unitName = 'Villa Carmelita'; $unitType = 'Accommodation / Hotel'; $unitIcon = '🏨'; $sidebarExtras = ['Room Availability', 'Rate Configuration', 'Guest Inquiries']; }
+        elseif ($slug === 'monclaire-pool') { $unitName = 'Monclaire Pool'; $unitType = 'Facility / Pool'; $unitIcon = '🏊'; $sidebarExtras = ['Pool Schedule', 'Pass & Rental Rates', 'Guest Inquiries']; }
+        else { $unitName = 'Dakong Balay'; $unitType = 'Food & Restaurant'; $unitIcon = '🍽️'; $sidebarExtras = ['Menu Management', 'Dining Availability', 'Guest Inquiries']; }
+    @endphp
+@endif
+
+@extends($isManager ? 'layouts.manager' : 'layouts.admin')
 
 @section('page_title', 'Live Chat & Staff Handoff')
 @section('page_description', 'Operate a split-screen console for active queues, conversation timelines, and live handoff actions.')
-@section('breadcrumbs', 'Admin / Businesses / Chat & Handoff')
+@section('breadcrumbs', ($isManager ? $unitName . ' / ' : 'Admin / Businesses / ') . 'Chat & Handoff')
+@section('unit-type', $isManager ? $unitType : '')
+
+@if($isManager)
+@section('manager-sidebar')
+    @include('partials.manager-sidebar')
+@endsection
+@endif
 
 @section('content')
     <div class="space-y-8">

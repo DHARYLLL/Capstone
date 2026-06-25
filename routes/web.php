@@ -46,6 +46,32 @@ Route::prefix('admin')->name('admin.')->group(function () {
         return view('admin.businesses.edit', compact('slug'));
     })->name('businesses.edit');
 
+    // ── Manager-scoped routes — slug travels with the manager through all pages ──
+    // These sit under /admin/businesses/{slug}/... so the sidebar knows which unit is active.
+    Route::get('/businesses/{slug}/dashboard', function (string $slug) {
+        return view('admin.businesses.manager-dashboard', compact('slug'));
+    })->name('businesses.manager-dashboard');
+
+    Route::get('/businesses/{slug}/knowledge-base', function (string $slug) {
+        return view('admin.businesses.knowledge-base', compact('slug'));
+    })->name('businesses.manager-knowledge-base');
+
+    Route::get('/businesses/{slug}/chat', function (string $slug) {
+        return view('admin.businesses.chat', compact('slug'));
+    })->name('businesses.manager-chat');
+
+    Route::get('/businesses/{slug}/analytics', function (string $slug) {
+        return view('admin.businesses.analytics', compact('slug'));
+    })->name('businesses.manager-analytics');
+
+    Route::get('/businesses/{slug}/staff', function (string $slug) {
+        return view('admin.businesses.staff', compact('slug'));
+    })->name('businesses.manager-staff');
+
+    Route::get('/businesses/{slug}/seo', function (string $slug) {
+        return view('admin.businesses.seo', compact('slug'));
+    })->name('businesses.manager-seo');
+
 });
 
 // ── Super-admin panel ──────────────────────────────────────────────────────────────────

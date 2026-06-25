@@ -1,8 +1,24 @@
-@extends('layouts.admin')
+@php $isManager = isset($slug); @endphp
+@if($isManager)
+    @php
+        if ($slug === 'villa-carmelita') { $unitName = 'Villa Carmelita'; $unitType = 'Accommodation / Hotel'; $unitIcon = '🏨'; $sidebarExtras = ['Room Availability', 'Rate Configuration', 'Guest Inquiries']; }
+        elseif ($slug === 'monclaire-pool') { $unitName = 'Monclaire Pool'; $unitType = 'Facility / Pool'; $unitIcon = '🏊'; $sidebarExtras = ['Pool Schedule', 'Pass & Rental Rates', 'Guest Inquiries']; }
+        else { $unitName = 'Dakong Balay'; $unitType = 'Food & Restaurant'; $unitIcon = '🍽️'; $sidebarExtras = ['Menu Management', 'Dining Availability', 'Guest Inquiries']; }
+    @endphp
+@endif
+
+@extends($isManager ? 'layouts.manager' : 'layouts.admin')
 
 @section('page_title', 'Staff & Roles')
 @section('page_description', 'Manage operators, permissions, shifts, and routing responsibilities.')
-@section('breadcrumbs', 'Admin / Businesses / Staff')
+@section('breadcrumbs', ($isManager ? $unitName . ' / ' : 'Admin / Businesses / ') . 'Staff & Roles')
+@section('unit-type', $isManager ? $unitType : '')
+
+@if($isManager)
+@section('manager-sidebar')
+    @include('partials.manager-sidebar')
+@endsection
+@endif
 
 @section('content')
     <div class="space-y-8">

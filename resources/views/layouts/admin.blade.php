@@ -28,7 +28,11 @@
 </head>
 <body class="bg-[#F9F8F6] font-sans text-gray-800 antialiased">
     <div class="flex min-h-screen overflow-hidden">
-        @include('partials.admin-sidebar')
+        @hasSection('sidebar')
+            @yield('sidebar')
+        @else
+            @include('partials.admin-sidebar')
+        @endif
 
         <div class="flex min-w-0 flex-1 flex-col overflow-hidden">
             @include('partials.admin-header')

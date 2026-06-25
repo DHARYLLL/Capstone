@@ -1,9 +1,25 @@
 {{-- filepath: resources/views/admin/businesses/knowledge-base.blade.php --}}
-@extends('layouts.admin')
+@php $isManager = isset($slug); @endphp
+@if($isManager)
+    @php
+        if ($slug === 'villa-carmelita') { $unitName = 'Villa Carmelita'; $unitType = 'Accommodation / Hotel'; $unitIcon = '🏨'; $sidebarExtras = ['Room Availability', 'Rate Configuration', 'Guest Inquiries']; }
+        elseif ($slug === 'monclaire-pool') { $unitName = 'Monclaire Pool'; $unitType = 'Facility / Pool'; $unitIcon = '🏊'; $sidebarExtras = ['Pool Schedule', 'Pass & Rental Rates', 'Guest Inquiries']; }
+        else { $unitName = 'Dakong Balay'; $unitType = 'Food & Restaurant'; $unitIcon = '🍽️'; $sidebarExtras = ['Menu Management', 'Dining Availability', 'Guest Inquiries']; }
+    @endphp
+@endif
+
+@extends($isManager ? 'layouts.manager' : 'layouts.admin')
 
 @section('page_title', 'Knowledge Base Upload')
 @section('page_description', 'Upload PDFs and CSVs, review processing results, and approve knowledge entries for chatbot use.')
-@section('breadcrumbs', 'Admin / Businesses / Knowledge Base')
+@section('breadcrumbs', ($isManager ? $unitName . ' / ' : 'Admin / Businesses / ') . 'Knowledge Base')
+@section('unit-type', $isManager ? $unitType : '')
+
+@if($isManager)
+@section('manager-sidebar')
+    @include('partials.manager-sidebar')
+@endsection
+@endif
 
 @section('content')
 <div class="space-y-8">
