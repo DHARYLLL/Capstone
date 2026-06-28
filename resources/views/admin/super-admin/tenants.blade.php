@@ -6,15 +6,15 @@
 
 @section('content')
     <div class="space-y-8">
-        <section class="rounded-[2rem] border border-[#E8DFD2] bg-white p-6 shadow-sm lg:p-8">
+        <section class="rounded-[2rem] border border-[#e2e8f0] bg-white p-6 shadow-sm lg:p-8">
             <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                 <div>
                     <h2 class="text-2xl font-black tracking-tight text-gray-900">Comprehensive tenant ledger</h2>
                     <p class="mt-2 max-w-3xl text-sm leading-6 text-gray-500">Master list of businesses with path status, usage tiers, registration dates, and quick action tools.</p>
                 </div>
                 <div class="flex gap-3">
-                    <button class="btn rounded-full border-0 bg-[#5A3E2B] text-white hover:bg-[#453020]">Provision new tenant</button>
-                    <button class="btn btn-outline rounded-full border-[#D8C3A7] text-gray-700 hover:bg-[#F4EEDF]">Export ledger</button>
+                    <button class="btn rounded-full border-0 bg-brand-primary text-white hover:bg-[#6d28d9]">Provision new tenant</button>
+                    <button class="btn btn-outline rounded-full border-brand-border text-gray-700 hover:bg-[#f5f3ff]">Export ledger</button>
                 </div>
             </div>
         </section>
@@ -22,7 +22,7 @@
         <section class="overflow-hidden rounded-[2rem] bg-white shadow-sm">
             <div class="overflow-x-auto">
                 <table class="table">
-                    <thead class="bg-[#FAF8F4]">
+                    <thead class="bg-[#ffffff]">
                         <tr class="text-gray-500">
                             <th>Tenant</th>
                             <th>Category</th>
@@ -55,8 +55,8 @@
                                 <td>{{ $tenant['usage'] }}</td>
                                 <td>
                                     <div class="flex flex-wrap gap-2">
-                                        <button class="btn btn-xs rounded-full border-[#D8C3A7]">Provision path</button>
-                                        <button class="btn btn-xs rounded-full border-[#D8C3A7]">Set tier</button>
+                                        <button class="btn btn-xs rounded-full border-brand-border">Provision path</button>
+                                        <button class="btn btn-xs rounded-full border-brand-border">Set tier</button>
                                         <button class="btn btn-xs rounded-full border-rose-300 text-rose-700">Suspend</button>
                                     </div>
                                 </td>

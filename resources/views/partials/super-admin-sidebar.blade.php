@@ -6,7 +6,7 @@
 <aside class="hidden w-80 shrink-0 flex-col border-r border-gray-200 bg-base-100 md:flex">
     <div class="border-b border-gray-200 px-6 py-6">
         <a href="{{ route('super-admin.dashboard') }}" class="flex items-center gap-3">
-            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#5A3E2B] text-white shadow-sm">
+            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-primary text-white shadow-sm">
                 <svg viewBox="0 0 24 24" class="h-6 w-6 fill-current" aria-hidden="true">
                     <path d="M12 2l8 4v12l-8 4-8-4V6l8-4zm0 2.3L6 7.1v9.8l6 3 6-3V7.1l-6-2.8z"/>
                 </svg>
@@ -17,7 +17,7 @@
             </div>
         </a>
 
-        <div class="mt-5 rounded-2xl border border-[#E9E2D6] bg-[#FAF8F4] px-4 py-4">
+        <div class="mt-5 rounded-2xl border border-[#e2e8f0] bg-[#ffffff] px-4 py-4">
             <div class="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-400">Platform state</div>
             <div class="mt-2 flex items-center justify-between gap-4">
                 <div>
@@ -71,8 +71,8 @@
                     <a href="{{ $item['href'] }}"
                        class="flex items-center gap-3 rounded-2xl px-4 py-3 font-medium transition-colors
                               {{ $item['active']
-                                  ? 'bg-[#5A3E2B] font-semibold text-white shadow-sm'
-                                  : 'text-gray-700 hover:bg-[#F4EEDF] hover:text-[#5A3E2B]' }}">
+                                  ? 'bg-brand-primary font-semibold text-white shadow-sm'
+                                  : 'text-gray-700 hover:bg-[#f5f3ff] hover:text-brand-primary' }}">
                         <svg viewBox="0 0 24 24" class="h-5 w-5 shrink-0 fill-current" aria-hidden="true">
                             <path d="{{ $item['icon'] }}"/>
                         </svg>
@@ -87,7 +87,7 @@
             @foreach ($actionNavItems as $item)
                 <li>
                     <a href="{{ $item['href'] }}"
-                       class="flex items-center gap-3 rounded-2xl px-4 py-3 font-medium text-gray-700 transition-colors hover:bg-[#F4EEDF] hover:text-[#5A3E2B]">
+                       class="flex items-center gap-3 rounded-2xl px-4 py-3 font-medium text-gray-700 transition-colors hover:bg-[#f5f3ff] hover:text-brand-primary">
                         <svg viewBox="0 0 24 24" class="h-5 w-5 shrink-0 fill-current" aria-hidden="true">
                             <path d="{{ $item['icon'] }}"/>
                         </svg>
@@ -99,6 +99,6 @@
     </nav>
 
     <div class="mt-auto border-t border-gray-200 p-4">
-        <button class="btn w-full justify-start rounded-2xl border-0 bg-[#F4EEDF] text-gray-800 hover:bg-[#ead9c1]">Logout</button>
+        <button class="btn w-full justify-start rounded-2xl border-0 bg-[#f5f3ff] text-gray-800 hover:bg-[#f5f3ff]">Logout</button>
     </div>
 </aside>

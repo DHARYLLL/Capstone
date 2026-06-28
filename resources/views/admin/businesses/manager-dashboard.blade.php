@@ -85,7 +85,7 @@
     {{-- Brand + unit identity --}}
     <div class="border-b border-gray-200 px-6 py-5">
         <a href="{{ route('admin.businesses.manager-dashboard', $slug) }}" class="flex items-center gap-3">
-            <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#4A3E3D] text-xl text-white shadow-sm">
+            <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#1e293b] text-xl text-white shadow-sm">
                 {{ $unitIcon }}
             </div>
             <div>
@@ -94,7 +94,7 @@
             </div>
         </a>
 
-        <div class="mt-4 rounded-2xl border border-[#E9E2D6] bg-[#FAF8F4] px-4 py-3">
+        <div class="mt-4 rounded-2xl border border-[#e2e8f0] bg-[#ffffff] px-4 py-3">
             <div class="text-xs font-semibold uppercase tracking-wider text-gray-400">Your assigned unit</div>
             <div class="mt-1 text-sm font-bold text-gray-900">{{ $unitName }}</div>
             <div class="mt-1 flex items-center gap-2 text-xs text-gray-500">
@@ -155,8 +155,8 @@
                     <a href="{{ $item['href'] }}"
                        class="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-colors
                               {{ $item['active']
-                                  ? 'bg-[#4A3E3D] font-semibold text-white shadow-sm'
-                                  : 'text-gray-700 hover:bg-[#F4EEDF] hover:text-[#4A3E3D]' }}">
+                                  ? 'bg-[#1e293b] font-semibold text-white shadow-sm'
+                                  : 'text-gray-700 hover:bg-[#f5f3ff] hover:text-[#1e293b]' }}">
                         <svg viewBox="0 0 24 24" class="h-5 w-5 shrink-0 fill-current" aria-hidden="true">
                             <path d="{{ $item['icon'] }}"/>
                         </svg>
@@ -175,8 +175,8 @@
             @foreach ($sidebarExtras as $extra)
                 <li>
                     <button type="button"
-                            class="flex w-full items-center gap-3 rounded-2xl px-4 py-2.5 text-sm text-gray-600 transition hover:bg-[#F4EEDF] hover:text-[#4A3E3D]">
-                        <span class="h-1.5 w-1.5 rounded-full bg-[#4A3E3D] opacity-50"></span>
+                            class="flex w-full items-center gap-3 rounded-2xl px-4 py-2.5 text-sm text-gray-600 transition hover:bg-[#f5f3ff] hover:text-[#1e293b]">
+                        <span class="h-1.5 w-1.5 rounded-full bg-[#1e293b] opacity-50"></span>
                         {{ $extra }}
                     </button>
                 </li>
@@ -185,11 +185,11 @@
     </nav>
 
     <div class="mt-auto border-t border-gray-200 p-4 space-y-2">
-        <div class="rounded-2xl bg-[#FAF8F4] px-4 py-2.5 text-xs text-gray-500">
+        <div class="rounded-2xl bg-[#ffffff] px-4 py-2.5 text-xs text-gray-500">
             Scoped to <span class="font-semibold text-gray-800">{{ $unitName }}</span> only.
             Other business units are not accessible from here.
         </div>
-        <button class="btn w-full justify-start rounded-2xl border-0 bg-[#F4EEDF] text-gray-800 hover:bg-[#ead9c1]">
+        <button class="btn w-full justify-start rounded-2xl border-0 bg-[#f5f3ff] text-gray-800 hover:bg-[#f5f3ff]">
             <svg viewBox="0 0 24 24" class="h-5 w-5 fill-current" aria-hidden="true">
                 <path d="M10 17l1.4-1.4L8.8 13H20v-2H8.8l2.6-2.6L10 7l-5 5 5 5zM4 4h7v2H6v12h5v2H4V4z"/>
             </svg>
@@ -203,7 +203,7 @@
 <div class="space-y-8">
 
     {{-- HERO --}}
-    <section class="rounded-[2rem] border border-[#eadfce] bg-white p-6 shadow-sm lg:p-8">
+    <section class="rounded-[2rem] border border-[#e2e8f0] bg-white p-6 shadow-sm lg:p-8">
         <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div class="space-y-3">
                 <div class="flex flex-wrap items-center gap-2">
@@ -223,11 +223,11 @@
             </div>
             <div class="flex flex-wrap gap-3">
                 <a href="{{ route('admin.businesses.chat') }}"
-                   class="btn rounded-full border-0 bg-[#4A3E3D] text-white hover:bg-[#3a2f2e]">
+                   class="btn rounded-full border-0 bg-[#1e293b] text-white hover:bg-[#3a2f2e]">
                     Live Chat & Handoff
                 </a>
                 <a href="{{ route('admin.businesses.knowledge-base') }}"
-                   class="btn rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-[#F4EEDF] hover:text-gray-700">
+                   class="btn rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-[#f5f3ff] hover:text-gray-700">
                     Upload Knowledge
                 </a>
             </div>
@@ -271,19 +271,19 @@
                     </div>
                     <div class="mt-5 space-y-2">
                         @foreach ($aiFiles as $f)
-                            <div class="flex items-center gap-3 rounded-2xl border border-[#eadfce] bg-[#FAF8F4] px-4 py-3 text-sm text-gray-700">
-                                <svg viewBox="0 0 24 24" class="h-4 w-4 shrink-0 fill-[#4A3E3D]"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/></svg>
+                            <div class="flex items-center gap-3 rounded-2xl border border-[#e2e8f0] bg-[#ffffff] px-4 py-3 text-sm text-gray-700">
+                                <svg viewBox="0 0 24 24" class="h-4 w-4 shrink-0 fill-[#1e293b]"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/></svg>
                                 {{ $f }}
                             </div>
                         @endforeach
                     </div>
                     <div class="mt-5 flex gap-3">
                         <a href="{{ route('admin.businesses.knowledge-base') }}"
-                           class="btn btn-sm rounded-full border-0 bg-[#4A3E3D] text-white hover:bg-[#3a2f2e]">
+                           class="btn btn-sm rounded-full border-0 bg-[#1e293b] text-white hover:bg-[#3a2f2e]">
                             Upload new file
                         </a>
                         <a href="{{ route('admin.businesses.knowledge-base') }}"
-                           class="btn btn-sm rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-[#F4EEDF] hover:text-gray-700">
+                           class="btn btn-sm rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-[#f5f3ff] hover:text-gray-700">
                             View index
                         </a>
                     </div>
@@ -297,21 +297,21 @@
                         @foreach ($sidebarExtras as $extra)
                             <li>
                                 <button type="button"
-                                        class="w-full rounded-2xl bg-[#FAF8F4] px-4 py-3 text-left text-sm font-medium text-gray-700 transition hover:bg-[#F0E8DE] hover:text-[#4A3E3D]">
+                                        class="w-full rounded-2xl bg-[#ffffff] px-4 py-3 text-left text-sm font-medium text-gray-700 transition hover:bg-[#F0E8DE] hover:text-[#1e293b]">
                                     {{ $extra }}
                                 </button>
                             </li>
                         @endforeach
                         <li>
                             <a href="{{ route('admin.businesses.knowledge-base') }}"
-                               class="flex items-center gap-2 rounded-2xl bg-[#FAF8F4] px-4 py-3 text-sm font-medium text-gray-700 transition hover:bg-[#F0E8DE] hover:text-[#4A3E3D]">
-                                <span class="h-2 w-2 rounded-full bg-[#4A3E3D]"></span>
+                               class="flex items-center gap-2 rounded-2xl bg-[#ffffff] px-4 py-3 text-sm font-medium text-gray-700 transition hover:bg-[#F0E8DE] hover:text-[#1e293b]">
+                                <span class="h-2 w-2 rounded-full bg-[#1e293b]"></span>
                                 Knowledge Base Ingestion
                             </a>
                         </li>
                         <li>
                             <a href="{{ route('admin.businesses.chat') }}"
-                               class="flex items-center gap-2 rounded-2xl bg-[#FAF8F4] px-4 py-3 text-sm font-medium text-gray-700 transition hover:bg-[#F0E8DE] hover:text-[#4A3E3D]">
+                               class="flex items-center gap-2 rounded-2xl bg-[#ffffff] px-4 py-3 text-sm font-medium text-gray-700 transition hover:bg-[#F0E8DE] hover:text-[#1e293b]">
                                 <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
                                 Live Chat & Handoff Terminal
                             </a>
@@ -337,7 +337,7 @@
 
                 <div class="mt-4 flex flex-wrap gap-1.5">
                     @foreach ($chatTags as $tag)
-                        <span class="rounded-full border border-[#eadfce] bg-[#FAF8F4] px-3 py-1 text-xs font-medium text-gray-600">{{ $tag }}</span>
+                        <span class="rounded-full border border-[#e2e8f0] bg-[#ffffff] px-3 py-1 text-xs font-medium text-gray-600">{{ $tag }}</span>
                     @endforeach
                 </div>
 
@@ -346,7 +346,7 @@
                     <div class="space-y-3">
                         <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400">AI-Handled Queue</h3>
                         @foreach ($queue as $item)
-                            <div class="rounded-2xl border p-4 {{ $item['high'] ? 'border-rose-200 bg-rose-50' : 'border-[#eadfce] bg-[#FAF8F4]' }}">
+                            <div class="rounded-2xl border p-4 {{ $item['high'] ? 'border-rose-200 bg-rose-50' : 'border-[#e2e8f0] bg-[#ffffff]' }}">
                                 <div class="flex items-center justify-between gap-2">
                                     <span class="font-semibold text-gray-800 text-sm">{{ $item['name'] }}</span>
                                     <span class="text-xs text-gray-400">{{ $item['time'] }} ago</span>
@@ -364,18 +364,18 @@
                     {{-- Operator controls --}}
                     <div class="space-y-3">
                         <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400">Operator Controls</h3>
-                        <div class="rounded-2xl border border-[#eadfce] bg-white p-4 space-y-2">
+                        <div class="rounded-2xl border border-[#e2e8f0] bg-white p-4 space-y-2">
                             <div class="h-20 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center">
                                 <span class="text-xs text-gray-400">Live reply area</span>
                             </div>
                             @foreach (['Assign to self', 'Transfer to operator', 'Mark resolved', 'Send canned response'] as $action)
                                 <button type="button"
-                                        class="w-full rounded-xl bg-[#FAF8F4] px-4 py-2.5 text-left text-sm text-gray-700 transition hover:bg-[#F0E8DE]">
+                                        class="w-full rounded-xl bg-[#ffffff] px-4 py-2.5 text-left text-sm text-gray-700 transition hover:bg-[#F0E8DE]">
                                     {{ $action }}
                                 </button>
                             @endforeach
                             <a href="{{ route('admin.businesses.chat') }}"
-                               class="btn btn-sm mt-1 w-full rounded-full border-0 bg-[#4A3E3D] text-white hover:bg-[#3a2f2e]">
+                               class="btn btn-sm mt-1 w-full rounded-full border-0 bg-[#1e293b] text-white hover:bg-[#3a2f2e]">
                                 Open full terminal
                             </a>
                         </div>

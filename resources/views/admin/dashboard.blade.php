@@ -35,7 +35,7 @@
     @endphp
 
     <div class="space-y-8">
-        <section class="rounded-[2rem] border border-[#eadfce] bg-white p-6 shadow-sm lg:p-8">
+        <section class="rounded-[2rem] border border-[#e2e8f0] bg-white p-6 shadow-sm lg:p-8">
             <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
                 <div class="space-y-3">
                     <div class="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">
@@ -51,8 +51,8 @@
                     </p>
                 </div>
                 <div class="flex flex-wrap gap-3">
-                    <a href="{{ route('admin.businesses.analytics') }}" class="btn rounded-full border-0 bg-[#5A3E2B] text-white hover:bg-[#453020]">Open analytics</a>
-                    <a href="{{ route('admin.businesses.knowledge-base') }}" class="btn rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-[#F4EEDF] hover:text-gray-700">Upload knowledge</a>
+                    <a href="{{ route('admin.businesses.analytics') }}" class="btn rounded-full border-0 bg-brand-primary text-white hover:bg-[#6d28d9]">Open analytics</a>
+                    <a href="{{ route('admin.businesses.knowledge-base') }}" class="btn rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-[#f5f3ff] hover:text-gray-700">Upload knowledge</a>
                 </div>
             </div>
         </section>
@@ -85,10 +85,10 @@
 
                     <div class="mt-6 grid gap-4 md:grid-cols-2">
                         @foreach ($modules as $module)
-                            <a href="{{ $module['href'] }}" class="group rounded-[1.5rem] border border-[#eadfce] bg-[#FAF8F4] p-5 transition hover:-translate-y-0.5 hover:shadow-md">
+                            <a href="{{ $module['href'] }}" class="group rounded-[1.5rem] border border-[#e2e8f0] bg-[#ffffff] p-5 transition hover:-translate-y-0.5 hover:shadow-md">
                                 <div class="flex items-center justify-between gap-4">
                                     <h3 class="text-lg font-bold text-gray-900">{{ $module['title'] }}</h3>
-                                    <span class="text-[#5A3E2B] transition group-hover:translate-x-1">→</span>
+                                    <span class="text-brand-primary transition group-hover:translate-x-1">→</span>
                                 </div>
                                 <p class="mt-2 text-sm leading-6 text-gray-500">{{ $module['desc'] }}</p>
                             </a>
@@ -104,7 +104,7 @@
 
                     <div class="mt-5 space-y-3">
                         @foreach ($activity as $item)
-                            <div class="rounded-2xl bg-[#F8F1E7] p-4">
+                            <div class="rounded-2xl bg-[#f8fafc] p-4">
                                 <div class="font-semibold text-gray-800">{{ $item['label'] }}</div>
                                 <p class="mt-1 text-sm text-gray-500">{{ $item['meta'] }}</p>
                             </div>

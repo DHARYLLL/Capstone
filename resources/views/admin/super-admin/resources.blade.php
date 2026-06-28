@@ -6,13 +6,13 @@
 
 @section('content')
     <div class="space-y-8">
-        <section class="rounded-[2rem] border border-[#E8DFD2] bg-white p-6 shadow-sm lg:p-8">
+        <section class="rounded-[2rem] border border-[#e2e8f0] bg-white p-6 shadow-sm lg:p-8">
             <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                 <div>
                     <h2 class="text-2xl font-black tracking-tight text-gray-900">Global operating limits</h2>
                     <p class="mt-2 max-w-3xl text-sm leading-6 text-gray-500">Adjust platform-wide limits for files, CSV ingestion, token consumption, and per-tenant overrides.</p>
                 </div>
-                <span class="badge badge-outline border-[#D8C3A7] text-[#6B4A33]">Changes staged</span>
+                <span class="badge badge-outline border-brand-border text-brand-primary-dark">Changes staged</span>
             </div>
         </section>
 
@@ -37,11 +37,11 @@
                 <div class="card-body p-6 lg:p-8">
                     <h3 class="text-xl font-bold text-gray-900">Tenant override preview</h3>
                     <div class="mt-4 space-y-3 text-sm text-gray-600">
-                        <div class="rounded-2xl bg-[#FAF8F4] p-4">Villa Carmelita override: +50,000 AI tokens</div>
-                        <div class="rounded-2xl bg-[#FAF8F4] p-4">Dakong Balay override: PDF cap unchanged</div>
-                        <div class="rounded-2xl bg-[#FAF8F4] p-4">Monclaire Pool override: CSV cap unchanged</div>
+                        <div class="rounded-2xl bg-[#ffffff] p-4">Villa Carmelita override: +50,000 AI tokens</div>
+                        <div class="rounded-2xl bg-[#ffffff] p-4">Dakong Balay override: PDF cap unchanged</div>
+                        <div class="rounded-2xl bg-[#ffffff] p-4">Monclaire Pool override: CSV cap unchanged</div>
                     </div>
-                    <div class="mt-6 rounded-[1.5rem] bg-[#F8F1E7] p-4 text-sm text-gray-600">All overrides require an audit note and approval before publishing.</div>
+                    <div class="mt-6 rounded-[1.5rem] bg-[#f8fafc] p-4 text-sm text-gray-600">All overrides require an audit note and approval before publishing.</div>
                 </div>
             </div>
         </section>

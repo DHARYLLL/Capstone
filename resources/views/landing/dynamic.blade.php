@@ -71,19 +71,19 @@
             'title'       => data_get($business, 'gallery_one_title', $features[0]['label']),
             'description' => data_get($business, 'gallery_one_description', 'Warm spaces and inviting hospitality.'),
             'image_path'  => data_get($business, 'gallery_one_image_path'),
-            'gradient'    => 'from-[#DCC0A4] to-[#F0E3D2]',
+            'gradient'    => 'from-brand-primary-light to-brand-bg-base',
         ],
         [
             'title'       => data_get($business, 'gallery_two_title', 'Dining Moments'),
             'description' => data_get($business, 'gallery_two_description', 'Memorable meals and shared experiences.'),
             'image_path'  => data_get($business, 'gallery_two_image_path'),
-            'gradient'    => 'from-[#D9D4C8] to-[#F4EFE6]',
+            'gradient'    => 'from-brand-border to-brand-bg-base',
         ],
         [
             'title'       => data_get($business, 'gallery_three_title', 'Poolside Views'),
             'description' => data_get($business, 'gallery_three_description', 'Relaxing scenes from leisure and stay destinations.'),
             'image_path'  => data_get($business, 'gallery_three_image_path'),
-            'gradient'    => 'from-[#D8C1AA] to-[#EFE3D2]',
+            'gradient'    => 'from-brand-primary-light to-brand-bg-base',
         ],
     ]);
 
@@ -109,7 +109,7 @@
 <section id="home" class="mx-auto max-w-7xl px-4 py-10 lg:px-8 lg:py-16">
     <div class="grid items-center gap-12 lg:grid-cols-2">
         <div class="space-y-6">
-            <div class="badge border-0 bg-[#F1E4D2] px-4 py-3 text-xs font-semibold text-[#5A3E2B]">
+            <div class="badge border-0 bg-[#f5f3ff] px-4 py-3 text-xs font-semibold text-brand-primary">
                 {{ $badgeLabel }}
             </div>
 
@@ -126,17 +126,17 @@
             </div>
 
             <div class="flex flex-col gap-3 sm:flex-row">
-                <a href="{{ $primaryCtaUrl }}" class="btn rounded-full border-0 bg-[#5A3E2B] px-6 text-white hover:bg-[#453020]">
+                <a href="{{ $primaryCtaUrl }}" class="btn rounded-full border-0 bg-brand-primary px-6 text-white hover:bg-[#6d28d9]">
                     {{ $primaryCtaLabel }}
                 </a>
-                <label for="chatbot-toggle" class="btn cursor-pointer rounded-full border border-[#5A3E2B] bg-transparent px-6 text-[#5A3E2B] hover:bg-[#F4EEDF] hover:text-[#5A3E2B]">
+                <label for="chatbot-toggle" class="btn cursor-pointer rounded-full border border-brand-primary bg-transparent px-6 text-brand-primary hover:bg-[#f5f3ff] hover:text-brand-primary">
                     {{ $secondaryCtaLabel }}
                 </label>
             </div>
 
-            <div class="rounded-3xl border border-[#E8DFD2] bg-[#F8F1E7] p-5 shadow-sm">
+            <div class="rounded-3xl border border-[#e2e8f0] bg-[#f8fafc] p-5 shadow-sm">
                 <div class="flex items-start gap-4">
-                    <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#5A3E2B] text-white">
+                    <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-brand-primary text-white">
                         <svg viewBox="0 0 24 24" class="h-5 w-5 fill-current" aria-hidden="true">
                             <path d="M12 2a4 4 0 0 0-4 4v1H7a3 3 0 0 0-3 3v7a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-7a3 3 0 0 0-3-3h-1V6a4 4 0 0 0-4-4zm-2 5V6a2 2 0 1 1 4 0v1h-4zm2 5a1.5 1.5 0 0 1 .75 2.8V16h-1.5v-1.2A1.5 1.5 0 0 1 12 12z"/>
                         </svg>
@@ -150,8 +150,8 @@
         </div>
 
         <div class="space-y-4">
-            <div class="overflow-hidden rounded-[2rem] border border-white/70 bg-white shadow-[0_20px_60px_rgba(90,62,43,0.12)]">
-                <div class="relative aspect-[4/5] min-h-[320px] overflow-hidden bg-[#FCFBF8]">
+            <div class="overflow-hidden rounded-[2rem] border border-white/70 bg-white shadow-[0_20px_60px_rgba(124,58,237,0.12)]">
+                <div class="relative aspect-[4/5] min-h-[320px] overflow-hidden bg-[#f8fafc]">
                     <img src="{{ $businessCoverImage }}" alt="{{ $businessName }} cover photo" class="h-full w-full object-cover">
                     <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.04)_0%,rgba(34,24,17,0.32)_100%)]"></div>
                     <div class="absolute inset-x-0 bottom-0 p-5">
@@ -180,7 +180,7 @@
 
             <div class="grid items-center gap-8 lg:grid-cols-2">
                 {{-- Visual card --}}
-                <div class="{{ !$isEven ? 'order-1 lg:order-2' : '' }} rounded-[2rem] bg-gradient-to-br from-[#EED9C4] to-[#D9C0A5] p-6 shadow-lg">
+                <div class="{{ !$isEven ? 'order-1 lg:order-2' : '' }} rounded-[2rem] bg-gradient-to-br from-brand-primary-light to-brand-border p-6 shadow-lg">
                     <div class="flex min-h-[320px] items-end rounded-[1.6rem] bg-[linear-gradient(135deg,rgba(255,255,255,0.25),rgba(255,255,255,0.08))] p-6">
                         <div class="rounded-2xl bg-white/70 px-4 py-2 text-sm font-semibold text-gray-800">
                             {{ $feature['label'] }}
@@ -191,7 +191,7 @@
                 {{-- Content --}}
                 <div class="{{ !$isEven ? 'order-2 lg:order-1' : '' }} space-y-5">
                     <div class="flex items-center gap-3">
-                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#5A3E2B] text-white">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-primary text-white">
                             @if ($index === 0)
                                 <svg viewBox="0 0 24 24" class="h-6 w-6 fill-current" aria-hidden="true"><path d="M4 5h16v2H4V5zm2 3h12v11H6V8zm2 2v7h8v-7H8z"/></svg>
                             @elseif ($index === 1)
@@ -209,7 +209,7 @@
                         <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
                             @foreach ($feature['bullets'] as $bullet)
                                 <div class="flex items-start gap-3 rounded-2xl bg-white p-4 shadow-sm">
-                                    <span class="mt-0.5 text-[#5A3E2B]">✓</span>
+                                    <span class="mt-0.5 text-brand-primary">✓</span>
                                     <p class="text-sm text-gray-700">{{ $bullet }}</p>
                                 </div>
                             @endforeach
@@ -218,7 +218,7 @@
 
                     @if (!empty($feature['has_rooms']))
                         <div class="pt-4">
-                            <button onclick="room_availability_modal.showModal()" class="btn rounded-full border-0 bg-[#5A3E2B] text-white hover:bg-[#453020]">
+                            <button onclick="room_availability_modal.showModal()" class="btn rounded-full border-0 bg-brand-primary text-white hover:bg-[#6d28d9]">
                                 <svg viewBox="0 0 24 24" class="h-5 w-5 fill-current" aria-hidden="true">
                                     <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
                                 </svg>
@@ -233,10 +233,10 @@
 </section>
 
 {{-- ── ABOUT ─────────────────────────────────────────────────────────────────── --}}
-<section id="about" class="bg-[#F4EEDF] py-16">
+<section id="about" class="bg-[#f5f3ff] py-16">
     <div class="mx-auto grid max-w-7xl gap-10 px-4 lg:grid-cols-2 lg:px-8">
         <div class="space-y-5">
-            <div class="badge border-0 bg-white px-4 py-3 text-xs font-semibold text-[#5A3E2B]">
+            <div class="badge border-0 bg-white px-4 py-3 text-xs font-semibold text-brand-primary">
                 {{ $aboutBadge }}
             </div>
             <h2 class="max-w-xl text-3xl font-extrabold tracking-tight text-gray-900 md:text-5xl">
@@ -245,7 +245,7 @@
             <p class="max-w-xl text-gray-600">
                 {{ $aboutDescription }}
             </p>
-            <div class="rounded-3xl border border-[#E7D9C8] bg-white p-6 shadow-sm">
+            <div class="rounded-3xl border border-brand-border bg-white p-6 shadow-sm">
                 <p class="text-lg font-semibold text-gray-900">"{{ $aboutQuote }}"</p>
             </div>
         </div>
@@ -253,7 +253,7 @@
         <div class="grid gap-4 sm:grid-cols-2">
             <div class="card bg-white shadow-sm">
                 <div class="card-body">
-                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F4EEDF] text-[#5A3E2B]">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#f5f3ff] text-brand-primary">
                         <svg viewBox="0 0 24 24" class="h-5 w-5 fill-current" aria-hidden="true"><path d="M4 4h16v2H4V4zm0 6h16v2H4v-2zm0 6h10v2H4v-2z"/></svg>
                     </div>
                     <h3 class="card-title mt-3 text-lg">Centralized Information</h3>
@@ -262,7 +262,7 @@
             </div>
             <div class="card bg-white shadow-sm">
                 <div class="card-body">
-                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F4EEDF] text-[#5A3E2B]">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#f5f3ff] text-brand-primary">
                         <svg viewBox="0 0 24 24" class="h-5 w-5 fill-current" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7v4a5 5 0 0 0 5 5h1v-5H8l4-11zm0 0 4 11h-3v5h1a5 5 0 0 0 5-5V9a7 7 0 0 0-7-7z"/></svg>
                     </div>
                     <h3 class="card-title mt-3 text-lg">AI-Powered Assistant</h3>
@@ -271,7 +271,7 @@
             </div>
             <div class="card bg-white shadow-sm">
                 <div class="card-body">
-                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F4EEDF] text-[#5A3E2B]">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#f5f3ff] text-brand-primary">
                         <svg viewBox="0 0 24 24" class="h-5 w-5 fill-current" aria-hidden="true"><path d="M13 3L4 14h7l-1 7 10-12h-7l0-6z"/></svg>
                     </div>
                     <h3 class="card-title mt-3 text-lg">Faster Inquiries</h3>
@@ -280,7 +280,7 @@
             </div>
             <div class="card bg-white shadow-sm">
                 <div class="card-body">
-                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F4EEDF] text-[#5A3E2B]">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#f5f3ff] text-brand-primary">
                         <svg viewBox="0 0 24 24" class="h-5 w-5 fill-current" aria-hidden="true"><path d="M7 3h10l4 4v14H3V3h4zm0 2v4h10V5H7zm0 8v6h10v-6H7z"/></svg>
                     </div>
                     <h3 class="card-title mt-3 text-lg">Seamless Experience</h3>
@@ -324,15 +324,15 @@
 
 {{-- ── ROOM AVAILABILITY MODAL ──────────────────────────────────────────────── --}}
 <dialog id="room_availability_modal" class="modal modal-bottom sm:modal-middle">
-    <div class="modal-box max-w-5xl bg-[#FCFBF8] rounded-[2rem] border border-[#eadfce] p-6 lg:p-8">
+    <div class="modal-box max-w-5xl bg-[#f8fafc] rounded-[2rem] border border-[#e2e8f0] p-6 lg:p-8">
         <form method="dialog">
-            <button class="btn btn-sm btn-circle btn-ghost absolute right-4 top-4 text-gray-500 hover:bg-[#F4EEDF]">✕</button>
+            <button class="btn btn-sm btn-circle btn-ghost absolute right-4 top-4 text-gray-500 hover:bg-[#f5f3ff]">✕</button>
         </form>
 
         <div class="space-y-6">
             {{-- Header --}}
             <div class="flex items-center gap-3">
-                <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#5A3E2B] text-white shadow-sm">
+                <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-primary text-white shadow-sm">
                     <svg viewBox="0 0 24 24" class="h-6 w-6 fill-current" aria-hidden="true">
                         <path d="M12 3C8 3 5 6 5 10v10h14V10c0-4-3-7-7-7zm0 4a3 3 0 0 1 3 3v6H9v-6a3 3 0 0 1 3-3z"/>
                     </svg>
@@ -347,17 +347,17 @@
             <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 <div class="rounded-2xl border border-gray-150 bg-white p-4">
                     <span class="block text-xs font-semibold uppercase tracking-wider text-gray-400">Standard Room</span>
-                    <span class="mt-1 block text-xl font-black text-[#5A3E2B]">PHP 1,800 / night</span>
+                    <span class="mt-1 block text-xl font-black text-brand-primary">PHP 1,800 / night</span>
                     <span class="mt-1 block text-xs font-medium text-emerald-600">✓ 3 of 4 rooms vacant</span>
                 </div>
                 <div class="rounded-2xl border border-gray-150 bg-white p-4">
                     <span class="block text-xs font-semibold uppercase tracking-wider text-gray-400">Deluxe Twin</span>
-                    <span class="mt-1 block text-xl font-black text-[#5A3E2B]">PHP 2,250 / night</span>
+                    <span class="mt-1 block text-xl font-black text-brand-primary">PHP 2,250 / night</span>
                     <span class="mt-1 block text-xs font-medium text-emerald-600">✓ 5 of 8 rooms vacant</span>
                 </div>
                 <div class="rounded-2xl border border-gray-150 bg-white p-4">
                     <span class="block text-xs font-semibold uppercase tracking-wider text-gray-400">Family Suite</span>
-                    <span class="mt-1 block text-xl font-black text-[#5A3E2B]">PHP 3,500 / night</span>
+                    <span class="mt-1 block text-xl font-black text-brand-primary">PHP 3,500 / night</span>
                     <span class="mt-1 block text-xs font-medium text-emerald-600">✓ 2 of 4 rooms vacant</span>
                 </div>
             </div>
@@ -366,12 +366,12 @@
             <div class="flex flex-col gap-2 rounded-2xl bg-gray-50 p-4">
                 <span class="text-xs font-bold uppercase tracking-wider text-gray-500">Filter Room Type:</span>
                 <div class="flex flex-wrap gap-1.5" id="guest-filter-container">
-                    <button type="button" class="btn btn-xs sm:btn-sm rounded-full guest-filter-btn border-0 bg-[#5A3E2B] text-white hover:bg-[#453020]" data-filter="all">All Rooms</button>
-                    <button type="button" class="btn btn-xs sm:btn-sm rounded-full guest-filter-btn border border-gray-300 bg-white text-gray-700 hover:bg-[#FAF8F4] hover:text-gray-700" data-filter="Standard">Standard (PHP 1,800)</button>
-                    <button type="button" class="btn btn-xs sm:btn-sm rounded-full guest-filter-btn border border-gray-300 bg-white text-gray-700 hover:bg-[#FAF8F4] hover:text-gray-700" data-filter="Junior Suite">Junior Suite (PHP 1,950)</button>
-                    <button type="button" class="btn btn-xs sm:btn-sm rounded-full guest-filter-btn border border-gray-300 bg-white text-gray-700 hover:bg-[#FAF8F4] hover:text-gray-700" data-filter="Deluxe Twin">Deluxe Twin (PHP 2,250)</button>
-                    <button type="button" class="btn btn-xs sm:btn-sm rounded-full guest-filter-btn border border-gray-300 bg-white text-gray-700 hover:bg-[#FAF8F4] hover:text-gray-700" data-filter="Family Suite">Family Suite (PHP 3,500)</button>
-                    <button type="button" class="btn btn-xs sm:btn-sm rounded-full guest-filter-btn border border-gray-300 bg-white text-gray-700 hover:bg-[#FAF8F4] hover:text-gray-700" data-filter="Super Deluxe Room">Super Deluxe (PHP 3,000)</button>
+                    <button type="button" class="btn btn-xs sm:btn-sm rounded-full guest-filter-btn border-0 bg-brand-primary text-white hover:bg-[#6d28d9]" data-filter="all">All Rooms</button>
+                    <button type="button" class="btn btn-xs sm:btn-sm rounded-full guest-filter-btn border border-gray-300 bg-white text-gray-700 hover:bg-[#ffffff] hover:text-gray-700" data-filter="Standard">Standard (PHP 1,800)</button>
+                    <button type="button" class="btn btn-xs sm:btn-sm rounded-full guest-filter-btn border border-gray-300 bg-white text-gray-700 hover:bg-[#ffffff] hover:text-gray-700" data-filter="Junior Suite">Junior Suite (PHP 1,950)</button>
+                    <button type="button" class="btn btn-xs sm:btn-sm rounded-full guest-filter-btn border border-gray-300 bg-white text-gray-700 hover:bg-[#ffffff] hover:text-gray-700" data-filter="Deluxe Twin">Deluxe Twin (PHP 2,250)</button>
+                    <button type="button" class="btn btn-xs sm:btn-sm rounded-full guest-filter-btn border border-gray-300 bg-white text-gray-700 hover:bg-[#ffffff] hover:text-gray-700" data-filter="Family Suite">Family Suite (PHP 3,500)</button>
+                    <button type="button" class="btn btn-xs sm:btn-sm rounded-full guest-filter-btn border border-gray-300 bg-white text-gray-700 hover:bg-[#ffffff] hover:text-gray-700" data-filter="Super Deluxe Room">Super Deluxe (PHP 3,000)</button>
                 </div>
             </div>
 
@@ -444,7 +444,7 @@
             <div class="flex flex-col items-center justify-between gap-3 border-t border-gray-100 pt-4 text-center sm:flex-row sm:text-left">
                 <span class="text-xs text-gray-500">{{ $roomInquiryText }}</span>
                 <form method="dialog">
-                    <button class="btn btn-sm w-full rounded-full border-0 bg-[#5A3E2B] px-5 text-white hover:bg-[#453020] sm:w-auto">Close Window</button>
+                    <button class="btn btn-sm w-full rounded-full border-0 bg-brand-primary px-5 text-white hover:bg-[#6d28d9] sm:w-auto">Close Window</button>
                 </form>
             </div>
         </div>
@@ -460,10 +460,10 @@
         filterBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 filterBtns.forEach(b => {
-                    b.classList.remove('bg-[#5A3E2B]', 'text-white', 'border-0');
+                    b.classList.remove('bg-brand-primary', 'text-white', 'border-0');
                     b.classList.add('border', 'border-gray-300', 'bg-white', 'text-gray-700');
                 });
-                btn.classList.add('bg-[#5A3E2B]', 'text-white', 'border-0');
+                btn.classList.add('bg-brand-primary', 'text-white', 'border-0');
                 btn.classList.remove('border', 'border-gray-300', 'bg-white', 'text-gray-700');
 
                 const filter = btn.dataset.filter;

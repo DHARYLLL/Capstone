@@ -22,7 +22,7 @@
 
 @section('content')
     <div class="space-y-8">
-        <section class="rounded-[2rem] border border-[#eadfce] bg-white p-6 shadow-sm lg:p-8">
+        <section class="rounded-[2rem] border border-[#e2e8f0] bg-white p-6 shadow-sm lg:p-8">
             <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                 <div>
                     <h1 class="text-3xl font-black tracking-tight text-gray-900">Live Chat & Staff Handoff</h1>
@@ -37,9 +37,9 @@
                 <div class="card-body p-6">
                     <h2 class="text-lg font-bold text-gray-900">Client queue</h2>
                     <div class="mt-4 space-y-3">
-                        <div class="rounded-2xl bg-[#FAF8F4] p-4"><div class="font-semibold text-gray-800">Maria D.</div><div class="text-sm text-gray-500">Waiting · Booking confirmation</div></div>
-                        <div class="rounded-2xl bg-[#FAF8F4] p-4"><div class="font-semibold text-gray-800">John P.</div><div class="text-sm text-gray-500">Bot override · Payment issue</div></div>
-                        <div class="rounded-2xl bg-[#FAF8F4] p-4"><div class="font-semibold text-gray-800">Aya R.</div><div class="text-sm text-gray-500">Live with operator · Room inquiry</div></div>
+                        <div class="rounded-2xl bg-[#ffffff] p-4"><div class="font-semibold text-gray-800">Maria D.</div><div class="text-sm text-gray-500">Waiting · Booking confirmation</div></div>
+                        <div class="rounded-2xl bg-[#ffffff] p-4"><div class="font-semibold text-gray-800">John P.</div><div class="text-sm text-gray-500">Bot override · Payment issue</div></div>
+                        <div class="rounded-2xl bg-[#ffffff] p-4"><div class="font-semibold text-gray-800">Aya R.</div><div class="text-sm text-gray-500">Live with operator · Room inquiry</div></div>
                     </div>
                 </div>
             </div>
@@ -48,9 +48,9 @@
                 <div class="card-body p-6">
                     <h2 class="text-lg font-bold text-gray-900">Conversation timeline</h2>
                     <div class="mt-4 space-y-3 text-sm text-gray-600">
-                        <div class="rounded-2xl bg-[#F8F1E7] p-4">Bot answered: room availability</div>
+                        <div class="rounded-2xl bg-[#f8fafc] p-4">Bot answered: room availability</div>
                         <div class="rounded-2xl bg-white border border-gray-100 p-4">System: routed to human because payment details were requested</div>
-                        <div class="rounded-2xl bg-[#F8F1E7] p-4">Operator joined the conversation</div>
+                        <div class="rounded-2xl bg-[#f8fafc] p-4">Operator joined the conversation</div>
                     </div>
                     <div class="mt-5 rounded-[1.5rem] border border-gray-200 bg-white p-4">
                         <div class="text-sm font-semibold text-gray-800">Live reply</div>

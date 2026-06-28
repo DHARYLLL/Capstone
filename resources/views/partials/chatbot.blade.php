@@ -16,9 +16,9 @@
 <div id="chatbot" class="fixed bottom-4 right-4 z-50">
     <input id="chatbot-toggle" type="checkbox" class="peer hidden" checked>
 
-    <div class="absolute bottom-16 right-0 hidden w-[calc(100vw-2rem)] max-w-sm overflow-hidden rounded-[1.75rem] border border-[#eadfce] bg-white shadow-2xl peer-checked:block sm:w-[22rem]">
+    <div class="absolute bottom-16 right-0 hidden w-[calc(100vw-2rem)] max-w-sm overflow-hidden rounded-[1.75rem] border border-[#e2e8f0] bg-white shadow-2xl peer-checked:block sm:w-[22rem]">
         <!-- Chatbot Header -->
-        <div class="flex items-center justify-between bg-[#5A3E2B] px-4 py-4 text-white">
+        <div class="flex items-center justify-between bg-brand-primary px-4 py-4 text-white">
             <div>
                 <div class="font-bold flex items-center gap-2">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -47,7 +47,7 @@
             <!-- Starter buttons wrapper -->
             <div id="starter-buttons-wrapper" class="space-y-2 pt-2">
                 @foreach ($chatPrompts as $prompt)
-                    <button class="btn btn-sm w-full justify-start border border-[#d8c6b0] bg-white text-gray-700 hover:border-[#5A3E2B] hover:bg-[#f7efe4] hover:text-gray-700 text-xs font-semibold rounded-xl chat-prompt-btn"
+                    <button class="btn btn-sm w-full justify-start border border-[#e2e8f0] bg-white text-gray-700 hover:border-brand-primary hover:bg-[#f5f3ff] hover:text-gray-700 text-xs font-semibold rounded-xl chat-prompt-btn"
                             data-question="{{ $prompt['question'] }}">
                         {{ $prompt['icon'] ?? '💬' }} {{ $prompt['label'] }}
                     </button>
@@ -56,10 +56,10 @@
         </div>
 
         <!-- Chat Input field -->
-        <div class="border-t border-[#eadfce] p-3 bg-white">
+        <div class="border-t border-[#e2e8f0] p-3 bg-white">
             <form id="chat-input-form" class="join w-full">
-                <input type="text" id="chat-input-field" class="input join-item w-full border-[#d8c6b0] bg-white focus:border-[#5A3E2B] focus:outline-none text-sm" placeholder="{{ $chatPlaceholder }}" autocomplete="off">
-                <button type="submit" class="btn join-item border-0 bg-[#5A3E2B] text-white hover:bg-[#4a3223]">
+                <input type="text" id="chat-input-field" class="input join-item w-full border-[#e2e8f0] bg-white focus:border-brand-primary focus:outline-none text-sm" placeholder="{{ $chatPlaceholder }}" autocomplete="off">
+                <button type="submit" class="btn join-item border-0 bg-brand-primary text-white hover:bg-[#6d28d9]">
                     <svg class="h-4 w-4 fill-current" viewBox="0 0 24 24">
                         <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
                     </svg>
@@ -69,7 +69,7 @@
     </div>
 
     <!-- Toggle button floating -->
-    <label for="chatbot-toggle" class="btn btn-circle h-14 w-14 border-0 bg-[#5A3E2B] text-white shadow-2xl hover:bg-[#4a3223] transition-all hover:scale-105 flex items-center justify-center cursor-pointer" aria-label="Toggle chat">
+    <label for="chatbot-toggle" class="btn btn-circle h-14 w-14 border-0 bg-brand-primary text-white shadow-2xl hover:bg-[#6d28d9] transition-all hover:scale-105 flex items-center justify-center cursor-pointer" aria-label="Toggle chat">
         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h8M8 14h5m-7 7l-4 1 1-4A9 9 0 1118 6 9 9 0 016 21z" />
         </svg>
@@ -93,7 +93,7 @@
         const appendMessage = (text, isUser = false) => {
             const msg = document.createElement('div');
             msg.className = isUser 
-                ? 'chat-message-item max-w-[85%] rounded-2xl rounded-tr-md p-4 text-sm leading-6 bg-[#5A3E2B] text-white shadow-sm ml-auto text-right'
+                ? 'chat-message-item max-w-[85%] rounded-2xl rounded-tr-md p-4 text-sm leading-6 bg-brand-primary text-white shadow-sm ml-auto text-right'
                 : 'chat-message-item max-w-[85%] rounded-2xl rounded-tl-md p-4 text-sm leading-6 bg-white border border-gray-100 text-gray-700 shadow-sm mr-auto';
             msg.innerHTML = text;
             container.appendChild(msg);
@@ -128,41 +128,41 @@
                             <div class="p-2 bg-gray-50 rounded-xl border border-gray-100">
                                 <div class="flex justify-between font-bold text-gray-800">
                                     <span>Standard Room</span>
-                                    <span class="text-[#5A3E2B]">PHP 1,800</span>
+                                    <span class="text-brand-primary">PHP 1,800</span>
                                 </div>
                                 <div class="text-[10px] text-gray-500 mt-0.5">Rooms: RM 310, 312, 315 <span class="text-emerald-600 font-semibold">(3 vacant)</span> | RM 314 <span class="text-rose-500">(1 booked)</span></div>
                             </div>
                             <div class="p-2 bg-gray-50 rounded-xl border border-gray-100">
                                 <div class="flex justify-between font-bold text-gray-800">
                                     <span>Junior Suite</span>
-                                    <span class="text-[#5A3E2B]">PHP 1,950</span>
+                                    <span class="text-brand-primary">PHP 1,950</span>
                                 </div>
                                 <div class="text-[10px] text-gray-500 mt-0.5">Rooms: RM 301 <span class="text-emerald-600 font-semibold">(1 vacant)</span> | RM 308 <span class="text-rose-500">(1 booked)</span></div>
                             </div>
                             <div class="p-2 bg-gray-50 rounded-xl border border-gray-100">
                                 <div class="flex justify-between font-bold text-gray-800">
                                     <span>Deluxe Twin</span>
-                                    <span class="text-[#5A3E2B]">PHP 2,250</span>
+                                    <span class="text-brand-primary">PHP 2,250</span>
                                 </div>
                                 <div class="text-[10px] text-gray-500 mt-0.5">Rooms: RM 302, 303, 305, 307, 309 <span class="text-emerald-600 font-semibold">(5 vacant)</span> | RM 306, 311 <span class="text-rose-500">(2 booked)</span> | RM 304 <span class="text-amber-600">(1 maintenance)</span></div>
                             </div>
                             <div class="p-2 bg-gray-50 rounded-xl border border-gray-100">
                                 <div class="flex justify-between font-bold text-gray-800">
                                     <span>Family Suite</span>
-                                    <span class="text-[#5A3E2B]">PHP 3,500</span>
+                                    <span class="text-brand-primary">PHP 3,500</span>
                                 </div>
                                 <div class="text-[10px] text-gray-500 mt-0.5">Rooms: RM 201, 206 <span class="text-emerald-600 font-semibold">(2 vacant)</span> | RM 202 <span class="text-rose-500">(1 booked)</span> | RM 207 <span class="text-amber-600">(1 maintenance)</span></div>
                             </div>
                             <div class="p-2 bg-gray-50 rounded-xl border border-gray-100">
                                 <div class="flex justify-between font-bold text-gray-800">
                                     <span>Super Deluxe Room</span>
-                                    <span class="text-[#5A3E2B]">PHP 3,000</span>
+                                    <span class="text-brand-primary">PHP 3,000</span>
                                 </div>
                                 <div class="text-[10px] text-gray-500 mt-0.5">Rooms: RM 203, 205 <span class="text-emerald-600 font-semibold">(2 vacant)</span> | RM 204 <span class="text-rose-500">(1 booked)</span></div>
                             </div>
                         </div>
                         <div class="pt-1">
-                            <button onclick="if(window.room_availability_modal) room_availability_modal.showModal()" class="btn btn-xs rounded-full border-0 bg-[#5A3E2B] text-white hover:bg-[#453020] px-3 w-full">
+                            <button onclick="if(window.room_availability_modal) room_availability_modal.showModal()" class="btn btn-xs rounded-full border-0 bg-brand-primary text-white hover:bg-[#6d28d9] px-3 w-full">
                                 💻 Open Rooms Availability Grid
                             </button>
                         </div>

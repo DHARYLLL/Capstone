@@ -49,21 +49,21 @@
                             <h2 class="text-xl font-bold text-gray-800">Recent activity</h2>
                             <p class="mt-1 text-sm text-gray-500">Latest updates from business management and content edits.</p>
                         </div>
-                        <button class="btn btn-sm rounded-full border border-gray-300 bg-white text-gray-700 transition-colors duration-200 hover:border-[#D8C3A7] hover:bg-[#F4EEDF] hover:text-gray-900">
+                        <button class="btn btn-sm rounded-full border border-gray-300 bg-white text-gray-700 transition-colors duration-200 hover:border-brand-border hover:bg-[#f5f3ff] hover:text-gray-900">
                             View history
                         </button>
                     </div>
 
                     <div class="mt-6 space-y-3">
-                        <div class="flex gap-4 rounded-2xl border border-gray-100 bg-[#FAF8F4] p-4">
-                            <div class="mt-1 h-10 w-1 rounded-full bg-[#5A3E2B]"></div>
+                        <div class="flex gap-4 rounded-2xl border border-gray-100 bg-[#ffffff] p-4">
+                            <div class="mt-1 h-10 w-1 rounded-full bg-brand-primary"></div>
                             <div>
                                 <div class="font-semibold text-gray-800">Updated Dakong Balay description</div>
                                 <p class="mt-1 text-sm text-gray-500">Refined the restaurant overview and highlighted Filipino cuisine offerings.</p>
                             </div>
                         </div>
 
-                        <div class="flex gap-4 rounded-2xl border border-gray-100 bg-[#FAF8F4] p-4">
+                        <div class="flex gap-4 rounded-2xl border border-gray-100 bg-[#ffffff] p-4">
                             <div class="mt-1 h-10 w-1 rounded-full bg-emerald-500"></div>
                             <div>
                                 <div class="font-semibold text-gray-800">Archived pool service</div>
@@ -71,7 +71,7 @@
                             </div>
                         </div>
 
-                        <div class="flex gap-4 rounded-2xl border border-gray-100 bg-[#FAF8F4] p-4">
+                        <div class="flex gap-4 rounded-2xl border border-gray-100 bg-[#ffffff] p-4">
                             <div class="mt-1 h-10 w-1 rounded-full bg-sky-500"></div>
                             <div>
                                 <div class="font-semibold text-gray-800">Synced chatbot knowledge base</div>
@@ -88,12 +88,12 @@
                     <p class="mt-1 text-sm text-gray-500">Quick reminders for maintaining accurate and consistent content.</p>
 
                     <div class="mt-5 space-y-4">
-                        <div class="rounded-2xl bg-[#F8F1E7] p-4">
+                        <div class="rounded-2xl bg-[#f8fafc] p-4">
                             <div class="font-semibold text-gray-800">Centralized business control</div>
                             <p class="mt-1 text-sm leading-6 text-gray-600">All business records are updated in one place to keep public pages aligned.</p>
                         </div>
 
-                        <div class="rounded-2xl bg-[#F8F1E7] p-4">
+                        <div class="rounded-2xl bg-[#f8fafc] p-4">
                             <div class="font-semibold text-gray-800">Chatbot-aware content</div>
                             <p class="mt-1 text-sm leading-6 text-gray-600">Keep descriptions concise so the assistant can answer quickly and clearly.</p>
                         </div>
@@ -109,7 +109,7 @@
                         <h2 class="text-xl font-bold text-gray-800">Manage Businesses</h2>
                         <p class="mt-1 text-sm text-gray-500">View and edit the core business records shown across the platform.</p>
                     </div>
-                    <button class="btn rounded-full border-0 bg-[#5A3E2B] text-white transition-colors duration-200 hover:bg-[#453020] hover:text-white">
+                    <button class="btn rounded-full border-0 bg-brand-primary text-white transition-colors duration-200 hover:bg-[#6d28d9] hover:text-white">
                         <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current" aria-hidden="true">
                             <path d="M19 11H13V5h-2v6H5v2h6v6h2v-6h6z"/>
                         </svg>
@@ -137,7 +137,7 @@
                                 data-status="active">
                                 <td>
                                     <div class="flex items-center gap-3">
-                                        <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-[#EED9C4] to-[#D9C0A5]"></div>
+                                        <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-brand-primary-light to-brand-border"></div>
                                         <div>
                                             <div class="font-semibold text-gray-800">Dakong Balay</div>
                                             <div class="text-sm text-gray-500">Restaurant and dining experience</div>
@@ -149,7 +149,7 @@
                                 <td><span class="badge badge-success badge-outline">Active</span></td>
                                 <td>
                                     <div class="flex justify-end">
-                                        <a href="{{ route('admin.businesses.edit', 'dakong-balay') }}" class="btn btn-sm inline-flex items-center gap-2 rounded-full border border-gray-300 bg-white whitespace-nowrap text-gray-700 transition-colors duration-200 hover:border-[#D8C3A7] hover:bg-[#F4EEDF] hover:text-gray-900">
+                                        <a href="{{ route('admin.businesses.edit', 'dakong-balay') }}" class="btn btn-sm inline-flex items-center gap-2 rounded-full border border-gray-300 bg-white whitespace-nowrap text-gray-700 transition-colors duration-200 hover:border-brand-border hover:bg-[#f5f3ff] hover:text-gray-900">
                                             <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current" aria-hidden="true">
                                                 <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm18-10.5a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
                                             </svg>
@@ -179,7 +179,7 @@
                                 <td><span class="badge badge-success badge-outline">Active</span></td>
                                 <td>
                                     <div class="flex justify-end">
-                                        <a href="{{ route('admin.businesses.edit', 'monclaire-pool') }}" class="btn btn-sm inline-flex items-center gap-2 rounded-full border border-gray-300 bg-white whitespace-nowrap text-gray-700 transition-colors duration-200 hover:border-[#D8C3A7] hover:bg-[#F4EEDF] hover:text-gray-900">
+                                        <a href="{{ route('admin.businesses.edit', 'monclaire-pool') }}" class="btn btn-sm inline-flex items-center gap-2 rounded-full border border-gray-300 bg-white whitespace-nowrap text-gray-700 transition-colors duration-200 hover:border-brand-border hover:bg-[#f5f3ff] hover:text-gray-900">
                                             <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current" aria-hidden="true">
                                                 <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm18-10.5a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
                                             </svg>
@@ -209,7 +209,7 @@
                                 <td><span class="badge badge-success badge-outline">Active</span></td>
                                 <td>
                                     <div class="flex justify-end">
-                                        <a href="{{ route('admin.businesses.edit', 'villa-carmelita') }}" class="btn btn-sm inline-flex items-center gap-2 rounded-full border border-gray-300 bg-white whitespace-nowrap text-gray-700 transition-colors duration-200 hover:border-[#D8C3A7] hover:bg-[#F4EEDF] hover:text-gray-900">
+                                        <a href="{{ route('admin.businesses.edit', 'villa-carmelita') }}" class="btn btn-sm inline-flex items-center gap-2 rounded-full border border-gray-300 bg-white whitespace-nowrap text-gray-700 transition-colors duration-200 hover:border-brand-border hover:bg-[#f5f3ff] hover:text-gray-900">
                                             <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current" aria-hidden="true">
                                                 <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm18-10.5a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
                                             </svg>
@@ -228,9 +228,9 @@
                         Showing <strong>1</strong> to <strong>3</strong> of <strong>3</strong> businesses
                     </div>
                     <div class="join">
-                        <button type="button" class="join-item btn btn-xs border border-gray-300 bg-white text-gray-700 transition-colors duration-200 hover:border-[#D8C3A7] hover:bg-[#F4EEDF] hover:text-gray-900" disabled>«</button>
-                        <button type="button" class="join-item btn btn-xs btn-active border-0 bg-[#5A3E2B] text-white transition-colors duration-200 hover:bg-[#453020] hover:text-white">1</button>
-                        <button type="button" class="join-item btn btn-xs border border-gray-300 bg-white text-gray-700 transition-colors duration-200 hover:border-[#D8C3A7] hover:bg-[#F4EEDF] hover:text-gray-900" disabled>»</button>
+                        <button type="button" class="join-item btn btn-xs border border-gray-300 bg-white text-gray-700 transition-colors duration-200 hover:border-brand-border hover:bg-[#f5f3ff] hover:text-gray-900" disabled>«</button>
+                        <button type="button" class="join-item btn btn-xs btn-active border-0 bg-brand-primary text-white transition-colors duration-200 hover:bg-[#6d28d9] hover:text-white">1</button>
+                        <button type="button" class="join-item btn btn-xs border border-gray-300 bg-white text-gray-700 transition-colors duration-200 hover:border-brand-border hover:bg-[#f5f3ff] hover:text-gray-900" disabled>»</button>
                     </div>
                 </div>
             </div>
@@ -277,17 +277,17 @@
                             <textarea id="edit-business-description" class="textarea textarea-bordered min-h-32 bg-base-100">Authentic Filipino cuisine and family-style dining in a warm, inviting setting.</textarea>
                         </label>
 
-                        <div class="flex flex-col gap-3 rounded-2xl border border-dashed border-gray-300 bg-[#FAF8F4] p-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div class="flex flex-col gap-3 rounded-2xl border border-dashed border-gray-300 bg-[#ffffff] p-4 sm:flex-row sm:items-center sm:justify-between">
                             <div>
                                 <div class="font-medium text-gray-800">Image</div>
                                 <p id="edit-business-image-text" class="text-sm text-gray-500">dakong-balay-cover.jpg</p>
                             </div>
-                            <button type="button" class="btn rounded-full border border-gray-300 bg-white text-gray-700 transition-colors duration-200 hover:border-[#D8C3A7] hover:bg-[#F4EEDF] hover:text-gray-900">
+                            <button type="button" class="btn rounded-full border border-gray-300 bg-white text-gray-700 transition-colors duration-200 hover:border-brand-border hover:bg-[#f5f3ff] hover:text-gray-900">
                                 Replace image
                             </button>
                         </div>
 
-                        <div class="rounded-2xl bg-[#FAF8F4] p-4">
+                        <div class="rounded-2xl bg-[#ffffff] p-4">
                             <div class="flex items-center justify-between gap-4">
                                 <div>
                                     <div class="font-medium text-gray-800">Business Status</div>
@@ -298,10 +298,10 @@
                         </div>
 
                         <div class="flex flex-col gap-3 sm:flex-row">
-                            <button type="submit" class="btn rounded-full border-0 bg-[#5A3E2B] text-white transition-colors duration-200 hover:bg-[#453020] hover:text-white">
+                            <button type="submit" class="btn rounded-full border-0 bg-brand-primary text-white transition-colors duration-200 hover:bg-[#6d28d9] hover:text-white">
                                 Save changes
                             </button>
-                            <button type="button" class="btn rounded-full border border-gray-300 bg-white text-gray-700 transition-colors duration-200 hover:border-[#D8C3A7] hover:bg-[#F4EEDF] hover:text-gray-900">
+                            <button type="button" class="btn rounded-full border border-gray-300 bg-white text-gray-700 transition-colors duration-200 hover:border-brand-border hover:bg-[#f5f3ff] hover:text-gray-900">
                                 Cancel
                             </button>
                         </div>
@@ -337,7 +337,7 @@
                 <div class="card bg-base-100 shadow-sm">
                     <div class="card-body p-6">
                         <h3 class="text-lg font-bold text-gray-800">Editing guidelines</h3>
-                        <div class="mt-4 rounded-2xl bg-[#F8F1E7] p-4 text-sm leading-6 text-gray-600">
+                        <div class="mt-4 rounded-2xl bg-[#f8fafc] p-4 text-sm leading-6 text-gray-600">
                             Keep business descriptions short, accurate, and chatbot-friendly. Use consistent naming, clear service categories, and updated images for the best user experience.
                         </div>
                     </div>
@@ -370,7 +370,7 @@
 
             // Set initial highlight for the first row (Dakong Balay)
             if (rows.length > 0) {
-                rows[0].classList.add('bg-[#FAF8F4]', 'border-l-[#5A3E2B]');
+                rows[0].classList.add('bg-[#ffffff]', 'border-l-brand-primary');
             }
 
             rows.forEach(row => {
@@ -424,11 +424,11 @@
 
                     // Highlight selected row
                     rows.forEach(r => {
-                        r.classList.remove('bg-[#FAF8F4]', 'border-l-[#5A3E2B]');
+                        r.classList.remove('bg-[#ffffff]', 'border-l-brand-primary');
                         r.classList.add('border-transparent');
                     });
                     row.classList.remove('border-transparent');
-                    row.classList.add('bg-[#FAF8F4]', 'border-l-[#5A3E2B]');
+                    row.classList.add('bg-[#ffffff]', 'border-l-brand-primary');
                 });
             });
             
@@ -442,7 +442,7 @@
                     const toast = document.createElement('div');
                     toast.className = 'fixed bottom-4 right-4 z-50';
                     toast.innerHTML = `
-                        <div class="alert alert-success bg-[#5A3E2B] text-white border-0 shadow-2xl rounded-2xl p-4 flex items-center gap-3">
+                        <div class="alert alert-success bg-brand-primary text-white border-0 shadow-2xl rounded-2xl p-4 flex items-center gap-3">
                             <svg class="h-6 w-6 shrink-0 stroke-current text-white" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                             <div>
                                 <span class="font-bold">Success!</span>

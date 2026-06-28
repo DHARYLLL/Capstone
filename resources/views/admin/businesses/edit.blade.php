@@ -64,7 +64,7 @@
                     'category' => 'Pass',
                     'price' => 'PHP 150',
                     'availability' => 'Available daily',
-                    'availability_class' => 'badge-outline border-[#D8C3A7] bg-[#F8F1E7] text-[#6B4A33]',
+                    'availability_class' => 'badge-outline border-brand-border bg-[#f8fafc] text-brand-primary-dark',
                 ],
                 [
                     'name' => 'Day Pass - Child',
@@ -73,7 +73,7 @@
                     'category' => 'Pass',
                     'price' => 'PHP 100',
                     'availability' => 'Available daily',
-                    'availability_class' => 'badge-outline border-[#D8C3A7] bg-[#F8F1E7] text-[#6B4A33]',
+                    'availability_class' => 'badge-outline border-brand-border bg-[#f8fafc] text-brand-primary-dark',
                 ],
                 [
                     'name' => 'Private Gazebo',
@@ -82,7 +82,7 @@
                     'category' => 'Rental',
                     'price' => 'PHP 800',
                     'availability' => 'By schedule',
-                    'availability_class' => 'badge-outline border-[#D8C3A7] bg-[#F8F1E7] text-[#6B4A33]',
+                    'availability_class' => 'badge-outline border-brand-border bg-[#f8fafc] text-brand-primary-dark',
                 ],
                 [
                     'name' => 'Pool Party Package',
@@ -91,7 +91,7 @@
                     'category' => 'Event',
                     'price' => 'PHP 5,000',
                     'availability' => 'Reserve in advance',
-                    'availability_class' => 'badge-outline border-[#D8C3A7] bg-[#F8F1E7] text-[#6B4A33]',
+                    'availability_class' => 'badge-outline border-brand-border bg-[#f8fafc] text-brand-primary-dark',
                 ],
             ];
         } else {
@@ -110,7 +110,7 @@
                     'category' => 'Meal',
                     'price' => 'PHP 220',
                     'availability' => 'Available today',
-                    'availability_class' => 'badge-outline border-[#D8C3A7] bg-[#F8F1E7] text-[#6B4A33]',
+                    'availability_class' => 'badge-outline border-brand-border bg-[#f8fafc] text-brand-primary-dark',
                 ],
                 [
                     'name' => 'Pork Sisig Platter',
@@ -119,7 +119,7 @@
                     'category' => 'Sharing plate',
                     'price' => 'PHP 340',
                     'availability' => 'Limited stock',
-                    'availability_class' => 'badge-outline border-[#D8C3A7] bg-[#F8F1E7] text-[#6B4A33]',
+                    'availability_class' => 'badge-outline border-brand-border bg-[#f8fafc] text-brand-primary-dark',
                 ],
                 [
                     'name' => 'Family Set Menu',
@@ -128,7 +128,7 @@
                     'category' => 'Bundle',
                     'price' => 'PHP 1,250',
                     'availability' => 'Available daily',
-                    'availability_class' => 'badge-outline border-[#D8C3A7] bg-[#F8F1E7] text-[#6B4A33]',
+                    'availability_class' => 'badge-outline border-brand-border bg-[#f8fafc] text-brand-primary-dark',
                 ],
                 [
                     'name' => 'Private Dining Area',
@@ -137,7 +137,7 @@
                     'category' => 'Service',
                     'price' => 'PHP 800',
                     'availability' => 'By schedule',
-                    'availability_class' => 'badge-outline border-[#D8C3A7] bg-[#F8F1E7] text-[#6B4A33]',
+                    'availability_class' => 'badge-outline border-brand-border bg-[#f8fafc] text-brand-primary-dark',
                 ],
             ];
         }
@@ -173,13 +173,13 @@
                     </div>
 
                     <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 shrink-0">
-                        <a href="{{ route('admin.dashboard') }}" class="btn btn-outline rounded-full border-gray-300 text-gray-700 transition-colors duration-200 hover:border-[#D8C3A7] hover:bg-[#F4EEDF] hover:text-gray-900 whitespace-nowrap">
+                        <a href="{{ route('admin.dashboard') }}" class="btn btn-outline rounded-full border-gray-300 text-gray-700 transition-colors duration-200 hover:border-brand-border hover:bg-[#f5f3ff] hover:text-gray-900 whitespace-nowrap">
                             <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current" aria-hidden="true">
                                 <path d="M19 11H8.41l4.3-4.29L11.29 5 5 11.29l6.29 6.29 1.42-1.42-4.3-4.3H19v-2z"/>
                             </svg>
                             Back to dashboard
                         </a>
-                        <button type="button" id="save-all-btn" class="btn rounded-full border-0 bg-[#5A3E2B] text-white transition-colors duration-200 hover:bg-[#453020] hover:text-white whitespace-nowrap">
+                        <button type="button" id="save-all-btn" class="btn rounded-full border-0 bg-brand-primary text-white transition-colors duration-200 hover:bg-[#6d28d9] hover:text-white whitespace-nowrap">
                             <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current" aria-hidden="true">
                                 <path d="M17 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-4-4zm-5 16a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm3-10H5V5h10v4z"/>
                             </svg>
@@ -204,14 +204,14 @@
                             <span class="badge badge-success badge-outline self-start">Active</span>
                         </div>
 
-                        <div class="rounded-3xl bg-[#F8F1E7] p-4 sm:p-5">
+                        <div class="rounded-3xl bg-[#f8fafc] p-4 sm:p-5">
                             <div class="grid gap-4 md:grid-cols-[220px_minmax(0,1fr)] md:items-center">
                                 <img src="{{ $businessImage }}" alt="{{ $businessName }} preview"
                                     class="h-44 w-full rounded-2xl object-cover shadow-sm md:h-40">
                                 <div class="space-y-3">
                                     <div class="flex flex-wrap items-center gap-2">
                                         <span class="badge badge-success badge-outline">{{ $businessType }}</span>
-                                        <span class="badge border-0 bg-[#EFDCC8] text-[#6B4A33]">Featured business</span>
+                                        <span class="badge border-0 bg-brand-primary-light text-brand-primary-dark">Featured business</span>
                                     </div>
                                     <div>
                                         <h3 class="text-2xl font-bold text-gray-900">{{ $businessName }}</h3>
@@ -266,7 +266,7 @@
                                 </label>
 
                                 <button type="button"
-                                    class="btn btn-outline rounded-full border-gray-300 text-gray-700 transition-colors duration-200 hover:border-[#D8C3A7] hover:bg-[#F4EEDF] hover:text-gray-900">
+                                    class="btn btn-outline rounded-full border-gray-300 text-gray-700 transition-colors duration-200 hover:border-brand-border hover:bg-[#f5f3ff] hover:text-gray-900">
                                     Replace image
                                 </button>
                             </div>
@@ -286,11 +286,11 @@
 
                             <div class="flex flex-col gap-3 sm:flex-row">
                                 <button type="submit"
-                                    class="btn rounded-full border-0 bg-[#5A3E2B] text-white hover:bg-[#453020]">
+                                    class="btn rounded-full border-0 bg-brand-primary text-white hover:bg-[#6d28d9]">
                                     Save business info
                                 </button>
                                 <a href="{{ route('admin.dashboard') }}"
-                                    class="btn btn-outline rounded-full border-gray-300 text-gray-700 hover:bg-[#F4EEDF]">
+                                    class="btn btn-outline rounded-full border-gray-300 text-gray-700 hover:bg-[#f5f3ff]">
                                     Cancel
                                 </a>
                             </div>
@@ -318,7 +318,7 @@
                 <div class="card bg-base-100 shadow-sm">
                     <div class="card-body gap-4 p-6">
                         <h3 class="text-lg font-bold text-gray-900">Admin notes</h3>
-                        <div class="rounded-2xl bg-[#F8F1E7] p-4 text-sm leading-6 text-gray-600">
+                        <div class="rounded-2xl bg-[#f8fafc] p-4 text-sm leading-6 text-gray-600">
                             Keep the business description short, accurate, and easy to scan. Use consistent naming so the
                             public site and internal records stay aligned.
                         </div>
@@ -372,22 +372,22 @@
                     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between bg-gray-50 p-4 rounded-2xl">
                         <div class="flex flex-wrap gap-1.5" id="room-filter-container">
                             <button type="button"
-                                class="btn btn-sm rounded-full filter-btn active border-0 bg-[#5A3E2B] text-white hover:bg-[#453020]"
+                                class="btn btn-sm rounded-full filter-btn active border-0 bg-brand-primary text-white hover:bg-[#6d28d9]"
                                 data-filter="all">All Rooms</button>
                             <button type="button"
-                                class="btn btn-sm rounded-full filter-btn btn-outline border-gray-300 text-gray-700 hover:bg-[#FAF8F4]"
+                                class="btn btn-sm rounded-full filter-btn btn-outline border-gray-300 text-gray-700 hover:bg-[#ffffff]"
                                 data-filter="Standard">Standard</button>
                             <button type="button"
-                                class="btn btn-sm rounded-full filter-btn btn-outline border-gray-300 text-gray-700 hover:bg-[#FAF8F4]"
+                                class="btn btn-sm rounded-full filter-btn btn-outline border-gray-300 text-gray-700 hover:bg-[#ffffff]"
                                 data-filter="Junior Suite">Junior Suite</button>
                             <button type="button"
-                                class="btn btn-sm rounded-full filter-btn btn-outline border-gray-300 text-gray-700 hover:bg-[#FAF8F4]"
+                                class="btn btn-sm rounded-full filter-btn btn-outline border-gray-300 text-gray-700 hover:bg-[#ffffff]"
                                 data-filter="Deluxe Twin">Deluxe Twin</button>
                             <button type="button"
-                                class="btn btn-sm rounded-full filter-btn btn-outline border-gray-300 text-gray-700 hover:bg-[#FAF8F4]"
+                                class="btn btn-sm rounded-full filter-btn btn-outline border-gray-300 text-gray-700 hover:bg-[#ffffff]"
                                 data-filter="Family Suite">Family Suite</button>
                             <button type="button"
-                                class="btn btn-sm rounded-full filter-btn btn-outline border-gray-300 text-gray-700 hover:bg-[#FAF8F4]"
+                                class="btn btn-sm rounded-full filter-btn btn-outline border-gray-300 text-gray-700 hover:bg-[#ffffff]"
                                 data-filter="Super Deluxe Room">Super Deluxe</button>
                         </div>
 
@@ -475,10 +475,10 @@
 
                         <div class="flex flex-wrap items-center gap-3 lg:justify-end">
                             <button type="button"
-                                class="btn rounded-full border-0 bg-[#5A3E2B] whitespace-nowrap text-white transition-colors duration-200 hover:bg-[#453020] hover:text-white">Active items</button>
+                                class="btn rounded-full border-0 bg-brand-primary whitespace-nowrap text-white transition-colors duration-200 hover:bg-[#6d28d9] hover:text-white">Active items</button>
                             <button type="button"
-                                class="btn btn-outline rounded-full border-gray-300 whitespace-nowrap text-gray-700 transition-colors duration-200 hover:border-[#D8C3A7] hover:bg-[#F4EEDF] hover:text-gray-900">Archived items</button>
-                            <button type="button" class="btn rounded-full border-0 bg-[#5A3E2B] whitespace-nowrap text-white transition-colors duration-200 hover:bg-[#453020] hover:text-white">
+                                class="btn btn-outline rounded-full border-gray-300 whitespace-nowrap text-gray-700 transition-colors duration-200 hover:border-brand-border hover:bg-[#f5f3ff] hover:text-gray-900">Archived items</button>
+                            <button type="button" class="btn rounded-full border-0 bg-brand-primary whitespace-nowrap text-white transition-colors duration-200 hover:bg-[#6d28d9] hover:text-white">
                                 <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current" aria-hidden="true">
                                     <path d="M19 11H13V5h-2v6H5v2h6v6h2v-6h6z" />
                                 </svg>
@@ -516,16 +516,16 @@
                                         <td class="whitespace-nowrap text-sm text-gray-600">{{ $product['category'] }}</td>
                                         <td class="whitespace-nowrap text-sm font-medium text-gray-900">{{ $product['price'] }}</td>
                                         <td>
-                                            <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold border border-[#D8C3A7] bg-[#F8F1E7] text-[#6B4A33] whitespace-nowrap">
+                                            <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold border border-brand-border bg-[#f8fafc] text-brand-primary-dark whitespace-nowrap">
                                                 {{ $product['availability'] }}
                                             </span>
                                         </td>
                                         <td>
                                             <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
-                                                <button type="button" class="btn btn-outline btn-sm rounded-full border-gray-300 whitespace-nowrap text-gray-700 transition-colors duration-200 hover:border-[#D8C3A7] hover:bg-[#F4EEDF] hover:text-gray-900 product-edit-btn">
+                                                <button type="button" class="btn btn-outline btn-sm rounded-full border-gray-300 whitespace-nowrap text-gray-700 transition-colors duration-200 hover:border-brand-border hover:bg-[#f5f3ff] hover:text-gray-900 product-edit-btn">
                                                     Edit details
                                                 </button>
-                                                <button type="button" class="btn btn-outline btn-sm rounded-full border-gray-300 whitespace-nowrap text-gray-700 transition-colors duration-200 hover:border-[#D8C3A7] hover:bg-[#F4EEDF] hover:text-gray-900 product-toggle-btn">
+                                                <button type="button" class="btn btn-outline btn-sm rounded-full border-gray-300 whitespace-nowrap text-gray-700 transition-colors duration-200 hover:border-brand-border hover:bg-[#f5f3ff] hover:text-gray-900 product-toggle-btn">
                                                     Mark unavailable
                                                 </button>
                                             </div>
@@ -542,9 +542,9 @@
                             Showing <strong>1</strong> to <strong>4</strong> of <strong>4</strong> items
                         </div>
                         <div class="join">
-                            <button type="button" class="join-item btn btn-xs btn-outline border-gray-300 text-gray-700 transition-colors duration-200 hover:border-[#D8C3A7] hover:bg-[#F4EEDF] hover:text-gray-900" disabled>«</button>
-                            <button type="button" class="join-item btn btn-xs btn-active border-0 bg-[#5A3E2B] text-white transition-colors duration-200 hover:bg-[#453020] hover:text-white">1</button>
-                            <button type="button" class="join-item btn btn-xs btn-outline border-gray-300 text-gray-700 transition-colors duration-200 hover:border-[#D8C3A7] hover:bg-[#F4EEDF] hover:text-gray-900" disabled>»</button>
+                            <button type="button" class="join-item btn btn-xs btn-outline border-gray-300 text-gray-700 transition-colors duration-200 hover:border-brand-border hover:bg-[#f5f3ff] hover:text-gray-900" disabled>«</button>
+                            <button type="button" class="join-item btn btn-xs btn-active border-0 bg-brand-primary text-white transition-colors duration-200 hover:bg-[#6d28d9] hover:text-white">1</button>
+                            <button type="button" class="join-item btn btn-xs btn-outline border-gray-300 text-gray-700 transition-colors duration-200 hover:border-brand-border hover:bg-[#f5f3ff] hover:text-gray-900" disabled>»</button>
                         </div>
                     </div>
                 @endif
@@ -560,7 +560,7 @@
                 const toast = document.createElement('div');
                 toast.className = 'fixed bottom-4 right-4 z-50';
                 toast.innerHTML = `
-                        <div class="alert alert-success bg-[#5A3E2B] text-white border-0 shadow-2xl rounded-2xl p-4 flex items-center gap-3">
+                        <div class="alert alert-success bg-brand-primary text-white border-0 shadow-2xl rounded-2xl p-4 flex items-center gap-3">
                             <svg class="h-6 w-6 shrink-0 stroke-current text-white" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                             <div>
                                 <span class="font-bold">${title}</span>
@@ -610,7 +610,7 @@
 
                     if (badge.textContent === 'Unavailable') {
                         badge.textContent = 'Available';
-                        badge.className = 'badge badge-outline border-[#D8C3A7] bg-[#F8F1E7] text-[#6B4A33]';
+                        badge.className = 'badge badge-outline border-brand-border bg-[#f8fafc] text-brand-primary-dark';
                         btn.textContent = 'Mark unavailable';
                         showToast(`"${itemName}" is now marked as Available.`, 'Status Updated');
                     } else {
@@ -640,11 +640,11 @@
 
                 const setFilterButtonState = (activeButton) => {
                     filterButtons.forEach(button => {
-                        button.classList.remove('active', 'bg-[#5A3E2B]', 'text-white');
+                        button.classList.remove('active', 'bg-brand-primary', 'text-white');
                         button.classList.add('btn-outline', 'border-gray-300', 'text-gray-700');
                     });
 
-                    activeButton.classList.add('active', 'bg-[#5A3E2B]', 'text-white');
+                    activeButton.classList.add('active', 'bg-brand-primary', 'text-white');
                     activeButton.classList.remove('btn-outline', 'border-gray-300', 'text-gray-700');
                 };
 
@@ -693,8 +693,8 @@
                         button.type = 'button';
                         button.textContent = label;
                         button.className = isActive
-                            ? 'join-item btn btn-xs btn-active border-0 bg-[#5A3E2B] text-white hover:bg-[#453020]'
-                            : 'join-item btn btn-xs btn-outline border-gray-300 text-gray-700 hover:bg-[#F4EEDF]';
+                            ? 'join-item btn btn-xs btn-active border-0 bg-brand-primary text-white hover:bg-[#6d28d9]'
+                            : 'join-item btn btn-xs btn-outline border-gray-300 text-gray-700 hover:bg-[#f5f3ff]';
 
                         if (ariaLabel) {
                             button.setAttribute('aria-label', ariaLabel);

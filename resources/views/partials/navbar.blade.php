@@ -7,14 +7,14 @@
     $navLogoUrl    = $navLogoPath ? asset('storage/' . ltrim($navLogoPath, '/')) : null;
 @endphp
 
-<nav class="fixed top-0 z-40 w-full border-b border-[#E9E2D6] bg-[#FCFBF8]/90 backdrop-blur">
+<nav class="fixed top-0 z-40 w-full border-b border-[#e2e8f0] bg-[#f8fafc]/90 backdrop-blur">
     <div class="navbar mx-auto max-w-7xl px-4 lg:px-8">
         <div class="navbar-start">
             <a href="#home" class="flex items-center gap-3">
                 @if ($navLogoUrl)
                     <img src="{{ $navLogoUrl }}" alt="{{ $navName }} logo" class="h-11 w-11 rounded-2xl object-cover shadow-sm">
                 @else
-                    <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#5A3E2B] text-white shadow-sm">
+                    <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-primary text-white shadow-sm">
                         <svg viewBox="0 0 24 24" class="h-6 w-6 fill-current" aria-hidden="true">
                             <path d="M12 2l8 4v12l-8 4-8-4V6l8-4zm0 2.3L6 7.1v9.8l6 3 6-3V7.1l-6-2.8z"/>
                         </svg>
@@ -29,16 +29,16 @@
 
         <div class="navbar-center hidden lg:flex">
             <ul class="menu menu-horizontal gap-1 px-1 text-sm font-medium text-gray-700">
-                <li><a href="#home" class="rounded-full hover:bg-[#F4EEDF] hover:text-[#5A3E2B] px-4 py-2 transition-colors">Home</a></li>
-                <li><a href="#businesses" class="rounded-full hover:bg-[#F4EEDF] hover:text-[#5A3E2B] px-4 py-2 transition-colors">Our Businesses</a></li>
-                <li><a href="#about" class="rounded-full hover:bg-[#F4EEDF] hover:text-[#5A3E2B] px-4 py-2 transition-colors">About</a></li>
-                <li><a href="#gallery" class="rounded-full hover:bg-[#F4EEDF] hover:text-[#5A3E2B] px-4 py-2 transition-colors">Gallery</a></li>
+                <li><a href="#home" class="rounded-full hover:bg-[#f5f3ff] hover:text-brand-primary px-4 py-2 transition-colors">Home</a></li>
+                <li><a href="#businesses" class="rounded-full hover:bg-[#f5f3ff] hover:text-brand-primary px-4 py-2 transition-colors">Our Businesses</a></li>
+                <li><a href="#about" class="rounded-full hover:bg-[#f5f3ff] hover:text-brand-primary px-4 py-2 transition-colors">About</a></li>
+                <li><a href="#gallery" class="rounded-full hover:bg-[#f5f3ff] hover:text-brand-primary px-4 py-2 transition-colors">Gallery</a></li>
             </ul>
         </div>
 
         <div class="navbar-end gap-2">
             {{-- Chat CTA --}}
-            <label for="chatbot-toggle" class="btn btn-sm rounded-full border-0 bg-[#5A3E2B] px-5 text-white hover:bg-[#453020] shadow-sm transition-all duration-300 cursor-pointer">
+            <label for="chatbot-toggle" class="btn btn-sm rounded-full border-0 bg-brand-primary px-5 text-white hover:bg-[#6d28d9] shadow-sm transition-all duration-300 cursor-pointer">
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h8M8 14h5m-7 7l-4 1 1-4A9 9 0 1118 6 9 9 0 016 21z"/>
                 </svg>
@@ -52,7 +52,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                     </svg>
                 </label>
-                <ul tabindex="0" class="dropdown-content menu menu-sm z-[1] mt-3 w-52 rounded-2xl border border-[#E9E2D6] bg-[#FCFBF8] p-2 shadow-lg text-sm font-medium text-gray-700">
+                <ul tabindex="0" class="dropdown-content menu menu-sm z-[1] mt-3 w-52 rounded-2xl border border-[#e2e8f0] bg-[#f8fafc] p-2 shadow-lg text-sm font-medium text-gray-700">
                     <li><a href="#home">Home</a></li>
                     <li><a href="#businesses">Our Businesses</a></li>
                     <li><a href="#about">About</a></li>

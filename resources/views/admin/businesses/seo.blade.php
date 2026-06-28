@@ -6,7 +6,7 @@
 
 @section('content')
     <div class="space-y-8">
-        <section class="rounded-[2rem] border border-[#eadfce] bg-white p-6 shadow-sm lg:p-8">
+        <section class="rounded-[2rem] border border-[#e2e8f0] bg-white p-6 shadow-sm lg:p-8">
             <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                 <div>
                     <h1 class="text-3xl font-black tracking-tight text-gray-900">SEO & Profile Wizard</h1>
@@ -31,7 +31,7 @@
                         <label class="form-control"><div class="label"><span class="label-text font-medium text-gray-700">Contact number</span></div><input class="input input-bordered bg-base-100" value="+63 912 345 6789"></label>
                     </div>
 
-                    <div class="rounded-[1.5rem] bg-[#FAF8F4] p-5">
+                    <div class="rounded-[1.5rem] bg-[#ffffff] p-5">
                         <div class="font-semibold text-gray-900">Landing path preview</div>
                         <div class="mt-2 text-sm text-gray-500">projectredai.com/villa-carmelita</div>
                         <div class="mt-4 flex items-center gap-4">
@@ -49,7 +49,7 @@
             <div class="card bg-base-100 shadow-sm">
                 <div class="card-body p-6 lg:p-8">
                     <h2 class="text-xl font-bold text-gray-900">Live preview</h2>
-                    <div class="mt-4 rounded-[2rem] bg-[#F8F1E7] p-5">
+                    <div class="mt-4 rounded-[2rem] bg-[#f8fafc] p-5">
                         <div class="text-sm font-semibold text-gray-900">Villa Carmelita</div>
                         <p class="mt-2 text-sm text-gray-600">A comfortable hospitality destination for stays and gatherings.</p>
                     </div>

@@ -71,7 +71,7 @@
         <div class="grid items-center gap-10 lg:grid-cols-[1.05fr_0.95fr]">
             <div class="space-y-6">
                 <div
-                    class="badge border-0 bg-[#F1E4D2] px-4 py-3 text-xs font-semibold uppercase tracking-[0.22em] text-[#5A3E2B]">
+                    class="badge border-0 bg-[#f5f3ff] px-4 py-3 text-xs font-semibold uppercase tracking-[0.22em] text-brand-primary">
                     {{ $heroBadge }}
                 </div>
 
@@ -88,11 +88,11 @@
                 </div>
 
                 <div class="flex flex-col gap-3 sm:flex-row">
-                    <a href="#register" class="btn rounded-full border-0 bg-[#5A3E2B] px-6 text-white hover:bg-[#453020]">
+                    <a href="#register" class="btn rounded-full border-0 bg-brand-primary px-6 text-white hover:bg-[#6d28d9]">
                         {{ $primaryCtaLabel }}
                     </a>
                     <a href="#feature-tour"
-                        class="btn rounded-full border border-[#5A3E2B] bg-transparent px-6 text-[#5A3E2B] hover:bg-[#F4EEDF] hover:text-[#5A3E2B]">
+                        class="btn rounded-full border border-brand-primary bg-transparent px-6 text-brand-primary hover:bg-[#f5f3ff] hover:text-brand-primary">
                         {{ $secondaryCtaLabel }}
                     </a>
                 </div>
@@ -100,16 +100,16 @@
                 <div class="flex flex-wrap gap-3">
                     @foreach ($heroHighlights as $highlight)
                         <div
-                            class="rounded-full border border-[#E8DFD2] bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm">
+                            class="rounded-full border border-[#e2e8f0] bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm">
                             {{ $highlight }}
                         </div>
                     @endforeach
                 </div>
 
-                <div class="rounded-[2rem] border border-[#E8DFD2] bg-[#F8F1E7] p-5 shadow-sm">
+                <div class="rounded-[2rem] border border-[#e2e8f0] bg-[#f8fafc] p-5 shadow-sm">
                     <div class="flex items-start gap-4">
                         <div
-                            class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#5A3E2B] text-white">
+                            class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-brand-primary text-white">
                             <svg viewBox="0 0 24 24" class="h-5 w-5 fill-current" aria-hidden="true">
                                 <path
                                     d="M12 2a4 4 0 0 0-4 4v1H7a3 3 0 0 0-3 3v7a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-7a3 3 0 0 0-3-3h-1V6a4 4 0 0 0-4-4zm-2 5V6a2 2 0 1 1 4 0v1h-4zm2 5a1.5 1.5 0 0 1 .75 2.8V16h-1.5v-1.2A1.5 1.5 0 0 1 12 12z" />
@@ -132,8 +132,8 @@
 
             <div class="space-y-4">
                 <div
-                    class="rounded-[2rem] border border-white/70 bg-white p-5 shadow-[0_20px_60px_rgba(90,62,43,0.12)] lg:p-6">
-                    <div class="space-y-4 rounded-[1.6rem] bg-[#FBF8F2] p-5">
+                    class="rounded-[2rem] border border-white/70 bg-white p-5 shadow-[0_20px_60px_rgba(124,58,237,0.12)] lg:p-6">
+                    <div class="space-y-4 rounded-[1.6rem] bg-[#ffffff] p-5">
                         <div class="flex items-center justify-between gap-3">
                             <div>
                                 <p class="text-xs font-semibold uppercase tracking-[0.22em] text-gray-400">System status</p>
@@ -144,13 +144,13 @@
                         </div>
 
                         <div class="grid gap-3 sm:grid-cols-2">
-                            <div class="rounded-2xl border border-[#E8DFD2] bg-white p-4">
+                            <div class="rounded-2xl border border-[#e2e8f0] bg-white p-4">
                                 <div class="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Core framework
                                 </div>
                                 <div class="mt-2 text-lg font-black text-gray-950">Single database spine</div>
                                 <div class="mt-1 text-sm text-gray-600">Every branch feeds one shared support model.</div>
                             </div>
-                            <div class="rounded-2xl border border-[#E8DFD2] bg-white p-4">
+                            <div class="rounded-2xl border border-[#e2e8f0] bg-white p-4">
                                 <div class="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Availability
                                 </div>
                                 <div class="mt-2 flex items-center gap-2 text-lg font-black text-gray-950">
@@ -161,14 +161,14 @@
                             </div>
                         </div>
 
-                        <div class="rounded-2xl border border-[#E8DFD2] bg-[#F8F1E7] p-4">
+                        <div class="rounded-2xl border border-[#e2e8f0] bg-[#f8fafc] p-4">
                             <div class="flex items-center justify-between gap-4">
                                 <div>
                                     <p class="text-sm font-semibold text-gray-900">Branch support model</p>
                                     <p class="text-sm text-gray-600">Hotels, dining, pools, and more all branch from the
                                         same core.</p>
                                 </div>
-                                <div class="rounded-full bg-[#5A3E2B] px-3 py-1 text-xs font-semibold text-white">Core</div>
+                                <div class="rounded-full bg-brand-primary px-3 py-1 text-xs font-semibold text-white">Core</div>
                             </div>
                             <div class="mt-4 grid grid-cols-3 gap-3">
                                 <div
@@ -191,7 +191,7 @@
     <section id="feature-tour" class="mx-auto max-w-7xl px-4 py-14 lg:px-8">
         <div class="max-w-3xl space-y-3">
             <div
-                class="badge border-0 bg-[#F1E4D2] px-4 py-3 text-xs font-semibold uppercase tracking-[0.22em] text-[#5A3E2B]">
+                class="badge border-0 bg-[#f5f3ff] px-4 py-3 text-xs font-semibold uppercase tracking-[0.22em] text-brand-primary">
                 Multi-unit architecture showcase</div>
             <h2 class="text-3xl font-black tracking-tight text-gray-950 md:text-5xl">One centralized system, tailored
                 support for every branch.</h2>
@@ -201,11 +201,11 @@
 
         <div class="mt-10 grid gap-6 lg:grid-cols-3">
             @foreach ($unitCards as $unitCard)
-                <div class="rounded-[2rem] border border-[#E8DFD2] bg-white p-6 shadow-sm">
+                <div class="rounded-[2rem] border border-[#e2e8f0] bg-white p-6 shadow-sm">
                     <div class="flex items-start justify-between gap-4">
                         <div class="space-y-3">
                             <div
-                                class="inline-flex rounded-full bg-[#F1E4D2] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#5A3E2B]">
+                                class="inline-flex rounded-full bg-[#f5f3ff] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-brand-primary">
                                 Branch instance</div>
                             <h3 class="text-2xl font-black tracking-tight text-gray-950">{{ $unitCard['title'] }}</h3>
                         </div>
@@ -216,8 +216,8 @@
 
                     <div class="mt-6 space-y-3">
                         @foreach ($unitCard['points'] as $point)
-                            <div class="flex items-center gap-3 rounded-2xl bg-[#FBF8F2] p-3 text-sm text-gray-700">
-                                <span class="flex h-8 w-8 items-center justify-center rounded-full bg-[#5A3E2B] text-white">
+                            <div class="flex items-center gap-3 rounded-2xl bg-[#ffffff] p-3 text-sm text-gray-700">
+                                <span class="flex h-8 w-8 items-center justify-center rounded-full bg-brand-primary text-white">
                                     <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current" aria-hidden="true">
                                         <path d="M9.2 16.2 4.8 11.8l1.4-1.4 3 3 8.6-8.6 1.4 1.4-10 10z" />
                                     </svg>
@@ -227,7 +227,7 @@
                         @endforeach
                     </div>
 
-                    <div class="mt-6 rounded-2xl border border-[#E8DFD2] bg-[#F8F1E7] p-4">
+                    <div class="mt-6 rounded-2xl border border-[#e2e8f0] bg-[#f8fafc] p-4">
                         <div class="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Database feed</div>
                         <div class="mt-1 text-sm font-semibold text-gray-950">All updates flow into the centralized core
                             framework.</div>
@@ -237,12 +237,12 @@
         </div>
     </section>
 
-    <section id="register" class="bg-[#F4EEDF] py-16">
+    <section id="register" class="bg-[#f5f3ff] py-16">
         <div class="mx-auto max-w-7xl px-4 lg:px-8">
             <div class="grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
                 <div class="space-y-5">
                     <div
-                        class="badge border-0 bg-white px-4 py-3 text-xs font-semibold uppercase tracking-[0.22em] text-[#5A3E2B]">
+                        class="badge border-0 bg-white px-4 py-3 text-xs font-semibold uppercase tracking-[0.22em] text-brand-primary">
                         Self-service onboarding</div>
                     <h2 class="max-w-xl text-3xl font-black tracking-tight text-gray-950 md:text-5xl">Register your company
                         in a three-step guided setup.</h2>
@@ -251,12 +251,12 @@
                         provision the platform subpath.</p>
 
                     <div class="grid gap-3 sm:grid-cols-2">
-                        <div class="rounded-2xl border border-[#E8DFD2] bg-white p-4 shadow-sm">
+                        <div class="rounded-2xl border border-[#e2e8f0] bg-white p-4 shadow-sm">
                             <div class="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Step guidance</div>
                             <div class="mt-2 text-lg font-black text-gray-950">Clear progress at every stage</div>
                             <div class="mt-1 text-sm text-gray-600">Progressive disclosure keeps the form manageable.</div>
                         </div>
-                        <div class="rounded-2xl border border-[#E8DFD2] bg-white p-4 shadow-sm">
+                        <div class="rounded-2xl border border-[#e2e8f0] bg-white p-4 shadow-sm">
                             <div class="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Validation</div>
                             <div class="mt-2 text-lg font-black text-gray-950">Immediate checks and feedback</div>
                             <div class="mt-1 text-sm text-gray-600">Email, credentials, and subpath claims are verified
@@ -265,12 +265,12 @@
                     </div>
                 </div>
 
-                <div class="rounded-[2rem] border border-[#E8DFD2] bg-white p-6 shadow-sm lg:p-8">
+                <div class="rounded-[2rem] border border-[#e2e8f0] bg-white p-6 shadow-sm lg:p-8">
                     <div class="flex flex-wrap items-center gap-3">
                         @foreach ($wizardSteps as $wizardStep)
-                            <div class="flex items-center gap-3 rounded-full border border-[#E8DFD2] px-4 py-2">
+                            <div class="flex items-center gap-3 rounded-full border border-[#e2e8f0] px-4 py-2">
                                 <div
-                                    class="flex h-8 w-8 items-center justify-center rounded-full bg-[#5A3E2B] text-xs font-bold text-white">
+                                    class="flex h-8 w-8 items-center justify-center rounded-full bg-brand-primary text-xs font-bold text-white">
                                     {{ $wizardStep['step'] }}</div>
                                 <div class="text-sm font-semibold text-gray-700">{{ $wizardStep['title'] }}</div>
                             </div>
@@ -279,7 +279,7 @@
 
                     <div class="mt-6 space-y-4">
                         @foreach ($wizardSteps as $wizardStep)
-                            <div class="rounded-[1.75rem] border border-[#E8DFD2] bg-[#FBF8F2] p-5">
+                            <div class="rounded-[1.75rem] border border-[#e2e8f0] bg-[#ffffff] p-5">
                                 <div class="flex items-start justify-between gap-4">
                                     <div>
                                         <div class="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Step
@@ -314,14 +314,14 @@
                     </div>
 
                     <div
-                        class="mt-6 grid gap-4 rounded-[1.75rem] border border-[#E8DFD2] bg-[#F8F1E7] p-5 sm:grid-cols-[1fr_auto] sm:items-center">
+                        class="mt-6 grid gap-4 rounded-[1.75rem] border border-[#e2e8f0] bg-[#f8fafc] p-5 sm:grid-cols-[1fr_auto] sm:items-center">
                         <div>
                             <div class="text-sm font-semibold text-gray-900">Subpath claim behavior</div>
                             <p class="mt-1 text-sm text-gray-600">Users can claim a custom system URL subpath while the
                                 interface checks availability, invalid characters, length limits, and resource bounds in
                                 real time.</p>
                         </div>
-                        <div class="rounded-full bg-[#5A3E2B] px-4 py-2 text-sm font-semibold text-white">Availability Check
+                        <div class="rounded-full bg-brand-primary px-4 py-2 text-sm font-semibold text-white">Availability Check
                         </div>
                     </div>
                 </div>
@@ -332,7 +332,7 @@
     <section class="mx-auto max-w-7xl px-4 py-16 lg:px-8">
         <div class="max-w-3xl space-y-3">
             <div
-                class="badge border-0 bg-[#F1E4D2] px-4 py-3 text-xs font-semibold uppercase tracking-[0.22em] text-[#5A3E2B]">
+                class="badge border-0 bg-[#f5f3ff] px-4 py-3 text-xs font-semibold uppercase tracking-[0.22em] text-brand-primary">
                 Comparison matrix</div>
             <h2 class="text-3xl font-black tracking-tight text-gray-950 md:text-5xl">Why Project RED AI outperforms rigid
                 chat setups.</h2>
@@ -340,13 +340,13 @@
                 practical advantage in knowledge management, support routing, and multi-unit scale.</p>
         </div>
 
-        <div class="mt-10 overflow-hidden rounded-[2rem] border border-[#E8DFD2] bg-white shadow-sm">
-            <div class="grid grid-cols-3 border-b border-[#E8DFD2] bg-[#FBF8F2] px-6 py-4 text-sm font-bold text-gray-900">
+        <div class="mt-10 overflow-hidden rounded-[2rem] border border-[#e2e8f0] bg-white shadow-sm">
+            <div class="grid grid-cols-3 border-b border-[#e2e8f0] bg-[#ffffff] px-6 py-4 text-sm font-bold text-gray-900">
                 <div>Capability</div>
                 <div>Project RED AI</div>
                 <div>Rigid Old-School Chat Setup</div>
             </div>
-            <div class="divide-y divide-[#E8DFD2]">
+            <div class="divide-y divide-[#e2e8f0]">
                 @foreach (array_slice($comparisonRows, 1) as $comparisonRow)
                     <div class="grid grid-cols-1 gap-4 px-6 py-5 md:grid-cols-3 md:items-start">
                         <div class="text-sm font-semibold text-gray-900">{{ $comparisonRow[0] }}</div>
@@ -359,7 +359,7 @@
 
         <div class="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             @foreach ($benefitCards as $benefitCard)
-                <div class="rounded-2xl border border-[#E8DFD2] bg-[#FBF8F2] p-4 shadow-sm">
+                <div class="rounded-2xl border border-[#e2e8f0] bg-[#ffffff] p-4 shadow-sm">
                     <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
                         <svg viewBox="0 0 24 24" class="h-5 w-5 fill-current" aria-hidden="true">
                             <path d="M9.2 16.2 4.8 11.8l1.4-1.4 3 3 8.6-8.6 1.4 1.4-10 10z" />
@@ -371,11 +371,11 @@
         </div>
     </section>
 
-    <section class="bg-[#F4EEDF] py-16">
+    <section class="bg-[#f5f3ff] py-16">
         <div class="mx-auto grid max-w-7xl gap-6 px-4 lg:grid-cols-[1.15fr_0.85fr] lg:px-8">
             <div class="space-y-4">
                 <div
-                    class="badge border-0 bg-white px-4 py-3 text-xs font-semibold uppercase tracking-[0.22em] text-[#5A3E2B]">
+                    class="badge border-0 bg-white px-4 py-3 text-xs font-semibold uppercase tracking-[0.22em] text-brand-primary">
                     Why owners choose it</div>
                 <h2 class="text-3xl font-black tracking-tight text-gray-950 md:text-4xl">Reduce manual support, keep
                     knowledge structured, and launch faster.</h2>
@@ -385,15 +385,15 @@
             </div>
 
             <div class="grid gap-3">
-                <div class="rounded-2xl border border-[#E8DFD2] bg-white p-4 shadow-sm">
+                <div class="rounded-2xl border border-[#e2e8f0] bg-white p-4 shadow-sm">
                     <div class="text-sm font-semibold text-gray-900">Centralized customer support</div>
                     <div class="mt-1 text-sm text-gray-600">One system handles inquiries across the business group.</div>
                 </div>
-                <div class="rounded-2xl border border-[#E8DFD2] bg-white p-4 shadow-sm">
+                <div class="rounded-2xl border border-[#e2e8f0] bg-white p-4 shadow-sm">
                     <div class="text-sm font-semibold text-gray-900">Live staff handoff terminal</div>
                     <div class="mt-1 text-sm text-gray-600">Escalate to humans when automation is not enough.</div>
                 </div>
-                <div class="rounded-2xl border border-[#E8DFD2] bg-white p-4 shadow-sm">
+                <div class="rounded-2xl border border-[#e2e8f0] bg-white p-4 shadow-sm">
                     <div class="text-sm font-semibold text-gray-900">Multi-location scalability</div>
                     <div class="mt-1 text-sm text-gray-600">Add new business instances without breaking the core framework.
                     </div>

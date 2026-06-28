@@ -4,7 +4,7 @@
 
     <div class="border-b border-gray-200 px-6 py-5">
         <a href="{{ route('admin.businesses.manager-dashboard', $slug) }}" class="flex items-center gap-3">
-            <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#4A3E3D] text-xl text-white shadow-sm">
+            <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#1e293b] text-xl text-white shadow-sm">
                 {{ $unitIcon }}
             </div>
             <div>
@@ -12,7 +12,7 @@
                 <div class="text-xs text-gray-500">Manager Portal</div>
             </div>
         </a>
-        <div class="mt-4 rounded-2xl border border-[#E9E2D6] bg-[#FAF8F4] px-4 py-3">
+        <div class="mt-4 rounded-2xl border border-[#e2e8f0] bg-[#ffffff] px-4 py-3">
             <div class="text-xs font-semibold uppercase tracking-wider text-gray-400">Your assigned unit</div>
             <div class="mt-1 text-sm font-bold text-gray-900">{{ $unitName }}</div>
             <div class="mt-1 flex items-center gap-2 text-xs text-gray-500">
@@ -41,8 +41,8 @@
                     <a href="{{ $item['href'] }}"
                        class="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-colors
                               {{ request()->routeIs($item['route'])
-                                  ? 'bg-[#4A3E3D] font-semibold text-white shadow-sm'
-                                  : 'text-gray-700 hover:bg-[#F4EEDF] hover:text-[#4A3E3D]' }}">
+                                  ? 'bg-[#1e293b] font-semibold text-white shadow-sm'
+                                  : 'text-gray-700 hover:bg-[#f5f3ff] hover:text-[#1e293b]' }}">
                         <svg viewBox="0 0 24 24" class="h-5 w-5 shrink-0 fill-current" aria-hidden="true">
                             <path d="{{ $item['icon'] }}"/>
                         </svg>
@@ -57,8 +57,8 @@
         <ul class="space-y-1">
             @foreach ($sidebarExtras as $extra)
                 <li>
-                    <button type="button" class="flex w-full items-center gap-3 rounded-2xl px-4 py-2.5 text-sm text-gray-600 transition hover:bg-[#F4EEDF] hover:text-[#4A3E3D]">
-                        <span class="h-1.5 w-1.5 rounded-full bg-[#4A3E3D] opacity-50"></span>
+                    <button type="button" class="flex w-full items-center gap-3 rounded-2xl px-4 py-2.5 text-sm text-gray-600 transition hover:bg-[#f5f3ff] hover:text-[#1e293b]">
+                        <span class="h-1.5 w-1.5 rounded-full bg-[#1e293b] opacity-50"></span>
                         {{ $extra }}
                     </button>
                 </li>
@@ -67,10 +67,10 @@
     </nav>
 
     <div class="mt-auto border-t border-gray-200 p-4 space-y-2">
-        <div class="rounded-2xl bg-[#FAF8F4] px-4 py-2.5 text-xs text-gray-500">
+        <div class="rounded-2xl bg-[#ffffff] px-4 py-2.5 text-xs text-gray-500">
             Scoped to <span class="font-semibold text-gray-800">{{ $unitName }}</span> only.
         </div>
-        <button class="btn w-full justify-start rounded-2xl border-0 bg-[#F4EEDF] text-gray-800 hover:bg-[#ead9c1]">
+        <button class="btn w-full justify-start rounded-2xl border-0 bg-[#f5f3ff] text-gray-800 hover:bg-[#f5f3ff]">
             <svg viewBox="0 0 24 24" class="h-5 w-5 fill-current"><path d="M10 17l1.4-1.4L8.8 13H20v-2H8.8l2.6-2.6L10 7l-5 5 5 5zM4 4h7v2H6v12h5v2H4V4z"/></svg>
             Logout
         </button>

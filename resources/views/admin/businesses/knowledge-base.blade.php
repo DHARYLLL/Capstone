@@ -25,7 +25,7 @@
 <div class="space-y-8">
 
     {{-- ── Page header ────────────────────────────────────────────────────── --}}
-    <section class="rounded-[2rem] border border-[#eadfce] bg-white p-6 shadow-sm lg:p-8">
+    <section class="rounded-[2rem] border border-[#e2e8f0] bg-white p-6 shadow-sm lg:p-8">
         <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
                 <h1 class="text-3xl font-black tracking-tight text-gray-900">Knowledge Base Upload</h1>
@@ -36,11 +36,11 @@
             <div class="flex gap-3">
                 {{-- Triggers the hidden file input --}}
                 <button type="button" id="header-upload-btn"
-                        class="btn rounded-full border-0 bg-[#4A3E3D] text-white hover:bg-[#3a2f2e]">
+                        class="btn rounded-full border-0 bg-[#1e293b] text-white hover:bg-[#3a2f2e]">
                     Upload files
                 </button>
                 <button type="button"
-                        class="btn rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-[#F4EEDF] hover:text-gray-700">
+                        class="btn rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-[#f5f3ff] hover:text-gray-700">
                     View logs
                 </button>
             </div>
@@ -65,7 +65,7 @@
                 The dashed border signals interactivity; hover state deepens the border.
             --}}
             <div id="kb-drop-zone"
-                 class="cursor-pointer rounded-[2rem] border-2 border-dashed border-[#d8c6b0] bg-[#FBF8F2] p-8 transition-colors hover:border-[#4A3E3D] hover:bg-[#F4EEE4]"
+                 class="cursor-pointer rounded-[2rem] border-2 border-dashed border-[#e2e8f0] bg-[#ffffff] p-8 transition-colors hover:border-[#1e293b] hover:bg-[#F4EEE4]"
                  role="button" tabindex="0" aria-label="Click or drag to upload a file">
                 <div class="flex flex-col items-center gap-3 text-center">
                     {{--
@@ -73,7 +73,7 @@
                         Styled as a deep warm brown rounded square per design system.
                     --}}
                     <div id="kb-plus-btn"
-                         class="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#4A3E3D] text-white shadow-sm transition-transform hover:scale-105">
+                         class="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#1e293b] text-white shadow-sm transition-transform hover:scale-105">
                         <span class="text-2xl font-black leading-none">+</span>
                     </div>
                     <div>
@@ -114,7 +114,7 @@
                 <div class="card-body p-6">
                     <h2 class="text-lg font-bold text-gray-900">Processing queue</h2>
                     <div class="mt-4 space-y-3">
-                        <div class="rounded-2xl bg-[#FAF8F4] p-4">
+                        <div class="rounded-2xl bg-[#ffffff] p-4">
                             <div class="flex items-center justify-between gap-4">
                                 <div>
                                     <div class="font-semibold text-gray-800">Villa Carmelita policies.pdf</div>
@@ -123,10 +123,10 @@
                                 <span class="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700 ring-1 ring-amber-200">62%</span>
                             </div>
                             <div class="mt-3 h-2 rounded-full bg-gray-200">
-                                <div class="h-2 w-[62%] rounded-full bg-[#4A3E3D]"></div>
+                                <div class="h-2 w-[62%] rounded-full bg-[#1e293b]"></div>
                             </div>
                         </div>
-                        <div class="rounded-2xl bg-[#FAF8F4] p-4">
+                        <div class="rounded-2xl bg-[#ffffff] p-4">
                             <div class="flex items-center justify-between gap-4">
                                 <div>
                                     <div class="font-semibold text-gray-800">Restaurant menu.csv</div>
@@ -150,9 +150,9 @@
                 <div class="card-body p-6">
                     <h2 class="text-lg font-bold text-gray-900">Validation log</h2>
                     <ul class="mt-4 space-y-3 text-sm text-gray-600">
-                        <li class="rounded-2xl bg-[#F8F1E7] p-4">Policy file accepted · PDF structure validated</li>
-                        <li class="rounded-2xl bg-[#F8F1E7] p-4">CSV preview generated · 12 columns matched</li>
-                        <li class="rounded-2xl bg-[#F8F1E7] p-4">Knowledge index updated · Assistant responses refreshed</li>
+                        <li class="rounded-2xl bg-[#f8fafc] p-4">Policy file accepted · PDF structure validated</li>
+                        <li class="rounded-2xl bg-[#f8fafc] p-4">CSV preview generated · 12 columns matched</li>
+                        <li class="rounded-2xl bg-[#f8fafc] p-4">Knowledge index updated · Assistant responses refreshed</li>
                     </ul>
                 </div>
             </div>
@@ -161,10 +161,10 @@
                 <div class="card-body p-6">
                     <h2 class="text-lg font-bold text-gray-900">File actions</h2>
                     <div class="mt-4 space-y-3 text-sm">
-                        <button type="button" class="w-full rounded-2xl bg-[#FAF8F4] p-3 text-left text-gray-700 transition hover:bg-[#F0E8DE]">Preview extracted text</button>
-                        <button type="button" class="w-full rounded-2xl bg-[#FAF8F4] p-3 text-left text-gray-700 transition hover:bg-[#F0E8DE]">Replace upload</button>
-                        <button type="button" class="w-full rounded-2xl bg-[#FAF8F4] p-3 text-left text-gray-700 transition hover:bg-[#F0E8DE]">Mark approved</button>
-                        <button type="button" class="w-full rounded-2xl bg-[#FAF8F4] p-3 text-left text-gray-700 transition hover:bg-[#F0E8DE]">Archive source file</button>
+                        <button type="button" class="w-full rounded-2xl bg-[#ffffff] p-3 text-left text-gray-700 transition hover:bg-[#F0E8DE]">Preview extracted text</button>
+                        <button type="button" class="w-full rounded-2xl bg-[#ffffff] p-3 text-left text-gray-700 transition hover:bg-[#F0E8DE]">Replace upload</button>
+                        <button type="button" class="w-full rounded-2xl bg-[#ffffff] p-3 text-left text-gray-700 transition hover:bg-[#F0E8DE]">Mark approved</button>
+                        <button type="button" class="w-full rounded-2xl bg-[#ffffff] p-3 text-left text-gray-700 transition hover:bg-[#F0E8DE]">Archive source file</button>
                     </div>
                 </div>
             </div>
@@ -205,10 +205,10 @@
               b) File name + size text block — populated by JS from File.name / File.size
               c) Green success badge — validates the file is under 25 MB
         --}}
-        <div class="rounded-t-3xl bg-[#FAF8F4] px-6 py-5 border-b border-[#eadfce]">
+        <div class="rounded-t-3xl bg-[#ffffff] px-6 py-5 border-b border-[#e2e8f0]">
             <div class="flex items-start gap-4">
                 {{-- File type icon --}}
-                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#4A3E3D] text-white shadow-sm">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#1e293b] text-white shadow-sm">
                     <svg viewBox="0 0 24 24" class="h-6 w-6 fill-current" aria-hidden="true">
                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/>
                     </svg>
@@ -259,7 +259,7 @@
                     <span class="text-xs text-gray-400">First 500 characters extracted</span>
                 </div>
                 <div id="modal-preview-box"
-                     class="h-36 overflow-y-auto rounded-2xl border border-[#eadfce] bg-[#FAF8F4] p-4 font-mono text-xs leading-5 text-gray-600 whitespace-pre-wrap">
+                     class="h-36 overflow-y-auto rounded-2xl border border-[#e2e8f0] bg-[#ffffff] p-4 font-mono text-xs leading-5 text-gray-600 whitespace-pre-wrap">
                     Parsing file content…
                 </div>
             </div>
@@ -280,7 +280,7 @@
                     This tags the file so the AI assistant only uses it when answering queries for the correct business unit.
                 </p>
                 <select id="modal-branch"
-                        class="select select-bordered w-full rounded-2xl border-[#d8c6b0] bg-white text-sm text-gray-800 focus:border-[#4A3E3D] focus:outline-none">
+                        class="select select-bordered w-full rounded-2xl border-[#e2e8f0] bg-white text-sm text-gray-800 focus:border-[#1e293b] focus:outline-none">
                     <option value="" disabled selected>Select an operational branch…</option>
                     <option value="accommodation">🏨 Accommodation / Hotel — Villa Carmelita</option>
                     <option value="restaurant">🍽️ Food &amp; Restaurant — Dakong Balay</option>
@@ -298,15 +298,15 @@
         {{--
             Sticky footer row. Right-aligned per convention.
             Cancel button: light border, transparent fill — low visual weight.
-            Confirm button: deep warm brown fill (#4A3E3D), bold white text, pill shape.
+            Confirm button: deep warm brown fill (#1e293b), bold white text, pill shape.
         --}}
-        <div class="flex items-center justify-end gap-3 border-t border-[#eadfce] px-6 py-4 rounded-b-3xl bg-white">
+        <div class="flex items-center justify-end gap-3 border-t border-[#e2e8f0] px-6 py-4 rounded-b-3xl bg-white">
             <button type="button" id="kb-modal-cancel"
                     class="btn rounded-full border border-gray-300 bg-white px-5 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-800">
                 Cancel &amp; Discard
             </button>
             <button type="button" id="kb-modal-confirm"
-                    class="btn rounded-full border-0 bg-[#4A3E3D] px-6 text-sm font-bold text-white shadow-sm hover:bg-[#3a2f2e]">
+                    class="btn rounded-full border-0 bg-[#1e293b] px-6 text-sm font-bold text-white shadow-sm hover:bg-[#3a2f2e]">
                 Confirm &amp; Process Knowledge
             </button>
         </div>
@@ -365,11 +365,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ── Drag-and-drop visual feedback ───────────────────────────────────────
-    dropZone.addEventListener('dragover',  e => { e.preventDefault(); dropZone.classList.add('border-[#4A3E3D]', 'bg-[#F4EEE4]'); });
-    dropZone.addEventListener('dragleave', ()  => { dropZone.classList.remove('border-[#4A3E3D]', 'bg-[#F4EEE4]'); });
+    dropZone.addEventListener('dragover',  e => { e.preventDefault(); dropZone.classList.add('border-[#1e293b]', 'bg-[#F4EEE4]'); });
+    dropZone.addEventListener('dragleave', ()  => { dropZone.classList.remove('border-[#1e293b]', 'bg-[#F4EEE4]'); });
     dropZone.addEventListener('drop', e => {
         e.preventDefault();
-        dropZone.classList.remove('border-[#4A3E3D]', 'bg-[#F4EEE4]');
+        dropZone.classList.remove('border-[#1e293b]', 'bg-[#F4EEE4]');
         const file = e.dataTransfer.files[0];
         if (file) handleFile(file);
     });

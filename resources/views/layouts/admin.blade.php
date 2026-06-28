@@ -18,6 +18,17 @@
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
                     },
+                    colors: {
+                        brand: {
+                            primary: '#7c3aed',
+                            'primary-dark': '#6d28d9',
+                            'primary-light': '#f5f3ff',
+                            charcoal: '#1e293b',
+                            'bg-base': '#f8fafc',
+                            'bg-card': '#ffffff',
+                            border: '#e2e8f0',
+                        }
+                    }
                 },
             },
         }
@@ -26,7 +37,7 @@
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
 </head>
-<body class="bg-[#F9F8F6] font-sans text-gray-800 antialiased">
+<body class="bg-[#f8fafc] font-sans text-gray-800 antialiased">
     <div class="flex min-h-screen overflow-hidden">
         @hasSection('sidebar')
             @yield('sidebar')

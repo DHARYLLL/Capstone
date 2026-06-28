@@ -8,7 +8,7 @@
 <aside class="hidden w-72 shrink-0 flex-col border-r border-gray-200 bg-base-100 md:flex">
     <div class="border-b border-gray-200 px-6 py-5">
         <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3">
-            <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#5A3E2B] text-white shadow-sm">
+            <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-primary text-white shadow-sm">
                 <svg viewBox="0 0 24 24" class="h-6 w-6 fill-current" aria-hidden="true">
                     <path d="M12 2l8 4v12l-8 4-8-4V6l8-4zm0 2.3L6 7.1v9.8l6 3 6-3V7.1l-6-2.8z"/>
                 </svg>
@@ -18,7 +18,7 @@
                 <div class="text-xs text-gray-500">Tenant Portal</div>
             </div>
         </a>
-        <div class="mt-4 rounded-2xl border border-[#E9E2D6] bg-[#FAF8F4] px-4 py-3">
+        <div class="mt-4 rounded-2xl border border-[#e2e8f0] bg-[#ffffff] px-4 py-3">
             <div class="text-xs font-semibold uppercase tracking-wider text-gray-400">Current tenant</div>
             <div class="mt-1 text-sm font-bold text-gray-900">{{ $tenantName }}</div>
             <div class="mt-1 flex items-center gap-2 text-xs text-gray-500">
@@ -88,8 +88,8 @@
                     <a href="{{ $item['href'] }}"
                        class="flex items-center gap-3 rounded-2xl px-4 py-3 font-medium transition-colors
                               {{ $item['active']
-                                  ? 'bg-[#5A3E2B] font-semibold text-white shadow-sm'
-                                  : 'text-gray-700 hover:bg-[#F4EEDF] hover:text-[#5A3E2B]' }}">
+                                  ? 'bg-brand-primary font-semibold text-white shadow-sm'
+                                  : 'text-gray-700 hover:bg-[#f5f3ff] hover:text-brand-primary' }}">
                         <svg viewBox="0 0 24 24" class="h-5 w-5 shrink-0 fill-current" aria-hidden="true">
                             <path d="{{ $item['icon'] }}"/>
                         </svg>
@@ -101,7 +101,7 @@
     </nav>
 
     <div class="mt-auto border-t border-gray-200 p-4">
-        <button class="btn w-full justify-start rounded-2xl border-0 bg-[#F4EEDF] text-gray-800 hover:bg-[#ead9c1]">
+        <button class="btn w-full justify-start rounded-2xl border-0 bg-[#f5f3ff] text-gray-800 hover:bg-[#f5f3ff]">
             <svg viewBox="0 0 24 24" class="h-5 w-5 fill-current" aria-hidden="true">
                 <path d="M10 17l1.4-1.4L8.8 13H20v-2H8.8l2.6-2.6L10 7l-5 5 5 5zM4 4h7v2H6v12h5v2H4V4z"/>
             </svg>
