@@ -56,12 +56,6 @@
                         Upload PDFs and CSVs, review staged files, and approve knowledge entries for chatbot use.
                     </p>
                 </div>
-                <div class="flex gap-3">
-                    <button type="button"
-                        class="btn rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-[#f5f3ff] hover:text-gray-700">
-                        View logs
-                    </button>
-                </div>
             </div>
         </section>
 

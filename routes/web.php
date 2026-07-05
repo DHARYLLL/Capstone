@@ -41,6 +41,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         return view('admin.businesses.staff');
     })->name('businesses.staff');
 
+    Route::get('/businesses/logs', function () {
+        return view('admin.businesses.logs');
+    })->name('businesses.logs');
+
     // Slug-based edit page — must come AFTER all static /businesses/* routes
     Route::get('/businesses/{slug}/edit', function (string $slug) {
         return view('admin.businesses.edit', compact('slug'));
@@ -67,6 +71,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/businesses/{slug}/staff', function (string $slug) {
         return view('admin.businesses.staff', compact('slug'));
     })->name('businesses.manager-staff');
+
+    Route::get('/businesses/{slug}/logs', function (string $slug) {
+        return view('admin.businesses.logs', compact('slug'));
+    })->name('businesses.manager-logs');
 
     Route::get('/businesses/{slug}/seo', function (string $slug) {
         return view('admin.businesses.seo', compact('slug'));

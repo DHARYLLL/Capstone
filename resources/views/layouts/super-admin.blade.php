@@ -37,7 +37,7 @@
     <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
 </head>
 <body class="bg-[#f8fafc] font-sans text-gray-800 antialiased">
-    <div class="flex min-h-screen overflow-hidden">
+    <div class="flex h-screen overflow-hidden">
         @include('partials.super-admin-sidebar')
 
         <div class="flex min-w-0 flex-1 flex-col overflow-hidden bg-[#f8fafc] text-gray-800">

@@ -1,6 +1,6 @@
 {{-- filepath: resources/views/partials/manager-sidebar.blade.php --}}
 {{-- Reusable manager sidebar partial — requires $slug, $unitName, $unitType, $unitIcon, $sidebarExtras --}}
-<aside class="hidden w-72 shrink-0 flex-col border-r border-gray-200 bg-base-100 md:flex">
+<aside class="sticky top-0 hidden h-screen w-72 shrink-0 flex-col overflow-hidden border-r border-gray-200 bg-base-100 md:flex">
 
     <div class="border-b border-gray-200 px-6 py-5">
         <a href="{{ route('admin.businesses.manager-dashboard', $slug) }}" class="flex items-center gap-3">
@@ -22,7 +22,7 @@
         </div>
     </div>
 
-    <nav class="flex-1 px-4 py-5">
+    <nav class="min-h-0 flex-1 overflow-y-auto px-4 py-5">
         @php
             $mgrNav = [
                 ['label' => 'Overview',            'href' => route('admin.businesses.manager-dashboard',   $slug), 'route' => 'admin.businesses.manager-dashboard',   'icon' => 'M4 13h7V4H4v9zm0 7h7v-5H4v5zm9 0h7V11h-7v9zm0-16v5h7V4h-7z'],
@@ -31,6 +31,7 @@
                 ['label' => 'Analytics',           'href' => route('admin.businesses.manager-analytics',   $slug), 'route' => 'admin.businesses.manager-analytics',   'icon' => 'M12 3C7.03 3 3 6.58 3 11c0 2.47 1.22 4.7 3.22 6.29L5 21l3.9-1.96c.97.25 2 .38 3.1.38 4.97 0 9-3.58 9-8s-4.03-8-9-8zm-3 9H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2z'],
                 ['label' => 'Edit Business Profile','href' => route('admin.businesses.edit',               $slug), 'route' => 'admin.businesses.edit',               'icon' => 'M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm18-10.5a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z'],
                 ['label' => 'Staff & Roles',       'href' => route('admin.businesses.manager-staff',       $slug), 'route' => 'admin.businesses.manager-staff',       'icon' => 'M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm0 2c-4.4 0-8 2.2-8 5v1h16v-1c0-2.8-3.6-5-8-5z'],
+                ['label' => 'Logs',                'href' => route('admin.businesses.manager-logs',        $slug), 'route' => 'admin.businesses.manager-logs',        'icon' => 'M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z'],
             ];
         @endphp
 
@@ -52,24 +53,9 @@
             @endforeach
         </ul>
 
-        <div class="my-4 border-t border-gray-100"></div>
-        <div class="mb-2 px-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-400">{{ $unitType }} Tools</div>
-        <ul class="space-y-1">
-            @foreach ($sidebarExtras as $extra)
-                <li>
-                    <button type="button" class="flex w-full items-center gap-3 rounded-2xl px-4 py-2.5 text-sm text-gray-600 transition hover:bg-[#f5f3ff] hover:text-[#1e293b]">
-                        <span class="h-1.5 w-1.5 rounded-full bg-[#1e293b] opacity-50"></span>
-                        {{ $extra }}
-                    </button>
-                </li>
-            @endforeach
-        </ul>
     </nav>
 
-    <div class="mt-auto border-t border-gray-200 p-4 space-y-2">
-        <div class="rounded-2xl bg-[#ffffff] px-4 py-2.5 text-xs text-gray-500">
-            Scoped to <span class="font-semibold text-gray-800">{{ $unitName }}</span> only.
-        </div>
+    <div class="mt-auto border-t border-gray-200 p-4">
         <button class="btn w-full justify-start rounded-2xl border-0 bg-[#f5f3ff] text-gray-800 hover:bg-[#f5f3ff]">
             <svg viewBox="0 0 24 24" class="h-5 w-5 fill-current"><path d="M10 17l1.4-1.4L8.8 13H20v-2H8.8l2.6-2.6L10 7l-5 5 5 5zM4 4h7v2H6v12h5v2H4V4z"/></svg>
             Logout

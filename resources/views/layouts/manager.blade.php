@@ -39,7 +39,7 @@
     <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
 </head>
 <body class="bg-[#f8fafc] font-sans text-gray-800 antialiased">
-<div class="flex min-h-screen overflow-hidden">
+<div class="flex h-screen overflow-hidden">
 
     {{-- Manager sidebar — injected from the child view via @section('manager-sidebar') --}}
     @yield('manager-sidebar')

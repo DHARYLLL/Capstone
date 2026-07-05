@@ -143,6 +143,12 @@
                     'icon'   => 'M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm0 2c-4.4 0-8 2.2-8 5v1h16v-1c0-2.8-3.6-5-8-5z',
                     'active' => request()->routeIs('admin.businesses.manager-staff'),
                 ],
+                [
+                    'label'  => 'Logs',
+                    'href'   => route('admin.businesses.manager-logs', $slug),
+                    'icon'   => 'M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z',
+                    'active' => request()->routeIs('admin.businesses.manager-logs'),
+                ],
             ];
         @endphp
 
@@ -165,30 +171,9 @@
                 </li>
             @endforeach
         </ul>
-
-        <div class="my-4 border-t border-gray-100"></div>
-
-        <div class="mb-2 px-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-400">
-            {{ $unitType }} Tools
-        </div>
-        <ul class="space-y-1">
-            @foreach ($sidebarExtras as $extra)
-                <li>
-                    <button type="button"
-                            class="flex w-full items-center gap-3 rounded-2xl px-4 py-2.5 text-sm text-gray-600 transition hover:bg-[#f5f3ff] hover:text-[#1e293b]">
-                        <span class="h-1.5 w-1.5 rounded-full bg-[#1e293b] opacity-50"></span>
-                        {{ $extra }}
-                    </button>
-                </li>
-            @endforeach
-        </ul>
     </nav>
 
-    <div class="mt-auto border-t border-gray-200 p-4 space-y-2">
-        <div class="rounded-2xl bg-[#ffffff] px-4 py-2.5 text-xs text-gray-500">
-            Scoped to <span class="font-semibold text-gray-800">{{ $unitName }}</span> only.
-            Other business units are not accessible from here.
-        </div>
+    <div class="mt-auto border-t border-gray-200 p-4">
         <button class="btn w-full justify-start rounded-2xl border-0 bg-[#f5f3ff] text-gray-800 hover:bg-[#f5f3ff]">
             <svg viewBox="0 0 24 24" class="h-5 w-5 fill-current" aria-hidden="true">
                 <path d="M10 17l1.4-1.4L8.8 13H20v-2H8.8l2.6-2.6L10 7l-5 5 5 5zM4 4h7v2H6v12h5v2H4V4z"/>
@@ -220,16 +205,6 @@
                     All metrics, knowledge files, and chat tickets are scoped exclusively to
                     <strong class="text-gray-800">{{ $unitName }}</strong>.
                 </p>
-            </div>
-            <div class="flex flex-wrap gap-3">
-                <a href="{{ route('admin.businesses.chat') }}"
-                   class="btn rounded-full border-0 bg-[#1e293b] text-white hover:bg-[#3a2f2e]">
-                    Live Chat & Handoff
-                </a>
-                <a href="{{ route('admin.businesses.knowledge-base') }}"
-                   class="btn rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-[#f5f3ff] hover:text-gray-700">
-                    Upload Knowledge
-                </a>
             </div>
         </div>
     </section>

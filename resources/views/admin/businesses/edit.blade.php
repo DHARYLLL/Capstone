@@ -1,11 +1,142 @@
 {{-- filepath: c:\Users\dhary\Desktop\Capstone\capstone1\resources\views\admin\businesses\edit.blade.php --}}
-@extends('layouts.admin')
+@php
+    $currentSlug = $slug ?? 'dakong-balay';
+
+    if ($currentSlug === 'villa-carmelita') {
+        $unitName    = 'Villa Carmelita';
+        $unitType    = 'Accommodation / Hotel';
+        $unitIcon    = '🏨';
+        $unitBadgeBg = 'bg-[#F3ECE4] text-[#6B4226]';
+        $sidebarExtras = ['Room Availability', 'Rate Configuration', 'Guest Inquiries'];
+    } elseif ($currentSlug === 'monclaire-pool') {
+        $unitName    = 'Monclaire Pool';
+        $unitType    = 'Facility / Pool';
+        $unitIcon    = '🏊';
+        $unitBadgeBg = 'bg-[#E4EEF3] text-[#2A5F7A]';
+        $sidebarExtras = ['Pool Schedule', 'Pass & Rental Rates', 'Guest Inquiries'];
+    } else {
+        $unitName    = 'Dakong Balay';
+        $unitType    = 'Food & Restaurant';
+        $unitIcon    = '🍽️';
+        $unitBadgeBg = 'bg-[#F4EBE0] text-[#7A4A2B]';
+        $sidebarExtras = ['Menu Management', 'Dining Availability', 'Guest Inquiries'];
+    }
+@endphp
+
+@extends('layouts.manager')
+
+@section('page_title', $unitName . ' — Edit Business Profile')
+@section('page_description', 'Edit business profile for ' . $unitType . ' · ' . $unitName)
+@section('breadcrumbs', 'Manager / ' . $unitName . ' / Edit Business Profile')
+@section('unit-type', $unitType)
+
+@section('manager-sidebar')
+<aside class="hidden w-72 shrink-0 flex-col border-r border-gray-200 bg-base-100 md:flex">
+
+    {{-- Brand + unit identity --}}
+    <div class="border-b border-gray-200 px-6 py-5">
+        <a href="{{ route('admin.businesses.manager-dashboard', $currentSlug) }}" class="flex items-center gap-3">
+            <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#1e293b] text-xl text-white shadow-sm">
+                {{ $unitIcon }}
+            </div>
+            <div>
+                <div class="text-base font-extrabold tracking-tight text-gray-900">{{ $unitName }}</div>
+                <div class="text-xs text-gray-500">Manager Portal</div>
+            </div>
+        </a>
+
+        <div class="mt-4 rounded-2xl border border-[#e2e8f0] bg-[#ffffff] px-4 py-3">
+            <div class="text-xs font-semibold uppercase tracking-wider text-gray-400">Your assigned unit</div>
+            <div class="mt-1 text-sm font-bold text-gray-900">{{ $unitName }}</div>
+            <div class="mt-1 flex items-center gap-2 text-xs text-gray-500">
+                <span class="inline-flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                {{ $unitType }} · Live
+            </div>
+        </div>
+    </div>
+
+    <nav class="flex-1 px-4 py-5">
+        @php
+            $mgrNav = [
+                [
+                    'label'  => 'Overview',
+                    'href'   => route('admin.businesses.manager-dashboard', $currentSlug),
+                    'icon'   => 'M4 13h7V4H4v9zm0 7h7v-5H4v5zm9 0h7V11h-7v9zm0-16v5h7V4h-7z',
+                    'active' => request()->routeIs('admin.businesses.manager-dashboard'),
+                ],
+                [
+                    'label'  => 'Knowledge Base',
+                    'href'   => route('admin.businesses.manager-knowledge-base', $currentSlug),
+                    'icon'   => 'M12 2a7 7 0 0 0-7 7v13h14V9a7 7 0 0 0-7-7zm-2 8h4v2h-4v-2zm0 4h4v2h-4v-2z',
+                    'active' => request()->routeIs('admin.businesses.manager-knowledge-base'),
+                ],
+                [
+                    'label'  => 'Live Chat & Handoff',
+                    'href'   => route('admin.businesses.manager-chat', $currentSlug),
+                    'icon'   => 'M4 4h16v12H7l-3 3V4zm4 5h8v2H8V9zm0 4h6v2H8v-2z',
+                    'active' => request()->routeIs('admin.businesses.manager-chat'),
+                ],
+                [
+                    'label'  => 'Analytics',
+                    'href'   => route('admin.businesses.manager-analytics', $currentSlug),
+                    'icon'   => 'M12 3C7.03 3 3 6.58 3 11c0 2.47 1.22 4.7 3.22 6.29L5 21l3.9-1.96c.97.25 2 .38 3.1.38 4.97 0 9-3.58 9-8s-4.03-8-9-8zm-3 9H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2z',
+                    'active' => request()->routeIs('admin.businesses.manager-analytics'),
+                ],
+                [
+                    'label'  => 'Edit Business Profile',
+                    'href'   => route('admin.businesses.edit', $currentSlug),
+                    'icon'   => 'M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm18-10.5a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z',
+                    'active' => request()->routeIs('admin.businesses.edit'),
+                ],
+                [
+                    'label'  => 'Staff & Roles',
+                    'href'   => route('admin.businesses.manager-staff', $currentSlug),
+                    'icon'   => 'M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm0 2c-4.4 0-8 2.2-8 5v1h16v-1c0-2.8-3.6-5-8-5z',
+                    'active' => request()->routeIs('admin.businesses.manager-staff'),
+                ],
+                [
+                    'label'  => 'Logs',
+                    'href'   => route('admin.businesses.manager-logs', $currentSlug),
+                    'icon'   => 'M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z',
+                    'active' => request()->routeIs('admin.businesses.manager-logs'),
+                ],
+            ];
+        @endphp
+
+        <div class="mb-2 px-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-400">
+            {{ $unitName }} Workspace
+        </div>
+        <ul class="space-y-1">
+            @foreach ($mgrNav as $item)
+                <li>
+                    <a href="{{ $item['href'] }}"
+                       class="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-colors
+                              {{ $item['active']
+                                  ? 'bg-[#1e293b] font-semibold text-white shadow-sm'
+                                  : 'text-gray-700 hover:bg-[#f5f3ff] hover:text-[#1e293b]' }}">
+                        <svg viewBox="0 0 24 24" class="h-5 w-5 shrink-0 fill-current" aria-hidden="true">
+                            <path d="{{ $item['icon'] }}"/>
+                        </svg>
+                        {{ $item['label'] }}
+                    </a>
+                </li>
+            @endforeach
+        </ul>
+    </nav>
+
+    <div class="mt-auto border-t border-gray-200 p-4">
+        <button class="btn w-full justify-start rounded-2xl border-0 bg-[#f5f3ff] text-gray-800 hover:bg-[#f5f3ff]">
+            <svg viewBox="0 0 24 24" class="h-5 w-5 fill-current" aria-hidden="true">
+                <path d="M10 17l1.4-1.4L8.8 13H20v-2H8.8l2.6-2.6L10 7l-5 5 5 5zM4 4h7v2H6v12h5v2H4V4z"/>
+            </svg>
+            Logout
+        </button>
+    </div>
+</aside>
+@endsection
 
 @section('content')
     @php
-        // Default to dakong-balay if not set
-        $currentSlug = $slug ?? 'dakong-balay';
-
         // Initialize variables based on current selection
         if ($currentSlug === 'villa-carmelita') {
             $businessName = 'Villa Carmelita';
@@ -173,7 +304,7 @@
                     </div>
 
                     <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 shrink-0">
-                        <a href="{{ route('admin.dashboard') }}" class="btn btn-outline rounded-full border-gray-300 text-gray-700 transition-colors duration-200 hover:border-brand-border hover:bg-[#f5f3ff] hover:text-gray-900 whitespace-nowrap">
+                        <a href="{{ route('admin.businesses.manager-dashboard', $currentSlug) }}" class="btn btn-outline rounded-full border-gray-300 text-gray-700 transition-colors duration-200 hover:border-brand-border hover:bg-[#f5f3ff] hover:text-gray-900 whitespace-nowrap">
                             <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current" aria-hidden="true">
                                 <path d="M19 11H8.41l4.3-4.29L11.29 5 5 11.29l6.29 6.29 1.42-1.42-4.3-4.3H19v-2z"/>
                             </svg>
@@ -289,7 +420,7 @@
                                     class="btn rounded-full border-0 bg-brand-primary text-white hover:bg-[#6d28d9]">
                                     Save business info
                                 </button>
-                                <a href="{{ route('admin.dashboard') }}"
+                                <a href="{{ route('admin.businesses.manager-dashboard', $currentSlug) }}"
                                     class="btn btn-outline rounded-full border-gray-300 text-gray-700 hover:bg-[#f5f3ff]">
                                     Cancel
                                 </a>

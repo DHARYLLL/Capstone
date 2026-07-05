@@ -5,7 +5,7 @@
     $tenantStatus = $tenantStatus ?? 'Live';
 @endphp
 
-<aside class="hidden w-72 shrink-0 flex-col border-r border-gray-200 bg-base-100 md:flex">
+<aside class="sticky top-0 hidden h-screen w-72 shrink-0 flex-col overflow-hidden border-r border-gray-200 bg-base-100 md:flex">
     <div class="border-b border-gray-200 px-6 py-5">
         <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3">
             <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-primary text-white shadow-sm">
@@ -28,7 +28,7 @@
         </div>
     </div>
 
-    <nav class="flex-1 px-4 py-5">
+    <nav class="min-h-0 flex-1 overflow-y-auto px-4 py-5">
         @php
             $navItems = [
                 [
@@ -79,6 +79,13 @@
                     'label'  => 'Staff & Roles',
                     'icon'   => 'M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm0 2c-4.4 0-8 2.2-8 5v1h16v-1c0-2.8-3.6-5-8-5z',
                     'active' => request()->routeIs('admin.businesses.staff'),
+                ],
+                [
+                    'route'  => 'admin.businesses.logs',
+                    'href'   => route('admin.businesses.logs'),
+                    'label'  => 'Logs',
+                    'icon'   => 'M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z',
+                    'active' => request()->routeIs('admin.businesses.logs'),
                 ],
             ];
         @endphp

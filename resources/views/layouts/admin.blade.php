@@ -38,7 +38,7 @@
     <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
 </head>
 <body class="bg-[#f8fafc] font-sans text-gray-800 antialiased">
-    <div class="flex min-h-screen overflow-hidden">
+    <div class="flex h-screen overflow-hidden">
         @hasSection('sidebar')
             @yield('sidebar')
         @else
