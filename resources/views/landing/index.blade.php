@@ -1,12 +1,16 @@
 @extends('layouts.landing')
 
+@section('header')
+    @include('partials.platform-navbar')
+@endsection
+
 @section('content')
     @php
         $heroBadge = 'Now Onboarding New Businesses';
         $heroHeadline = 'Automate customer interactions across every branch with localized AI built for multi-unit operations.';
         $heroDescription = 'Project RED AI centralizes customer support, branch knowledge, and staff handoff for hotels, restaurants, pools, and other business groups that need one system with many tailored experiences.';
         $heroSupportLine = 'One core database. Many business instances. Faster service for owners, staff, and customers.';
-        $primaryCtaLabel = 'Register Your Business';
+        $primaryCtaLabel = 'Sign Up Your Business';
         $secondaryCtaLabel = 'Take the Feature Tour';
         $heroHighlights = [
             'Multi-tenant knowledge base architecture',
@@ -15,19 +19,19 @@
         ];
         $unitCards = [
             [
-                'title' => 'Accommodations & Hotels',
-                'description' => 'Manage guest stays, property guidelines, room policies, and service details from one connected instance.',
-                'points' => ['Guest stay FAQs', 'House rules and policies', 'Booking and arrival guidance'],
+                'title' => 'AI Knowledge Engine',
+                'description' => 'Project RED AI reads the business knowledge base and generates customer-ready answers from approved company information.',
+                'points' => ['Context-aware replies', 'Business policy matching', 'Consistent answer quality'],
             ],
             [
-                'title' => 'Food & Dining',
-                'description' => 'Keep menus, operating hours, reservations, and service updates in sync with the live business context.',
-                'points' => ['Active menus', 'Operating hours', 'Dining support replies'],
+                'title' => 'Document Intelligence',
+                'description' => 'Uploaded PDFs and CSV files are transformed into structured operational knowledge the AI can search and explain.',
+                'points' => ['PDF content extraction', 'CSV data organization', 'Searchable knowledge records'],
             ],
             [
-                'title' => 'Leisure & Pools',
-                'description' => 'Control facility rules, booking instructions, and usage details with branch-aware support logic.',
-                'points' => ['Facility rules', 'Booking details', 'Usage and safety guidance'],
+                'title' => 'Smart Staff Handoff',
+                'description' => 'When automation is not enough, unresolved conversations can move to staff with the customer context preserved.',
+                'points' => ['Escalation detection', 'Conversation history', 'Live support routing'],
             ],
         ];
         $wizardSteps = [
@@ -65,6 +69,35 @@
             'Clear visibility into live support handoff needs',
             'Less manual upkeep for owners and operators',
         ];
+        $pricingPlans = [
+            [
+                'name' => 'Free',
+                'price' => 'Free',
+                'billing' => 'forever',
+                'description' => 'Start with one business workspace and basic AI support tools.',
+                'limit' => 'Up to 1 business',
+                'features' => ['PDF and CSV ingestion', 'Staff handoff terminal', 'Centralized AI knowledge'],
+                'highlighted' => false,
+            ],
+            [
+                'name' => 'Growth',
+                'price' => 'Plan 2',
+                'billing' => 'paid SaaS tier',
+                'description' => 'For growing teams managing several connected business units.',
+                'limit' => 'Up to 3 businesses',
+                'features' => ['PDF and CSV ingestion', 'Staff handoff terminal', 'Centralized AI knowledge'],
+                'highlighted' => true,
+            ],
+            [
+                'name' => 'Scale',
+                'price' => 'Plan 3',
+                'billing' => 'paid SaaS tier',
+                'description' => 'For operators that need more coverage across a larger business group.',
+                'limit' => 'Up to 5 businesses',
+                'features' => ['PDF and CSV ingestion', 'Staff handoff terminal', 'Centralized AI knowledge'],
+                'highlighted' => false,
+            ],
+        ];
     @endphp
 
     <section id="home" class="mx-auto max-w-7xl px-4 py-10 lg:px-8 lg:py-16">
@@ -88,9 +121,9 @@
                 </div>
 
                 <div class="flex flex-col gap-3 sm:flex-row">
-                    <a href="#register" class="btn rounded-full border-0 bg-brand-primary px-6 text-white hover:bg-[#6d28d9]">
+                    <button type="button" onclick="signup_modal.showModal()" class="btn rounded-full border-0 bg-brand-primary px-6 text-white hover:bg-[#6d28d9]">
                         {{ $primaryCtaLabel }}
-                    </a>
+                    </button>
                     <a href="#feature-tour"
                         class="btn rounded-full border border-brand-primary bg-transparent px-6 text-brand-primary hover:bg-[#f5f3ff] hover:text-brand-primary">
                         {{ $secondaryCtaLabel }}
@@ -192,11 +225,11 @@
         <div class="max-w-3xl space-y-3">
             <div
                 class="badge border-0 bg-[#f5f3ff] px-4 py-3 text-xs font-semibold uppercase tracking-[0.22em] text-brand-primary">
-                Multi-unit architecture showcase</div>
-            <h2 class="text-3xl font-black tracking-tight text-gray-950 md:text-5xl">One centralized system, tailored
-                support for every branch.</h2>
-            <p class="text-gray-600">Each unit is represented as a distinct operational node, but all of them feed the same
-                core database framework so knowledge, updates, and support stay consistent.</p>
+                AI system showcase</div>
+            <h2 class="text-3xl font-black tracking-tight text-gray-950 md:text-5xl">A business support AI that understands,
+                answers, and escalates.</h2>
+            <p class="text-gray-600">Project RED AI connects uploaded business knowledge, customer conversations, and staff
+                handoff workflows so the system can resolve common questions while keeping humans in control.</p>
         </div>
 
         <div class="mt-10 grid gap-6 lg:grid-cols-3">
@@ -206,7 +239,7 @@
                         <div class="space-y-3">
                             <div
                                 class="inline-flex rounded-full bg-[#f5f3ff] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-brand-primary">
-                                Branch instance</div>
+                                AI capability</div>
                             <h3 class="text-2xl font-black tracking-tight text-gray-950">{{ $unitCard['title'] }}</h3>
                         </div>
                         <span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700">Synced</span>
@@ -228,10 +261,69 @@
                     </div>
 
                     <div class="mt-6 rounded-2xl border border-[#e2e8f0] bg-[#f8fafc] p-4">
-                        <div class="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Database feed</div>
-                        <div class="mt-1 text-sm font-semibold text-gray-950">All updates flow into the centralized core
-                            framework.</div>
+                        <div class="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">System role</div>
+                        <div class="mt-1 text-sm font-semibold text-gray-950">This capability works with the shared AI
+                            knowledge and support workflow.</div>
                     </div>
+                </div>
+            @endforeach
+        </div>
+    </section>
+
+    <section id="pricing" class="mx-auto max-w-7xl px-4 py-16 lg:px-8">
+        <div class="mx-auto max-w-3xl space-y-3 text-center">
+            <div
+                class="badge border-0 bg-[#f5f3ff] px-4 py-3 text-xs font-semibold uppercase tracking-[0.22em] text-brand-primary">
+                SaaS pricing</div>
+            <h2 class="text-3xl font-black tracking-tight text-gray-950 md:text-5xl">Choose the plan that fits your business
+                coverage.</h2>
+            <p class="text-gray-600">Start free with one business, then upgrade as your operation grows across more
+                business profiles and support workflows.</p>
+        </div>
+
+        <div class="mt-10 grid gap-6 lg:grid-cols-3">
+            @foreach ($pricingPlans as $pricingPlan)
+                <div
+                    class="relative rounded-[2rem] border p-6 shadow-sm {{ $pricingPlan['highlighted'] ? 'border-brand-primary bg-[#f5f3ff] shadow-[0_20px_60px_rgba(124,58,237,0.14)]' : 'border-[#e2e8f0] bg-white' }}">
+                    @if ($pricingPlan['highlighted'])
+                        <div
+                            class="absolute right-5 top-5 rounded-full bg-brand-primary px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-white">
+                            Popular</div>
+                    @endif
+
+                    <div class="space-y-4">
+                        <div>
+                            <h3 class="text-2xl font-black tracking-tight text-gray-950">{{ $pricingPlan['name'] }}</h3>
+                            <p class="mt-2 max-w-xs text-sm leading-6 text-gray-600">{{ $pricingPlan['description'] }}</p>
+                        </div>
+
+                        <div class="flex items-end gap-2">
+                            <div class="text-5xl font-black tracking-tight text-gray-950">{{ $pricingPlan['price'] }}</div>
+                            <div class="pb-2 text-sm font-semibold text-gray-500">{{ $pricingPlan['billing'] }}</div>
+                        </div>
+
+                        <div class="rounded-2xl bg-white p-4 text-sm font-bold text-gray-900 shadow-sm">
+                            {{ $pricingPlan['limit'] }}
+                        </div>
+                    </div>
+
+                    <div class="mt-6 space-y-3">
+                        @foreach ($pricingPlan['features'] as $feature)
+                            <div class="flex items-center gap-3 text-sm text-gray-700">
+                                <span class="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+                                    <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current" aria-hidden="true">
+                                        <path d="M9.2 16.2 4.8 11.8l1.4-1.4 3 3 8.6-8.6 1.4 1.4-10 10z" />
+                                    </svg>
+                                </span>
+                                {{ $feature }}
+                            </div>
+                        @endforeach
+                    </div>
+
+                    <button type="button" onclick="signup_modal.showModal()"
+                        class="btn mt-7 w-full rounded-full border-0 {{ $pricingPlan['highlighted'] ? 'bg-brand-primary text-white hover:bg-[#6d28d9]' : 'bg-[#f5f3ff] text-brand-primary hover:bg-[#ede9fe]' }}">
+                        Sign Up
+                    </button>
                 </div>
             @endforeach
         </div>
@@ -402,6 +494,86 @@
         </div>
     </section>
 
-    @include('partials.footer')
+    <dialog id="signup_modal" class="modal modal-bottom sm:modal-middle">
+        <div class="modal-box max-w-2xl rounded-[2rem] border border-[#e2e8f0] bg-[#f8fafc] p-6 lg:p-8">
+            <form method="dialog">
+                <button class="btn btn-sm btn-circle btn-ghost absolute right-4 top-4 text-gray-500 hover:bg-[#f5f3ff]">✕</button>
+            </form>
+
+            <div class="space-y-6">
+                <div class="space-y-2">
+                    <div
+                        class="inline-flex rounded-full bg-[#f5f3ff] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-brand-primary">
+                        Sign up</div>
+                    <h3 class="text-3xl font-black tracking-tight text-gray-950">Sign Up for Project RED AI</h3>
+                    <p class="text-sm leading-6 text-gray-600">
+                        Choose a plan and start creating your AI-powered business workspace. This form is a visual preview
+                        while account registration is being connected.
+                    </p>
+                </div>
+
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <label class="form-control">
+                        <div class="label">
+                            <span class="label-text font-semibold text-gray-700">Full name</span>
+                        </div>
+                        <input type="text" placeholder="Enter your full name"
+                            class="input input-bordered rounded-2xl border-[#e2e8f0] bg-white" />
+                    </label>
+
+                    <label class="form-control">
+                        <div class="label">
+                            <span class="label-text font-semibold text-gray-700">Email address</span>
+                        </div>
+                        <input type="email" placeholder="you@example.com"
+                            class="input input-bordered rounded-2xl border-[#e2e8f0] bg-white" />
+                    </label>
+
+                    <label class="form-control">
+                        <div class="label">
+                            <span class="label-text font-semibold text-gray-700">Business name</span>
+                        </div>
+                        <input type="text" placeholder="Your business name"
+                            class="input input-bordered rounded-2xl border-[#e2e8f0] bg-white" />
+                    </label>
+
+                    <label class="form-control">
+                        <div class="label">
+                            <span class="label-text font-semibold text-gray-700">Plan</span>
+                        </div>
+                        <select class="select select-bordered rounded-2xl border-[#e2e8f0] bg-white">
+                            <option>Free - up to 1 business</option>
+                            <option>Growth - up to 3 businesses</option>
+                            <option>Scale - up to 5 businesses</option>
+                        </select>
+                    </label>
+                </div>
+
+                <div class="rounded-2xl border border-[#e2e8f0] bg-white p-4">
+                    <div class="text-sm font-bold text-gray-900">All plans include</div>
+                    <div class="mt-3 grid gap-2 text-sm text-gray-600 sm:grid-cols-3">
+                        <div>PDF and CSV ingestion</div>
+                        <div>Staff handoff terminal</div>
+                        <div>Centralized AI knowledge</div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                    <form method="dialog">
+                        <button class="btn w-full rounded-full border border-[#e2e8f0] bg-white px-6 text-gray-700 hover:bg-[#f8fafc] sm:w-auto">Cancel</button>
+                    </form>
+                    <button type="button"
+                        class="btn rounded-full border-0 bg-brand-primary px-6 text-white hover:bg-[#6d28d9]">
+                        Continue Sign Up
+                    </button>
+                </div>
+            </div>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+            <button>close</button>
+        </form>
+    </dialog>
+
+    @include('partials.platform-footer')
     {{-- @include('partials.chatbot') --}}
 @endsection

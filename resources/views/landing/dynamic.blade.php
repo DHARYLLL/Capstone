@@ -103,6 +103,10 @@
 @section('page_title', $businessName . ' — ' . $badgeLabel)
 @section('page_description', $businessDescription)
 
+@section('header')
+    @include('partials.navbar', ['business' => $business])
+@endsection
+
 @section('content')
 
 {{-- ── HERO ──────────────────────────────────────────────────────────────────── --}}

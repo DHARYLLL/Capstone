@@ -1,5 +1,12 @@
 {{-- filepath: c:\Users\dhary\Desktop\Capstone\capstone1\resources\views\partials\footer.blade.php --}}
 @php
+    $footerBusinessName = data_get($business ?? null, 'name', 'Project RED AI');
+    $footerBusinessTagline = data_get($business ?? null, 'tagline', 'AI-Powered Business Platform');
+    $footerBusinessDescription = data_get(
+        $business ?? null,
+        'description',
+        'Explore services, locations, offers, and FAQs through one intelligent customer experience.'
+    );
     $footerBusinesses = collect($footerBusinesses ?? [
         ['label' => 'Business One', 'href' => '#businesses'],
         ['label' => 'Business Two', 'href' => '#businesses'],
@@ -18,12 +25,12 @@
                         </svg>
                     </div>
                     <div>
-                        <div class="font-extrabold text-gray-900">Project RED AI</div>
-                        <div class="text-xs text-gray-500">Centralized Business Support Platform</div>
+                        <div class="font-extrabold text-gray-900">{{ $footerBusinessName }}</div>
+                        <div class="text-xs text-gray-500">{{ $footerBusinessTagline }}</div>
                     </div>
                 </div>
                 <p class="max-w-sm text-sm leading-6 text-gray-600">
-                    Project RED AI brings hospitality and business information together in one simple, intelligent platform.
+                    {{ $footerBusinessDescription }}
                 </p>
             </div>
 

@@ -7,9 +7,9 @@
     $navLogoUrl    = $navLogoPath ? asset('storage/' . ltrim($navLogoPath, '/')) : null;
 @endphp
 
-<nav class="fixed top-0 z-40 w-full border-b border-[#e2e8f0] bg-[#f8fafc]/90 backdrop-blur">
-    <div class="navbar mx-auto max-w-7xl px-4 lg:px-8">
-        <div class="navbar-start">
+<nav class="sticky top-0 z-20 w-full border-b border-gray-200 bg-[#f8fafc]/95 backdrop-blur">
+    <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
+        <div class="flex min-w-0 items-center">
             <a href="#home" class="flex items-center gap-3">
                 @if ($navLogoUrl)
                     <img src="{{ $navLogoUrl }}" alt="{{ $navName }} logo" class="h-11 w-11 rounded-2xl object-cover shadow-sm">
@@ -27,20 +27,19 @@
             </a>
         </div>
 
-        <div class="navbar-center hidden lg:flex">
+        <div class="hidden lg:flex">
             <ul class="menu menu-horizontal gap-1 px-1 text-sm font-medium text-gray-700">
-                <li><a href="#home" class="rounded-full hover:bg-[#f5f3ff] hover:text-brand-primary px-4 py-2 transition-colors">Home</a></li>
-                <li><a href="#businesses" class="rounded-full hover:bg-[#f5f3ff] hover:text-brand-primary px-4 py-2 transition-colors">Our Businesses</a></li>
-                <li><a href="#about" class="rounded-full hover:bg-[#f5f3ff] hover:text-brand-primary px-4 py-2 transition-colors">About</a></li>
-                <li><a href="#gallery" class="rounded-full hover:bg-[#f5f3ff] hover:text-brand-primary px-4 py-2 transition-colors">Gallery</a></li>
+                <li><a href="#home" class="rounded-full px-4 py-2 transition-colors hover:bg-[#f5f3ff] hover:text-brand-primary">Home</a></li>
+                <li><a href="#businesses" class="rounded-full px-4 py-2 transition-colors hover:bg-[#f5f3ff] hover:text-brand-primary">Our Businesses</a></li>
+                <li><a href="#about" class="rounded-full px-4 py-2 transition-colors hover:bg-[#f5f3ff] hover:text-brand-primary">About</a></li>
+                <li><a href="#gallery" class="rounded-full px-4 py-2 transition-colors hover:bg-[#f5f3ff] hover:text-brand-primary">Gallery</a></li>
             </ul>
         </div>
 
-        <div class="navbar-end gap-2">
-            {{-- Chat CTA --}}
-            <label for="chatbot-toggle" class="btn btn-sm rounded-full border-0 bg-brand-primary px-5 text-white hover:bg-[#6d28d9] shadow-sm transition-all duration-300 cursor-pointer">
+        <div class="flex items-center gap-2">
+            <label for="chatbot-toggle" class="btn btn-sm cursor-pointer rounded-full border-0 bg-brand-primary px-5 text-white shadow-sm transition-all duration-300 hover:bg-[#6d28d9]">
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h8M8 14h5m-7 7l-4 1 1-4A9 9 0 1118 6 9 9 0 016 21z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h8M8 14h5m-7 7l-4 1 1-4A9 9 0 1118 6 9 9 0 016 21z" />
                 </svg>
                 Chat with AI
             </label>

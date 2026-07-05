@@ -39,9 +39,9 @@
     <link rel="stylesheet" href="{{ asset('css/landing.css') }}">
 </head>
 <body class="bg-[#f8fafc] font-sans text-gray-900 antialiased">
-    @include('partials.navbar')
+    @yield('header')
 
-    <main class="min-h-screen pt-20">
+    <main class="min-h-screen">
         @yield('content')
     </main>
 
