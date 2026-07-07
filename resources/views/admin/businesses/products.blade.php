@@ -1,0 +1,472 @@
+@php
+    $currentSlug = $slug ?? 'dakong-balay';
+
+    if ($currentSlug === 'villa-carmelita') {
+        $unitName = 'Villa Carmelita';
+        $unitType = 'Accommodation / Hotel';
+        $unitIcon = '🏨';
+        $unitBadgeBg = 'bg-[#F3ECE4] text-[#6B4226]';
+        $businessName = 'Villa Carmelita';
+        $businessType = 'Hotel / Villa';
+        $activeCountText = '21 rooms currently managed';
+        $pageTitle = 'Rooms & Availability';
+        $pageDesc = 'View room status, filter by category, and toggle live occupancy states.';
+
+        $rooms = [
+            ['number' => 'RM 310', 'type' => 'Standard', 'price' => 'PHP 1,800', 'status' => 'Available', 'status_class' => 'badge-success bg-emerald-50 text-emerald-700 border-emerald-200'],
+            ['number' => 'RM 312', 'type' => 'Standard', 'price' => 'PHP 1,800', 'status' => 'Available', 'status_class' => 'badge-success bg-emerald-50 text-emerald-700 border-emerald-200'],
+            ['number' => 'RM 314', 'type' => 'Standard', 'price' => 'PHP 1,800', 'status' => 'Occupied', 'status_class' => 'badge-warning bg-amber-50 text-amber-700 border-amber-200'],
+            ['number' => 'RM 315', 'type' => 'Standard', 'price' => 'PHP 1,800', 'status' => 'Available', 'status_class' => 'badge-success bg-emerald-50 text-emerald-700 border-emerald-200'],
+            ['number' => 'RM 301', 'type' => 'Junior Suite', 'price' => 'PHP 1,950', 'status' => 'Available', 'status_class' => 'badge-success bg-emerald-50 text-emerald-700 border-emerald-200'],
+            ['number' => 'RM 308', 'type' => 'Junior Suite', 'price' => 'PHP 1,950', 'status' => 'Occupied', 'status_class' => 'badge-warning bg-amber-50 text-amber-700 border-amber-200'],
+            ['number' => 'RM 302', 'type' => 'Deluxe Twin', 'price' => 'PHP 2,250', 'status' => 'Available', 'status_class' => 'badge-success bg-emerald-50 text-emerald-700 border-emerald-200'],
+            ['number' => 'RM 303', 'type' => 'Deluxe Twin', 'price' => 'PHP 2,250', 'status' => 'Available', 'status_class' => 'badge-success bg-emerald-50 text-emerald-700 border-emerald-200'],
+            ['number' => 'RM 304', 'type' => 'Deluxe Twin', 'price' => 'PHP 2,250', 'status' => 'Maintenance', 'status_class' => 'badge-error bg-rose-50 text-rose-700 border-rose-200'],
+            ['number' => 'RM 305', 'type' => 'Deluxe Twin', 'price' => 'PHP 2,250', 'status' => 'Available', 'status_class' => 'badge-success bg-emerald-50 text-emerald-700 border-emerald-200'],
+            ['number' => 'RM 306', 'type' => 'Deluxe Twin', 'price' => 'PHP 2,250', 'status' => 'Occupied', 'status_class' => 'badge-warning bg-amber-50 text-amber-700 border-amber-200'],
+            ['number' => 'RM 307', 'type' => 'Deluxe Twin', 'price' => 'PHP 2,250', 'status' => 'Available', 'status_class' => 'badge-success bg-emerald-50 text-emerald-700 border-emerald-200'],
+            ['number' => 'RM 309', 'type' => 'Deluxe Twin', 'price' => 'PHP 2,250', 'status' => 'Available', 'status_class' => 'badge-success bg-emerald-50 text-emerald-700 border-emerald-200'],
+            ['number' => 'RM 311', 'type' => 'Deluxe Twin', 'price' => 'PHP 2,250', 'status' => 'Occupied', 'status_class' => 'badge-warning bg-amber-50 text-amber-700 border-amber-200'],
+            ['number' => 'RM 201', 'type' => 'Family Suite', 'price' => 'PHP 3,500', 'status' => 'Available', 'status_class' => 'badge-success bg-emerald-50 text-emerald-700 border-emerald-200'],
+            ['number' => 'RM 202', 'type' => 'Family Suite', 'price' => 'PHP 3,500', 'status' => 'Occupied', 'status_class' => 'badge-warning bg-amber-50 text-amber-700 border-amber-200'],
+            ['number' => 'RM 206', 'type' => 'Family Suite', 'price' => 'PHP 3,500', 'status' => 'Available', 'status_class' => 'badge-success bg-emerald-50 text-emerald-700 border-emerald-200'],
+            ['number' => 'RM 207', 'type' => 'Family Suite', 'price' => 'PHP 3,500', 'status' => 'Maintenance', 'status_class' => 'badge-error bg-rose-50 text-rose-700 border-rose-200'],
+            ['number' => 'RM 203', 'type' => 'Super Deluxe Room', 'price' => 'PHP 3,000', 'status' => 'Available', 'status_class' => 'badge-success bg-emerald-50 text-emerald-700 border-emerald-200'],
+            ['number' => 'RM 204', 'type' => 'Super Deluxe Room', 'price' => 'PHP 3,000', 'status' => 'Occupied', 'status_class' => 'badge-warning bg-amber-50 text-amber-700 border-amber-200'],
+            ['number' => 'RM 205', 'type' => 'Super Deluxe Room', 'price' => 'PHP 3,000', 'status' => 'Available', 'status_class' => 'badge-success bg-emerald-50 text-emerald-700 border-emerald-200'],
+        ];
+    } elseif ($currentSlug === 'monclaire-pool') {
+        $unitName = 'Monclaire Pool';
+        $unitType = 'Facility / Pool';
+        $unitIcon = '🏊';
+        $unitBadgeBg = 'bg-[#E4EEF3] text-[#2A5F7A]';
+        $businessName = 'Monclaire Pool';
+        $businessType = 'Swimming Pool';
+        $activeCountText = '4 items currently published';
+        $pageTitle = 'Products & Services';
+        $pageDesc = 'Manage published items, archive older entries, and keep customer-facing availability up to date.';
+
+        $products = [
+            ['name' => 'Day Pass - Adult', 'note' => 'Standard access', 'description' => 'Single day admission to the main pool area and lounge spaces for adults.', 'category' => 'Pass', 'price' => 'PHP 150', 'availability' => 'Available daily', 'availability_class' => 'badge-outline border-brand-border bg-[#f8fafc] text-brand-primary-dark'],
+            ['name' => 'Day Pass - Child', 'note' => 'Standard access', 'description' => 'Single day admission to the pool area for kids under 12. Adult supervision required.', 'category' => 'Pass', 'price' => 'PHP 100', 'availability' => 'Available daily', 'availability_class' => 'badge-outline border-brand-border bg-[#f8fafc] text-brand-primary-dark'],
+            ['name' => 'Private Gazebo', 'note' => 'Shaded rental', 'description' => 'Reserved poolside gazebo with table, seating, and privacy curtains.', 'category' => 'Rental', 'price' => 'PHP 800', 'availability' => 'By schedule', 'availability_class' => 'badge-outline border-brand-border bg-[#f8fafc] text-brand-primary-dark'],
+            ['name' => 'Pool Party Package', 'note' => 'Event package', 'description' => 'Exclusive group rental package with food platters, tables, and pool access for up to 20 guests.', 'category' => 'Event', 'price' => 'PHP 5,000', 'availability' => 'Reserve in advance', 'availability_class' => 'badge-outline border-brand-border bg-[#f8fafc] text-brand-primary-dark'],
+        ];
+    } else {
+        $unitName = 'Dakong Balay';
+        $unitType = 'Food & Restaurant';
+        $unitIcon = '🍽️';
+        $unitBadgeBg = 'bg-[#F4EBE0] text-[#7A4A2B]';
+        $businessName = 'Dakong Balay';
+        $businessType = 'Restaurant';
+        $activeCountText = '4 items currently published';
+        $pageTitle = 'Products & Services';
+        $pageDesc = 'Manage published items, archive older entries, and keep customer-facing availability up to date.';
+
+        $products = [
+            ['name' => 'Chicken Inasal Meal', 'note' => 'Main dish', 'description' => 'Grilled chicken marinated in native spices, served with rice, dipping sauce, and fresh sides.', 'category' => 'Meal', 'price' => 'PHP 220', 'availability' => 'Available today', 'availability_class' => 'badge-outline border-brand-border bg-[#f8fafc] text-brand-primary-dark'],
+            ['name' => 'Pork Sisig Platter', 'note' => 'Best seller', 'description' => 'Sizzling sisig served on a sharing platter, ideal for groups and a strong customer favorite.', 'category' => 'Sharing plate', 'price' => 'PHP 340', 'availability' => 'Limited stock', 'availability_class' => 'badge-outline border-brand-border bg-[#f8fafc] text-brand-primary-dark'],
+            ['name' => 'Family Set Menu', 'note' => 'Bundle offering', 'description' => 'A complete food bundle for family dining with multiple mains, rice, and shared sides.', 'category' => 'Bundle', 'price' => 'PHP 1,250', 'availability' => 'Available daily', 'availability_class' => 'badge-outline border-brand-border bg-[#f8fafc] text-brand-primary-dark'],
+            ['name' => 'Private Dining Area', 'note' => 'Service feature', 'description' => 'Reserved dining service for special gatherings, private meals, and small celebration setups.', 'category' => 'Service', 'price' => 'PHP 800', 'availability' => 'By schedule', 'availability_class' => 'badge-outline border-brand-border bg-[#f8fafc] text-brand-primary-dark'],
+        ];
+    }
+@endphp
+
+@php $isManager = isset($slug) && request()->query('context') !== 'admin'; @endphp
+
+@extends($isManager ? 'layouts.manager' : 'layouts.admin')
+
+@section('page_title', ($isManager ? $unitName . ' — ' : '') . $pageTitle)
+@section('page_description', $pageDesc)
+@section('breadcrumbs', $isManager ? 'Manager / ' . $unitName . ' / ' . $pageTitle : 'Admin / Businesses / ' . $pageTitle)
+@if ($isManager)
+@section('unit-type', $unitType)
+@endif
+
+@if ($isManager)
+    @section('manager-sidebar')
+        <aside class="hidden w-72 shrink-0 flex-col border-r border-gray-200 bg-base-100 md:flex">
+            <div class="border-b border-gray-200 px-6 py-5">
+                <a href="{{ route('admin.businesses.manager-dashboard', $currentSlug) }}" class="flex items-center gap-3">
+                    <div
+                        class="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#1e293b] text-xl text-white shadow-sm">
+                        {{ $unitIcon }}
+                    </div>
+                    <div>
+                        <div class="text-base font-extrabold tracking-tight text-gray-900">{{ $unitName }}</div>
+                        <div class="text-xs text-gray-500">Manager Portal</div>
+                    </div>
+                </a>
+                <div class="mt-4 rounded-2xl border border-[#e2e8f0] bg-[#ffffff] px-4 py-3">
+                    <div class="text-xs font-semibold uppercase tracking-wider text-gray-400">Your assigned unit</div>
+                    <div class="mt-1 text-sm font-bold text-gray-900">{{ $unitName }}</div>
+                    <div class="mt-1 flex items-center gap-2 text-xs text-gray-500">
+                        <span class="inline-flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        {{ $unitType }} · Live
+                    </div>
+                </div>
+            </div>
+
+            <nav class="flex-1 px-4 py-5">
+                @php
+                    $mgrNav = [
+                        ['label' => 'Overview', 'href' => route('admin.businesses.manager-dashboard', $currentSlug), 'icon' => 'M4 13h7V4H4v9zm0 7h7v-5H4v5zm9 0h7V11h-7v9zm0-16v5h7V4h-7z', 'active' => false],
+                        ['label' => 'Knowledge Base', 'href' => route('admin.businesses.manager-knowledge-base', $currentSlug), 'icon' => 'M12 2a7 7 0 0 0-7 7v13h14V9a7 7 0 0 0-7-7zm-2 8h4v2h-4v-2zm0 4h4v2h-4v-2z', 'active' => false],
+                        ['label' => 'Live Chat & Handoff', 'href' => route('admin.businesses.manager-chat', $currentSlug), 'icon' => 'M4 4h16v12H7l-3 3V4zm4 5h8v2H8V9zm0 4h6v2H8v-2z', 'active' => false],
+                        ['label' => 'Analytics', 'href' => route('admin.businesses.manager-analytics', $currentSlug), 'icon' => 'M12 3C7.03 3 3 6.58 3 11c0 2.47 1.22 4.7 3.22 6.29L5 21l3.9-1.96c.97.25 2 .38 3.1.38 4.97 0 9-3.58 9-8s-4.03-8-9-8zm-3 9H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2z', 'active' => false],
+                        ['label' => 'Edit Business Profile', 'href' => route('admin.businesses.manager-edit', $currentSlug), 'icon' => 'M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm18-10.5a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z', 'active' => false],
+                        ['label' => 'Products & Services', 'href' => route('admin.businesses.manager-products', $currentSlug), 'icon' => 'M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-7 3a3 3 0 1 1 0 6 3 3 0 0 1 0-6zm6 12H6v-.5c0-2 4-3.1 6-3.1s6 1.1 6 3.1V18z', 'active' => true],
+                        ['label' => 'Staff & Roles', 'href' => route('admin.businesses.manager-staff', $currentSlug), 'icon' => 'M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm0 2c-4.4 0-8 2.2-8 5v1h16v-1c0-2.8-3.6-5-8-5z', 'active' => false],
+                        ['label' => 'Logs', 'href' => route('admin.businesses.manager-logs', $currentSlug), 'icon' => 'M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z', 'active' => false],
+                    ];
+                @endphp
+                <div class="mb-2 px-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-400">{{ $unitName }}
+                    Workspace</div>
+                <ul class="space-y-1">
+                    @foreach ($mgrNav as $item)
+                        <li>
+                            <a href="{{ $item['href'] }}"
+                                class="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-colors
+                                          {{ $item['active'] ? 'bg-[#1e293b] font-semibold text-white shadow-sm' : 'text-gray-700 hover:bg-[#f5f3ff] hover:text-[#1e293b]' }}">
+                                <svg viewBox="0 0 24 24" class="h-5 w-5 shrink-0 fill-current" aria-hidden="true">
+                                    <path d="{{ $item['icon'] }}" />
+                                </svg>
+                                {{ $item['label'] }}
+                            </a>
+                        </li>
+                    @endforeach
+                </ul>
+            </nav>
+            <div class="mt-auto border-t border-gray-200 p-4">
+                <button class="btn w-full justify-start rounded-2xl border-0 bg-[#f5f3ff] text-gray-800 hover:bg-[#f5f3ff]">
+                    <svg viewBox="0 0 24 24" class="h-5 w-5 fill-current" aria-hidden="true">
+                        <path d="M10 17l1.4-1.4L8.8 13H20v-2H8.8l2.6-2.6L10 7l-5 5 5 5zM4 4h7v2H6v12h5v2H4V4z" />
+                    </svg>
+                    Logout
+                </button>
+            </div>
+        </aside>
+    @endsection
+@endif
+
+@section('content')
+    <div class="space-y-8 bg-base-200 px-4 py-8">
+
+        {{-- Page heading --}}
+        <section class="space-y-2">
+            <h1 class="text-3xl font-black tracking-tight text-gray-900 sm:text-4xl">{{ $pageTitle }}</h1>
+            <p class="max-w-2xl text-sm leading-6 text-gray-500 sm:text-base">{{ $pageDesc }}</p>
+        </section>
+
+        {{-- Header bar --}}
+        <section class="card bg-base-100 shadow-sm">
+            <div class="card-body gap-6 p-6 lg:p-8">
+                <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                    <div class="flex items-center gap-3">
+                        <h2 class="text-2xl font-bold text-gray-900">{{ $businessName }}</h2>
+                        <span class="badge badge-success badge-outline">Active</span>
+                    </div>
+                    <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 shrink-0">
+                        <a href="{{ $isManager ? route('admin.businesses.manager-dashboard', $currentSlug) : route('admin.businesses.index') }}"
+                            class="btn btn-outline rounded-full border-gray-300 text-gray-700 hover:border-brand-border hover:bg-[#f5f3ff] hover:text-gray-900 whitespace-nowrap">
+                            <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current" aria-hidden="true">
+                                <path d="M19 11H8.41l4.3-4.29L11.29 5 5 11.29l6.29 6.29 1.42-1.42-4.3-4.3H19v-2z" />
+                            </svg>
+                            {{ $isManager ? 'Back to dashboard' : 'Back to businesses' }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {{-- Main content: Rooms (Villa Carmelita) or Products table (others) --}}
+        <section class="card bg-base-100 shadow-sm">
+            <div class="card-body gap-6 p-6 lg:p-8">
+                @if ($currentSlug === 'villa-carmelita')
+                    {{-- Rooms & Availability Panel --}}
+                    <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between border-b border-gray-100 pb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-950">Rooms & Live Availability</h2>
+                            <p class="mt-1 text-sm leading-6 text-gray-500">View room status, filter by categories, and toggle
+                                live occupancy states for Villa Carmelita.</p>
+                        </div>
+                        <div class="flex flex-wrap gap-2 text-xs font-semibold">
+                            <div
+                                class="flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-emerald-800">
+                                <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                Available: <span id="count-avail">15</span>
+                            </div>
+                            <div
+                                class="flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5 text-amber-800">
+                                <span class="h-2 w-2 rounded-full bg-amber-500"></span>
+                                Occupied: <span id="count-occu">4</span>
+                            </div>
+                            <div
+                                class="flex items-center gap-1.5 rounded-full border border-rose-200 bg-rose-50 px-3 py-1.5 text-rose-800">
+                                <span class="h-2 w-2 rounded-full bg-rose-500"></span>
+                                Maintenance: <span id="count-maint">2</span>
+                            </div>
+                            <div
+                                class="flex items-center gap-1.5 rounded-full border border-gray-200 bg-gray-50 px-3 py-1.5 text-gray-800">
+                                Total rooms: 21</div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between bg-gray-50 p-4 rounded-2xl">
+                        <div class="flex flex-wrap gap-1.5" id="room-filter-container">
+                            <button type="button"
+                                class="btn btn-sm rounded-full filter-btn active border-0 bg-brand-primary text-white hover:bg-[#6d28d9]"
+                                data-filter="all">All Rooms</button>
+                            <button type="button"
+                                class="btn btn-sm rounded-full filter-btn btn-outline border-gray-300 text-gray-700 hover:bg-[#ffffff]"
+                                data-filter="Standard">Standard</button>
+                            <button type="button"
+                                class="btn btn-sm rounded-full filter-btn btn-outline border-gray-300 text-gray-700 hover:bg-[#ffffff]"
+                                data-filter="Junior Suite">Junior Suite</button>
+                            <button type="button"
+                                class="btn btn-sm rounded-full filter-btn btn-outline border-gray-300 text-gray-700 hover:bg-[#ffffff]"
+                                data-filter="Deluxe Twin">Deluxe Twin</button>
+                            <button type="button"
+                                class="btn btn-sm rounded-full filter-btn btn-outline border-gray-300 text-gray-700 hover:bg-[#ffffff]"
+                                data-filter="Family Suite">Family Suite</button>
+                            <button type="button"
+                                class="btn btn-sm rounded-full filter-btn btn-outline border-gray-300 text-gray-700 hover:bg-[#ffffff]"
+                                data-filter="Super Deluxe Room">Super Deluxe</button>
+                        </div>
+                        <div class="text-xs text-gray-500">* Changes reflect immediately in guest booking display and AI chatbot
+                            responses.</div>
+                    </div>
+
+                    <div class="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" id="rooms-grid">
+                        @foreach ($rooms as $room)
+                            <div class="room-card card border border-gray-150 bg-white hover:shadow-md transition-all rounded-3xl"
+                                data-room-number="{{ $room['number'] }}" data-room-type="{{ $room['type'] }}"
+                                data-room-price="{{ $room['price'] }}" data-room-status="{{ $room['status'] }}">
+                                <div class="card-body p-4 space-y-3">
+                                    <div class="flex items-start justify-between">
+                                        <div class="space-y-0.5">
+                                            <span class="text-xs font-semibold text-gray-400">ROOM</span>
+                                            <h4 class="text-lg font-black text-gray-900 tracking-tight">{{ $room['number'] }}</h4>
+                                        </div>
+                                        <span
+                                            class="badge badge-sm border text-[10px] font-bold px-2.5 py-1.5 room-status-badge {{ $room['status_class'] }}">{{ $room['status'] }}</span>
+                                    </div>
+                                    <div class="space-y-1 text-xs">
+                                        <div class="flex justify-between"><span class="text-gray-500">Category:</span><span
+                                                class="font-medium text-gray-800">{{ $room['type'] }}</span></div>
+                                        <div class="flex justify-between"><span class="text-gray-500">Rate:</span><span
+                                                class="font-semibold text-gray-950">{{ $room['price'] }}</span></div>
+                                    </div>
+                                    <div class="pt-2 border-t border-gray-100 flex flex-col gap-1.5">
+                                        <span class="text-[10px] font-medium text-gray-400">MANAGE STATUS</span>
+                                        <select
+                                            class="select select-xs select-bordered w-full rounded-lg bg-base-100 text-xs font-medium status-select"
+                                            data-room="{{ $room['number'] }}">
+                                            <option value="Available" @if($room['status'] === 'Available') selected @endif>Available
+                                            </option>
+                                            <option value="Occupied" @if($room['status'] === 'Occupied') selected @endif>Occupied
+                                            </option>
+                                            <option value="Maintenance" @if($room['status'] === 'Maintenance') selected @endif>
+                                                Maintenance</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    <div id="no-rooms-alert"
+                        class="hidden text-center py-10 rounded-3xl border-2 border-dashed border-gray-200">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                        <h3 class="mt-2 text-sm font-semibold text-gray-900">No rooms found</h3>
+                        <p class="mt-1 text-sm text-gray-500">No rooms match the selected category filter.</p>
+                    </div>
+
+                    <div
+                        class="flex flex-col gap-4 border-t border-gray-150 pt-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div class="text-xs text-gray-500" id="rooms-pagination-info"></div>
+                        <div class="join flex-wrap" id="rooms-pagination-buttons"></div>
+                    </div>
+
+                @else
+                    {{-- Products & Services Panel --}}
+                    <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                        <div>
+                            <h2 class="text-xl font-bold text-gray-900">Products & services for {{ $businessName }}</h2>
+                            <p class="mt-1 text-sm leading-6 text-gray-500">Manage published items, archive older entries, and
+                                keep customer-facing availability up to date.</p>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-3 lg:justify-end">
+                            <button type="button"
+                                class="btn rounded-full border-0 bg-brand-primary whitespace-nowrap text-white hover:bg-[#6d28d9]">Active
+                                items</button>
+                            <button type="button"
+                                class="btn btn-outline rounded-full border-gray-300 whitespace-nowrap text-gray-700 hover:bg-[#f5f3ff]">Archived
+                                items</button>
+                            <button type="button"
+                                class="btn rounded-full border-0 bg-brand-primary whitespace-nowrap text-white hover:bg-[#6d28d9]">
+                                <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current" aria-hidden="true">
+                                    <path d="M19 11H13V5h-2v6H5v2h6v6h2v-6h6z" />
+                                </svg>
+                                Add item
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="table table-zebra">
+                            <thead>
+                                <tr class="text-gray-500">
+                                    <th>Item</th>
+                                    <th>Description</th>
+                                    <th>Category</th>
+                                    <th>Price</th>
+                                    <th>Availability</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($products as $product)
+                                    <tr>
+                                        <td>
+                                            <div class="space-y-1">
+                                                <div class="font-semibold text-gray-900">{{ $product['name'] }}</div>
+                                                <div class="text-sm text-gray-500">{{ $product['note'] }}</div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="max-w-[320px] truncate text-sm leading-6 text-gray-600">
+                                                {{ $product['description'] }}</div>
+                                        </td>
+                                        <td class="whitespace-nowrap text-sm text-gray-600">{{ $product['category'] }}</td>
+                                        <td class="whitespace-nowrap text-sm font-medium text-gray-900">{{ $product['price'] }}</td>
+                                        <td>
+                                            <span
+                                                class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold border border-brand-border bg-[#f8fafc] text-brand-primary-dark whitespace-nowrap">
+                                                {{ $product['availability'] }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+                                                <button type="button"
+                                                    class="btn btn-outline btn-sm rounded-full border-gray-300 whitespace-nowrap text-gray-700 hover:bg-[#f5f3ff] product-edit-btn">Edit
+                                                    details</button>
+                                                <button type="button"
+                                                    class="btn btn-outline btn-sm rounded-full border-gray-300 whitespace-nowrap text-gray-700 hover:bg-[#f5f3ff] product-toggle-btn">Mark
+                                                    unavailable</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div
+                        class="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-gray-150 pt-4 mt-4">
+                        <div class="text-xs text-gray-500">Showing <strong>1</strong> to <strong>{{ count($products) }}</strong>
+                            of <strong>{{ count($products) }}</strong> items</div>
+                        <div class="join">
+                            <button type="button"
+                                class="join-item btn btn-xs btn-outline border-gray-300 text-gray-700 hover:bg-[#f5f3ff]"
+                                disabled>«</button>
+                            <button type="button"
+                                class="join-item btn btn-xs btn-active border-0 bg-brand-primary text-white hover:bg-[#6d28d9]">1</button>
+                            <button type="button"
+                                class="join-item btn btn-xs btn-outline border-gray-300 text-gray-700 hover:bg-[#f5f3ff]"
+                                disabled>»</button>
+                        </div>
+                    </div>
+                @endif
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const showToast = (message, title = 'Success!') => {
+                const toast = document.createElement('div');
+                toast.className = 'fixed bottom-4 right-4 z-50';
+                toast.innerHTML = `<div class="alert alert-success bg-brand-primary text-white border-0 shadow-2xl rounded-2xl p-4 flex items-center gap-3"><svg class="h-6 w-6 shrink-0 stroke-current text-white" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><div><span class="font-bold">${title}</span><div class="text-xs text-white/80">${message}</div></div></div>`;
+                document.body.appendChild(toast);
+                setTimeout(() => { toast.classList.add('opacity-0', 'transition-opacity', 'duration-500'); setTimeout(() => toast.remove(), 500); }, 3000);
+            };
+
+            document.querySelectorAll('.product-edit-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const itemName = e.target.closest('tr').querySelector('.font-semibold').textContent;
+                    showToast(`Editing panel for "${itemName}" simulated.`, 'Product Edit');
+                });
+            });
+
+            document.querySelectorAll('.product-toggle-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const row = e.target.closest('tr');
+                    const itemName = row.querySelector('.font-semibold').textContent;
+                    const badge = row.querySelector('.inline-flex');
+                    if (btn.textContent.trim() === 'Mark unavailable') {
+                        badge.textContent = 'Unavailable';
+                        badge.className = 'inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold border border-rose-200 bg-rose-50 text-rose-700 whitespace-nowrap';
+                        btn.textContent = 'Mark available';
+                        showToast(`"${itemName}" marked as Unavailable.`, 'Status Updated');
+                    } else {
+                        badge.textContent = 'Available';
+                        badge.className = 'inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold border border-brand-border bg-[#f8fafc] text-brand-primary-dark whitespace-nowrap';
+                        btn.textContent = 'Mark unavailable';
+                        showToast(`"${itemName}" marked as Available.`, 'Status Updated');
+                    }
+                });
+            });
+
+            if (document.querySelector('#rooms-grid')) {
+                const roomsPerPage = 8; let currentFilter = 'all'; let currentPage = 1;
+                const filterButtons = document.querySelectorAll('.filter-btn');
+                const roomCards = Array.from(document.querySelectorAll('.room-card'));
+                const noRoomsAlert = document.querySelector('#no-rooms-alert');
+                const paginationInfo = document.querySelector('#rooms-pagination-info');
+                const paginationButtons = document.querySelector('#rooms-pagination-buttons');
+
+                const getFiltered = () => roomCards.filter(c => currentFilter === 'all' || c.dataset.roomType === currentFilter);
+                const setActive = (btn) => { filterButtons.forEach(b => { b.classList.remove('bg-brand-primary', 'text-white'); b.classList.add('btn-outline', 'border-gray-300', 'text-gray-700'); }); btn.classList.add('bg-brand-primary', 'text-white'); btn.classList.remove('btn-outline', 'border-gray-300', 'text-gray-700'); };
+
+                const render = () => {
+                    const filtered = getFiltered(); const total = filtered.length;
+                    const pages = Math.max(1, Math.ceil(total / roomsPerPage));
+                    currentPage = Math.min(Math.max(currentPage, 1), pages);
+                    roomCards.forEach(c => c.classList.add('hidden'));
+                    if (total === 0) { noRoomsAlert.classList.remove('hidden'); paginationInfo && (paginationInfo.textContent = ''); paginationButtons && (paginationButtons.innerHTML = ''); return; }
+                    noRoomsAlert.classList.add('hidden');
+                    const start = (currentPage - 1) * roomsPerPage; const end = Math.min(start + roomsPerPage, total);
+                    filtered.slice(start, end).forEach(c => c.classList.remove('hidden'));
+                    paginationInfo && (paginationInfo.innerHTML = `Showing <strong>${start + 1}</strong> to <strong>${end}</strong> of <strong>${total}</strong> rooms`);
+                    if (!paginationButtons) return;
+                    paginationButtons.innerHTML = '';
+                    const mkBtn = (label, page, active, disabled, aria) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.className = active ? 'join-item btn btn-xs btn-active border-0 bg-brand-primary text-white' : 'join-item btn btn-xs btn-outline border-gray-300 text-gray-700 hover:bg-[#f5f3ff]'; if (aria) b.setAttribute('aria-label', aria); if (disabled) { b.disabled = true; } else { b.addEventListener('click', () => { currentPage = page; render(); }); } return b; };
+                    paginationButtons.appendChild(mkBtn('«', Math.max(1, currentPage - 1), false, currentPage === 1, 'Previous'));
+                    for (let p = 1; p <= pages; p++) paginationButtons.appendChild(mkBtn(String(p), p, p === currentPage, false, `Page ${p}`));
+                    paginationButtons.appendChild(mkBtn('»', Math.min(pages, currentPage + 1), false, currentPage === pages, 'Next'));
+                };
+
+                filterButtons.forEach(btn => btn.addEventListener('click', () => { currentFilter = btn.dataset.filter; currentPage = 1; setActive(btn); render(); }));
+
+                const updateCounts = () => { let a = 0, o = 0, m = 0; document.querySelectorAll('.room-card').forEach(c => { if (c.dataset.roomStatus === 'Available') a++; else if (c.dataset.roomStatus === 'Occupied') o++; else if (c.dataset.roomStatus === 'Maintenance') m++; }); document.querySelector('#count-avail').textContent = a; document.querySelector('#count-occu').textContent = o; document.querySelector('#count-maint').textContent = m; };
+
+                document.querySelectorAll('.status-select').forEach(sel => {
+                    sel.addEventListener('change', (e) => {
+                        const s = e.target.value; const room = sel.dataset.room; const card = sel.closest('.room-card'); const badge = card.querySelector('.room-status-badge');
+                        card.dataset.roomStatus = s; badge.textContent = s;
+                        badge.className = `badge badge-sm border text-[10px] font-bold px-2.5 py-1.5 room-status-badge ${s === 'Available' ? 'badge-success bg-emerald-50 text-emerald-700 border-emerald-200' : s === 'Occupied' ? 'badge-warning bg-amber-50 text-amber-700 border-amber-200' : 'badge-error bg-rose-50 text-rose-700 border-rose-200'}`;
+                        updateCounts(); showToast(`Room ${room} status changed to ${s}.`, 'Room Status Updated');
+                    });
+                });
+
+                setActive(document.querySelector('.filter-btn.active') || filterButtons[0]);
+                render(); updateCounts();
+            }
+        });
+    </script>
+@endsection

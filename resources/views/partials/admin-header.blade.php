@@ -12,7 +12,7 @@
         <div class="flex items-center gap-3 rounded-2xl bg-base-100 px-4 py-3 shadow-sm">
             <div class="text-right leading-tight">
                 <div class="font-bold text-gray-800">Admin User</div>
-                <div class="text-xs text-gray-500">Business Manager</div>
+                <div class="text-xs text-gray-500">Admin</div>
             </div>
             <div class="avatar">
                 <div class="h-11 w-11 rounded-full ring-2 ring-brand-primary ring-offset-2 ring-offset-base-100">

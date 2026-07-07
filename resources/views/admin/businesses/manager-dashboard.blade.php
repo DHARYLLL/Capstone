@@ -133,9 +133,15 @@
                 ],
                 [
                     'label'  => 'Edit Business Profile',
-                    'href'   => route('admin.businesses.edit', $slug),
+                    'href'   => route('admin.businesses.manager-edit', $slug),
                     'icon'   => 'M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm18-10.5a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z',
-                    'active' => request()->routeIs('admin.businesses.edit'),
+                    'active' => request()->routeIs('admin.businesses.manager-edit'),
+                ],
+                [
+                    'label'  => 'Products & Services',
+                    'href'   => route('admin.businesses.manager-products', $slug),
+                    'icon'   => 'M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-7 3a3 3 0 1 1 0 6 3 3 0 0 1 0-6zm6 12H6v-.5c0-2 4-3.1 6-3.1s6 1.1 6 3.1V18z',
+                    'active' => request()->routeIs('admin.businesses.manager-products'),
                 ],
                 [
                     'label'  => 'Staff & Roles',

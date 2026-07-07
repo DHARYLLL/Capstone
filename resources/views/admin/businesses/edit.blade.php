@@ -3,137 +3,148 @@
     $currentSlug = $slug ?? 'dakong-balay';
 
     if ($currentSlug === 'villa-carmelita') {
-        $unitName    = 'Villa Carmelita';
-        $unitType    = 'Accommodation / Hotel';
-        $unitIcon    = '🏨';
+        $unitName = 'Villa Carmelita';
+        $unitType = 'Accommodation / Hotel';
+        $unitIcon = '🏨';
         $unitBadgeBg = 'bg-[#F3ECE4] text-[#6B4226]';
         $sidebarExtras = ['Room Availability', 'Rate Configuration', 'Guest Inquiries'];
     } elseif ($currentSlug === 'monclaire-pool') {
-        $unitName    = 'Monclaire Pool';
-        $unitType    = 'Facility / Pool';
-        $unitIcon    = '🏊';
+        $unitName = 'Monclaire Pool';
+        $unitType = 'Facility / Pool';
+        $unitIcon = '🏊';
         $unitBadgeBg = 'bg-[#E4EEF3] text-[#2A5F7A]';
         $sidebarExtras = ['Pool Schedule', 'Pass & Rental Rates', 'Guest Inquiries'];
     } else {
-        $unitName    = 'Dakong Balay';
-        $unitType    = 'Food & Restaurant';
-        $unitIcon    = '🍽️';
+        $unitName = 'Dakong Balay';
+        $unitType = 'Food & Restaurant';
+        $unitIcon = '🍽️';
         $unitBadgeBg = 'bg-[#F4EBE0] text-[#7A4A2B]';
         $sidebarExtras = ['Menu Management', 'Dining Availability', 'Guest Inquiries'];
     }
+    $isManager = request()->routeIs('admin.businesses.manager-*');
 @endphp
 
-@extends('layouts.manager')
+@extends($isManager ? 'layouts.manager' : 'layouts.admin')
 
-@section('page_title', $unitName . ' — Edit Business Profile')
+@section('page_title', ($isManager ? $unitName . ' — ' : '') . 'Edit Business Profile')
 @section('page_description', 'Edit business profile for ' . $unitType . ' · ' . $unitName)
-@section('breadcrumbs', 'Manager / ' . $unitName . ' / Edit Business Profile')
-@section('unit-type', $unitType)
+@section('breadcrumbs', $isManager ? 'Manager / ' . $unitName . ' / Edit Business Profile' : 'Admin / Businesses / ' . $unitName . ' / Edit Business Profile')
+@if ($isManager)
+    @section('unit-type', $unitType)
+@endif
 
+@if ($isManager)
 @section('manager-sidebar')
-<aside class="hidden w-72 shrink-0 flex-col border-r border-gray-200 bg-base-100 md:flex">
+    <aside class="hidden w-72 shrink-0 flex-col border-r border-gray-200 bg-base-100 md:flex">
 
-    {{-- Brand + unit identity --}}
-    <div class="border-b border-gray-200 px-6 py-5">
-        <a href="{{ route('admin.businesses.manager-dashboard', $currentSlug) }}" class="flex items-center gap-3">
-            <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#1e293b] text-xl text-white shadow-sm">
-                {{ $unitIcon }}
-            </div>
-            <div>
-                <div class="text-base font-extrabold tracking-tight text-gray-900">{{ $unitName }}</div>
-                <div class="text-xs text-gray-500">Manager Portal</div>
-            </div>
-        </a>
+        {{-- Brand + unit identity --}}
+        <div class="border-b border-gray-200 px-6 py-5">
+            <a href="{{ route('admin.businesses.manager-dashboard', $currentSlug) }}" class="flex items-center gap-3">
+                <div
+                    class="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#1e293b] text-xl text-white shadow-sm">
+                    {{ $unitIcon }}
+                </div>
+                <div>
+                    <div class="text-base font-extrabold tracking-tight text-gray-900">{{ $unitName }}</div>
+                    <div class="text-xs text-gray-500">Manager Portal</div>
+                </div>
+            </a>
 
-        <div class="mt-4 rounded-2xl border border-[#e2e8f0] bg-[#ffffff] px-4 py-3">
-            <div class="text-xs font-semibold uppercase tracking-wider text-gray-400">Your assigned unit</div>
-            <div class="mt-1 text-sm font-bold text-gray-900">{{ $unitName }}</div>
-            <div class="mt-1 flex items-center gap-2 text-xs text-gray-500">
-                <span class="inline-flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                {{ $unitType }} · Live
+            <div class="mt-4 rounded-2xl border border-[#e2e8f0] bg-[#ffffff] px-4 py-3">
+                <div class="text-xs font-semibold uppercase tracking-wider text-gray-400">Your assigned unit</div>
+                <div class="mt-1 text-sm font-bold text-gray-900">{{ $unitName }}</div>
+                <div class="mt-1 flex items-center gap-2 text-xs text-gray-500">
+                    <span class="inline-flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    {{ $unitType }} · Live
+                </div>
             </div>
         </div>
-    </div>
 
-    <nav class="flex-1 px-4 py-5">
-        @php
-            $mgrNav = [
-                [
-                    'label'  => 'Overview',
-                    'href'   => route('admin.businesses.manager-dashboard', $currentSlug),
-                    'icon'   => 'M4 13h7V4H4v9zm0 7h7v-5H4v5zm9 0h7V11h-7v9zm0-16v5h7V4h-7z',
-                    'active' => request()->routeIs('admin.businesses.manager-dashboard'),
-                ],
-                [
-                    'label'  => 'Knowledge Base',
-                    'href'   => route('admin.businesses.manager-knowledge-base', $currentSlug),
-                    'icon'   => 'M12 2a7 7 0 0 0-7 7v13h14V9a7 7 0 0 0-7-7zm-2 8h4v2h-4v-2zm0 4h4v2h-4v-2z',
-                    'active' => request()->routeIs('admin.businesses.manager-knowledge-base'),
-                ],
-                [
-                    'label'  => 'Live Chat & Handoff',
-                    'href'   => route('admin.businesses.manager-chat', $currentSlug),
-                    'icon'   => 'M4 4h16v12H7l-3 3V4zm4 5h8v2H8V9zm0 4h6v2H8v-2z',
-                    'active' => request()->routeIs('admin.businesses.manager-chat'),
-                ],
-                [
-                    'label'  => 'Analytics',
-                    'href'   => route('admin.businesses.manager-analytics', $currentSlug),
-                    'icon'   => 'M12 3C7.03 3 3 6.58 3 11c0 2.47 1.22 4.7 3.22 6.29L5 21l3.9-1.96c.97.25 2 .38 3.1.38 4.97 0 9-3.58 9-8s-4.03-8-9-8zm-3 9H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2z',
-                    'active' => request()->routeIs('admin.businesses.manager-analytics'),
-                ],
-                [
-                    'label'  => 'Edit Business Profile',
-                    'href'   => route('admin.businesses.edit', $currentSlug),
-                    'icon'   => 'M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm18-10.5a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z',
-                    'active' => request()->routeIs('admin.businesses.edit'),
-                ],
-                [
-                    'label'  => 'Staff & Roles',
-                    'href'   => route('admin.businesses.manager-staff', $currentSlug),
-                    'icon'   => 'M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm0 2c-4.4 0-8 2.2-8 5v1h16v-1c0-2.8-3.6-5-8-5z',
-                    'active' => request()->routeIs('admin.businesses.manager-staff'),
-                ],
-                [
-                    'label'  => 'Logs',
-                    'href'   => route('admin.businesses.manager-logs', $currentSlug),
-                    'icon'   => 'M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z',
-                    'active' => request()->routeIs('admin.businesses.manager-logs'),
-                ],
-            ];
-        @endphp
+        <nav class="flex-1 px-4 py-5">
+            @php
+                $mgrNav = [
+                    [
+                        'label' => 'Overview',
+                        'href' => route('admin.businesses.manager-dashboard', $currentSlug),
+                        'icon' => 'M4 13h7V4H4v9zm0 7h7v-5H4v5zm9 0h7V11h-7v9zm0-16v5h7V4h-7z',
+                        'active' => request()->routeIs('admin.businesses.manager-dashboard'),
+                    ],
+                    [
+                        'label' => 'Knowledge Base',
+                        'href' => route('admin.businesses.manager-knowledge-base', $currentSlug),
+                        'icon' => 'M12 2a7 7 0 0 0-7 7v13h14V9a7 7 0 0 0-7-7zm-2 8h4v2h-4v-2zm0 4h4v2h-4v-2z',
+                        'active' => request()->routeIs('admin.businesses.manager-knowledge-base'),
+                    ],
+                    [
+                        'label' => 'Live Chat & Handoff',
+                        'href' => route('admin.businesses.manager-chat', $currentSlug),
+                        'icon' => 'M4 4h16v12H7l-3 3V4zm4 5h8v2H8V9zm0 4h6v2H8v-2z',
+                        'active' => request()->routeIs('admin.businesses.manager-chat'),
+                    ],
+                    [
+                        'label' => 'Analytics',
+                        'href' => route('admin.businesses.manager-analytics', $currentSlug),
+                        'icon' => 'M12 3C7.03 3 3 6.58 3 11c0 2.47 1.22 4.7 3.22 6.29L5 21l3.9-1.96c.97.25 2 .38 3.1.38 4.97 0 9-3.58 9-8s-4.03-8-9-8zm-3 9H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2z',
+                        'active' => request()->routeIs('admin.businesses.manager-analytics'),
+                    ],
+                    [
+                        'label' => 'Edit Business Profile',
+                        'href' => route('admin.businesses.manager-edit', $currentSlug),
+                        'icon' => 'M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm18-10.5a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z',
+                        'active' => request()->routeIs('admin.businesses.manager-edit'),
+                    ],
+                    [
+                        'label' => 'Products & Services',
+                        'href' => route('admin.businesses.manager-products', $currentSlug),
+                        'icon' => 'M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-7 3a3 3 0 1 1 0 6 3 3 0 0 1 0-6zm6 12H6v-.5c0-2 4-3.1 6-3.1s6 1.1 6 3.1V18z',
+                        'active' => false,
+                    ],
+                    [
+                        'label' => 'Staff & Roles',
+                        'href' => route('admin.businesses.manager-staff', $currentSlug),
+                        'icon' => 'M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm0 2c-4.4 0-8 2.2-8 5v1h16v-1c0-2.8-3.6-5-8-5z',
+                        'active' => request()->routeIs('admin.businesses.manager-staff'),
+                    ],
+                    [
+                        'label' => 'Logs',
+                        'href' => route('admin.businesses.manager-logs', $currentSlug),
+                        'icon' => 'M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z',
+                        'active' => request()->routeIs('admin.businesses.manager-logs'),
+                    ],
+                ];
+            @endphp
 
-        <div class="mb-2 px-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-400">
-            {{ $unitName }} Workspace
+            <div class="mb-2 px-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-400">
+                {{ $unitName }} Workspace
+            </div>
+            <ul class="space-y-1">
+                @foreach ($mgrNav as $item)
+                        <li>
+                            <a href="{{ $item['href'] }}" class="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-colors
+                                          {{ $item['active']
+                    ? 'bg-[#1e293b] font-semibold text-white shadow-sm'
+                    : 'text-gray-700 hover:bg-[#f5f3ff] hover:text-[#1e293b]' }}">
+                                <svg viewBox="0 0 24 24" class="h-5 w-5 shrink-0 fill-current" aria-hidden="true">
+                                    <path d="{{ $item['icon'] }}" />
+                                </svg>
+                                {{ $item['label'] }}
+                            </a>
+                        </li>
+                @endforeach
+            </ul>
+        </nav>
+
+        <div class="mt-auto border-t border-gray-200 p-4">
+            <button class="btn w-full justify-start rounded-2xl border-0 bg-[#f5f3ff] text-gray-800 hover:bg-[#f5f3ff]">
+                <svg viewBox="0 0 24 24" class="h-5 w-5 fill-current" aria-hidden="true">
+                    <path d="M10 17l1.4-1.4L8.8 13H20v-2H8.8l2.6-2.6L10 7l-5 5 5 5zM4 4h7v2H6v12h5v2H4V4z" />
+                </svg>
+                Logout
+            </button>
         </div>
-        <ul class="space-y-1">
-            @foreach ($mgrNav as $item)
-                <li>
-                    <a href="{{ $item['href'] }}"
-                       class="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-colors
-                              {{ $item['active']
-                                  ? 'bg-[#1e293b] font-semibold text-white shadow-sm'
-                                  : 'text-gray-700 hover:bg-[#f5f3ff] hover:text-[#1e293b]' }}">
-                        <svg viewBox="0 0 24 24" class="h-5 w-5 shrink-0 fill-current" aria-hidden="true">
-                            <path d="{{ $item['icon'] }}"/>
-                        </svg>
-                        {{ $item['label'] }}
-                    </a>
-                </li>
-            @endforeach
-        </ul>
-    </nav>
-
-    <div class="mt-auto border-t border-gray-200 p-4">
-        <button class="btn w-full justify-start rounded-2xl border-0 bg-[#f5f3ff] text-gray-800 hover:bg-[#f5f3ff]">
-            <svg viewBox="0 0 24 24" class="h-5 w-5 fill-current" aria-hidden="true">
-                <path d="M10 17l1.4-1.4L8.8 13H20v-2H8.8l2.6-2.6L10 7l-5 5 5 5zM4 4h7v2H6v12h5v2H4V4z"/>
-            </svg>
-            Logout
-        </button>
-    </div>
-</aside>
+    </aside>
 @endsection
+@endif
 
 @section('content')
     @php
@@ -142,7 +153,6 @@
             $businessName = 'Villa Carmelita';
             $businessType = 'Hotel / Villa';
             $businessDesc = 'Comfortable stay options with a welcoming ambiance for guests, families, and tour groups seeking a tranquil escape.';
-            $businessImage = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=900&q=80';
             $businessCover = 'villa-carmelita-cover.jpg';
             $activeCountText = '21 rooms currently managed';
 
@@ -183,7 +193,6 @@
             $businessName = 'Monclaire Pool';
             $businessType = 'Swimming Pool';
             $businessDesc = 'A relaxing space for leisure, family gatherings, and refreshing weekend escapes.';
-            $businessImage = 'https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?auto=format&fit=crop&w=900&q=80';
             $businessCover = 'monclaire-pool-cover.jpg';
             $activeCountText = '6 items currently published';
 
@@ -229,7 +238,6 @@
             $businessName = 'Dakong Balay';
             $businessType = 'Restaurant';
             $businessDesc = 'Authentic Filipino cuisine and family-style dining in a warm, inviting setting.';
-            $businessImage = 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=900&q=80';
             $businessCover = 'dakong-balay-cover.jpg';
             $activeCountText = '12 products currently published';
 
@@ -299,20 +307,24 @@
                             <span class="badge badge-success badge-outline">Active</span>
                         </div>
                         <p class="max-w-3xl text-sm leading-6 text-gray-500">
-                            Edit the business profile, confirm its current status, and keep services visible to guests and chatbot responses.
+                            Edit the business profile, confirm its current status, and keep services visible to guests and
+                            chatbot responses.
                         </p>
                     </div>
 
                     <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 shrink-0">
-                        <a href="{{ route('admin.businesses.manager-dashboard', $currentSlug) }}" class="btn btn-outline rounded-full border-gray-300 text-gray-700 transition-colors duration-200 hover:border-brand-border hover:bg-[#f5f3ff] hover:text-gray-900 whitespace-nowrap">
+                        <a href="{{ route('admin.businesses.manager-dashboard', $currentSlug) }}"
+                            class="btn btn-outline rounded-full border-gray-300 text-gray-700 transition-colors duration-200 hover:border-brand-border hover:bg-[#f5f3ff] hover:text-gray-900 whitespace-nowrap">
                             <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current" aria-hidden="true">
-                                <path d="M19 11H8.41l4.3-4.29L11.29 5 5 11.29l6.29 6.29 1.42-1.42-4.3-4.3H19v-2z"/>
+                                <path d="M19 11H8.41l4.3-4.29L11.29 5 5 11.29l6.29 6.29 1.42-1.42-4.3-4.3H19v-2z" />
                             </svg>
                             Back to dashboard
                         </a>
-                        <button type="button" id="save-all-btn" class="btn rounded-full border-0 bg-brand-primary text-white transition-colors duration-200 hover:bg-[#6d28d9] hover:text-white whitespace-nowrap">
+                        <button type="button" id="save-all-btn"
+                            class="btn rounded-full border-0 bg-brand-primary text-white transition-colors duration-200 hover:bg-[#6d28d9] hover:text-white whitespace-nowrap">
                             <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current" aria-hidden="true">
-                                <path d="M17 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-4-4zm-5 16a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm3-10H5V5h10v4z"/>
+                                <path
+                                    d="M17 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-4-4zm-5 16a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm3-10H5V5h10v4z" />
                             </svg>
                             Save all changes
                         </button>
@@ -321,120 +333,28 @@
             </div>
         </section>
 
-        <section class="grid grid-cols-1 gap-6 lg:grid-cols-3">
-            <div class="lg:col-span-2">
-                <div class="card bg-base-100 shadow-sm">
-                    <div class="card-body gap-6 p-6 lg:p-8">
-                        <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                            <div>
-                                <h2 class="text-xl font-bold text-gray-900">Business information</h2>
-                                <p class="mt-1 text-sm leading-6 text-gray-500">
-                                    Update the core profile, visual identity, and publishing status for this business.
+        {{-- Business status + summary strip --}}
+        <section class="card bg-base-100 shadow-sm">
+            <div class="card-body gap-6 p-6 lg:p-8">
+                <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+
+                    {{-- Status toggle --}}
+                    <div class="flex-1 rounded-3xl bg-base-200 p-5">
+                        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                            <div class="space-y-1">
+                                <div class="font-semibold text-gray-900">Business Status</div>
+                                <p class="text-sm leading-6 text-gray-500">
+                                    Active businesses remain visible on the platform and can be referenced in chatbot
+                                    discovery.
                                 </p>
                             </div>
-                            <span class="badge badge-success badge-outline self-start">Active</span>
+                            <input type="checkbox" class="toggle toggle-success" checked>
                         </div>
-
-                        <div class="rounded-3xl bg-[#f8fafc] p-4 sm:p-5">
-                            <div class="grid gap-4 md:grid-cols-[220px_minmax(0,1fr)] md:items-center">
-                                <img src="{{ $businessImage }}" alt="{{ $businessName }} preview"
-                                    class="h-44 w-full rounded-2xl object-cover shadow-sm md:h-40">
-                                <div class="space-y-3">
-                                    <div class="flex flex-wrap items-center gap-2">
-                                        <span class="badge badge-success badge-outline">{{ $businessType }}</span>
-                                        <span class="badge border-0 bg-brand-primary-light text-brand-primary-dark">Featured business</span>
-                                    </div>
-                                    <div>
-                                        <h3 class="text-2xl font-bold text-gray-900">{{ $businessName }}</h3>
-                                        <p class="mt-2 max-w-2xl text-sm leading-6 text-gray-600">
-                                            {{ $businessDesc }}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <form id="edit-details-form" class="space-y-6">
-                            <div class="grid gap-4 md:grid-cols-2">
-                                <label class="form-control">
-                                    <div class="label">
-                                        <span class="label-text font-medium text-gray-700">Business Name</span>
-                                    </div>
-                                    <input type="text" id="details-name" value="{{ $businessName }}"
-                                        class="input input-bordered w-full bg-base-100">
-                                </label>
-
-                                <label class="form-control">
-                                    <div class="label">
-                                        <span class="label-text font-medium text-gray-700">Category</span>
-                                    </div>
-                                    <select id="details-category" class="select select-bordered w-full bg-base-100">
-                                        <option value="Restaurant" @if($businessType === 'Restaurant') selected @endif>
-                                            Restaurant</option>
-                                        <option value="Swimming Pool" @if($businessType === 'Swimming Pool') selected @endif>
-                                            Swimming Pool</option>
-                                        <option value="Hotel / Villa" @if($businessType === 'Hotel / Villa') selected @endif>
-                                            Hotel / Villa</option>
-                                    </select>
-                                </label>
-                            </div>
-
-                            <label class="form-control">
-                                <div class="label">
-                                    <span class="label-text font-medium text-gray-700">Description</span>
-                                </div>
-                                <textarea id="details-description"
-                                    class="textarea textarea-bordered min-h-32 w-full bg-base-100">{{ $businessDesc }}</textarea>
-                            </label>
-
-                            <div class="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
-                                <label class="form-control">
-                                    <div class="label">
-                                        <span class="label-text font-medium text-gray-700">Image</span>
-                                    </div>
-                                    <input type="text" value="{{ $businessCover }}" readonly
-                                        class="input input-bordered w-full bg-base-100 text-gray-600">
-                                </label>
-
-                                <button type="button"
-                                    class="btn btn-outline rounded-full border-gray-300 text-gray-700 transition-colors duration-200 hover:border-brand-border hover:bg-[#f5f3ff] hover:text-gray-900">
-                                    Replace image
-                                </button>
-                            </div>
-
-                            <div class="rounded-3xl bg-base-200 p-4">
-                                <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                                    <div class="space-y-1">
-                                        <div class="font-semibold text-gray-900">Business Status</div>
-                                        <p class="text-sm leading-6 text-gray-500">
-                                            Active businesses remain visible on the platform and can be referenced in
-                                            chatbot discovery.
-                                        </p>
-                                    </div>
-                                    <input type="checkbox" class="toggle toggle-success" checked>
-                                </div>
-                            </div>
-
-                            <div class="flex flex-col gap-3 sm:flex-row">
-                                <button type="submit"
-                                    class="btn rounded-full border-0 bg-brand-primary text-white hover:bg-[#6d28d9]">
-                                    Save business info
-                                </button>
-                                <a href="{{ route('admin.businesses.manager-dashboard', $currentSlug) }}"
-                                    class="btn btn-outline rounded-full border-gray-300 text-gray-700 hover:bg-[#f5f3ff]">
-                                    Cancel
-                                </a>
-                            </div>
-                        </form>
                     </div>
-                </div>
-            </div>
 
-            <div class="space-y-6">
-                <div class="card bg-base-100 shadow-sm">
-                    <div class="card-body gap-5 p-6">
-                        <h3 class="text-lg font-bold text-gray-900">Selected business summary</h3>
-                        <div class="space-y-4">
+                    {{-- Summary rows --}}
+                    <div class="w-full lg:w-72 shrink-0">
+                        <div class="space-y-3">
                             @foreach ($businessSummary as $row)
                                 <div
                                     class="flex items-start justify-between gap-4 border-b border-base-300 pb-3 last:border-b-0 last:pb-0">
@@ -444,243 +364,587 @@
                             @endforeach
                         </div>
                     </div>
-                </div>
 
-                <div class="card bg-base-100 shadow-sm">
-                    <div class="card-body gap-4 p-6">
-                        <h3 class="text-lg font-bold text-gray-900">Admin notes</h3>
-                        <div class="rounded-2xl bg-[#f8fafc] p-4 text-sm leading-6 text-gray-600">
-                            Keep the business description short, accurate, and easy to scan. Use consistent naming so the
-                            public site and internal records stay aligned.
-                        </div>
-                        <div class="rounded-2xl bg-emerald-600 p-4 text-sm leading-6 text-white shadow-sm">
-                            Chatbot discovery works best when product names, service labels, and business details are
-                            updated together and remain visible to guests.
-                        </div>
-                    </div>
                 </div>
             </div>
         </section>
 
-        <!-- Room Availability Grid (Villa Carmelita) / Product list (Others) -->
+        {{-- Products & services have moved to /admin/businesses/{slug}/products --}}
+
+        {{-- ─────────────────────────────────────────────────────────────────── --}}
+        {{-- Products link card --}}
+        {{-- ─────────────────────────────────────────────────────────────────── --}}
         <section class="card bg-base-100 shadow-sm">
+            <div class="card-body p-6 lg:p-8">
+                <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-900">Products & Services</h2>
+                        <p class="mt-1 text-sm text-gray-500">
+                            Manage menu items, room availability, or pass pricing for {{ $businessName }}.
+                        </p>
+                    </div>
+                    <a href="{{ route('admin.businesses.manager-products', $currentSlug) }}"
+                        class="btn rounded-full border-0 bg-brand-primary text-white hover:bg-[#6d28d9] shrink-0 whitespace-nowrap">
+                        <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current" aria-hidden="true">
+                            <path
+                                d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-7 3a3 3 0 1 1 0 6 3 3 0 0 1 0-6zm6 12H6v-.5c0-2 4-3.1 6-3.1s6 1.1 6 3.1V18z" />
+                        </svg>
+                        Manage Products
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        {{-- ─────────────────────────────────────────────────────────────────── --}}
+        {{-- Landing Page Content Editor --}}
+        {{-- ─────────────────────────────────────────────────────────────────── --}}
+        <section id="landing-editor" class="card bg-base-100 shadow-sm">
             <div class="card-body gap-6 p-6 lg:p-8">
-                @if ($currentSlug === 'villa-carmelita')
-                    <!-- Rooms & Availability Panel -->
-                    <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between border-b border-gray-100 pb-6">
-                        <div>
-                            <h2 class="text-2xl font-bold text-gray-950">Rooms & Live Availability</h2>
-                            <p class="mt-1 text-sm leading-6 text-gray-500">
-                                View room status, filter by categories, and toggle live occupancy states for Villa Carmelita.
-                            </p>
-                        </div>
 
-                        <!-- Room Status Counter Badges -->
-                        <div class="flex flex-wrap gap-2 text-xs font-semibold">
-                            <div
-                                class="flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-emerald-800">
-                                <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                                Available: <span id="count-avail">15</span>
+                {{-- Header --}}
+                <div
+                    class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between border-b border-gray-100 pb-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-900">Landing Page Content</h2>
+                        <p class="mt-1 text-sm text-gray-500">
+                            Edit the text and labels shown on the public-facing page at /{{ $currentSlug }}.
+                        </p>
+                    </div>
+                    <a href="/{{ $currentSlug }}" target="_blank"
+                        class="btn btn-sm btn-outline rounded-full border-gray-300 text-gray-700 hover:bg-[#f5f3ff] shrink-0">
+                        Preview public page ↗
+                    </a>
+                </div>
+
+                {{-- Tab bar --}}
+                <div id="lp-tabs" role="tablist" class="flex flex-wrap gap-1.5">
+                    <button type="button" role="tab"
+                        class="lp-tab btn btn-sm rounded-full bg-[#1e293b] text-white hover:bg-[#334155]" data-tab="hero"
+                        aria-selected="true">
+                        Hero
+                    </button>
+                    <button type="button" role="tab"
+                        class="lp-tab btn btn-sm rounded-full bg-[#f8fafc] text-gray-700 hover:bg-[#f5f3ff]"
+                        data-tab="about" aria-selected="false">
+                        About
+                    </button>
+                    <button type="button" role="tab"
+                        class="lp-tab btn btn-sm rounded-full bg-[#f8fafc] text-gray-700 hover:bg-[#f5f3ff]"
+                        data-tab="features" aria-selected="false">
+                        Feature Cards
+                    </button>
+                    <button type="button" role="tab"
+                        class="lp-tab btn btn-sm rounded-full bg-[#f8fafc] text-gray-700 hover:bg-[#f5f3ff]"
+                        data-tab="gallery" aria-selected="false">
+                        Gallery
+                    </button>
+                    <button type="button" role="tab"
+                        class="lp-tab btn btn-sm rounded-full bg-[#f8fafc] text-gray-700 hover:bg-[#f5f3ff]"
+                        data-tab="room-modal" aria-selected="false">
+                        Room Modal
+                    </button>
+                </div>
+
+                {{-- Tab panels --}}
+                <div id="lp-panels">
+                    <div id="lp-panel-hero" role="tabpanel" class="lp-panel">
+                        <div class="space-y-5">
+                            {{-- Row 1: Badge Label + Primary CTA Label --}}
+                            <div class="grid gap-4 md:grid-cols-2">
+                                <label class="form-control">
+                                    <div class="label">
+                                        <span class="label-text font-medium text-gray-700">Badge Label</span>
+                                    </div>
+                                    <input type="text" value="AI-Powered Business Platform"
+                                        class="input input-bordered w-full bg-base-100">
+                                </label>
+                                <label class="form-control">
+                                    <div class="label">
+                                        <span class="label-text font-medium text-gray-700">Primary CTA Label</span>
+                                    </div>
+                                    <input type="text" value="Explore Businesses"
+                                        class="input input-bordered w-full bg-base-100">
+                                </label>
                             </div>
-                            <div
-                                class="flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5 text-amber-800">
-                                <span class="h-2 w-2 rounded-full bg-amber-500"></span>
-                                Occupied: <span id="count-occu">4</span>
+
+                            {{-- Row 2: Headline (full-width) --}}
+                            <label class="form-control">
+                                <div class="label">
+                                    <span class="label-text font-medium text-gray-700">Headline</span>
+                                </div>
+                                <textarea rows="2"
+                                    class="textarea textarea-bordered w-full bg-base-100">Experience All Our Services in One Smart Platform</textarea>
+                            </label>
+
+                            {{-- Row 3: Tagline + Description --}}
+                            <div class="grid gap-4 md:grid-cols-2">
+                                <label class="form-control">
+                                    <div class="label">
+                                        <span class="label-text font-medium text-gray-700">Tagline</span>
+                                    </div>
+                                    <textarea rows="2"
+                                        class="textarea textarea-bordered w-full bg-base-100">Explore services, locations, offers, and FAQs through a single polished business experience.</textarea>
+                                </label>
+                                <label class="form-control">
+                                    <div class="label">
+                                        <span class="label-text font-medium text-gray-700">Description</span>
+                                    </div>
+                                    <textarea rows="3"
+                                        class="textarea textarea-bordered w-full bg-base-100">Discover services, locations, offers, and FAQs through a polished landing page experience tailored to your business.</textarea>
+                                </label>
                             </div>
-                            <div
-                                class="flex items-center gap-1.5 rounded-full border border-rose-200 bg-rose-50 px-3 py-1.5 text-rose-800">
-                                <span class="h-2 w-2 rounded-full bg-rose-500"></span>
-                                Maintenance: <span id="count-maint">2</span>
+
+                            {{-- Row 4: Primary CTA URL + Secondary CTA Label --}}
+                            <div class="grid gap-4 md:grid-cols-2">
+                                <label class="form-control">
+                                    <div class="label">
+                                        <span class="label-text font-medium text-gray-700">Primary CTA URL</span>
+                                    </div>
+                                    <input type="text" value="#businesses" class="input input-bordered w-full bg-base-100">
+                                </label>
+                                <label class="form-control">
+                                    <div class="label">
+                                        <span class="label-text font-medium text-gray-700">Secondary CTA Label</span>
+                                    </div>
+                                    <input type="text" value="Chat with AI" class="input input-bordered w-full bg-base-100">
+                                </label>
                             </div>
-                            <div
-                                class="flex items-center gap-1.5 rounded-full border border-gray-200 bg-gray-50 px-3 py-1.5 text-gray-800">
-                                Total rooms: 21
+
+                            {{-- Row 5: Assistant Title (full-width) --}}
+                            <label class="form-control">
+                                <div class="label">
+                                    <span class="label-text font-medium text-gray-700">Assistant Title</span>
+                                </div>
+                                <input type="text" value="One AI assistant connecting multiple businesses"
+                                    class="input input-bordered w-full bg-base-100">
+                            </label>
+
+                            {{-- Row 6: Assistant Description (full-width) --}}
+                            <label class="form-control">
+                                <div class="label">
+                                    <span class="label-text font-medium text-gray-700">Assistant Description</span>
+                                </div>
+                                <textarea rows="2"
+                                    class="textarea textarea-bordered w-full bg-base-100">Ask once and get clear answers about services, locations, offers, and FAQs.</textarea>
+                            </label>
+
+                            {{-- Row 7: Cover Photo --}}
+                            <div class="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
+                                <label class="form-control">
+                                    <div class="label">
+                                        <span class="label-text font-medium text-gray-700">Cover Photo</span>
+                                    </div>
+                                    <input type="text" value="{{ $businessCover }}" readonly
+                                        class="input input-bordered w-full bg-base-100 text-gray-600">
+                                </label>
+                                <button type="button" disabled
+                                    class="btn btn-outline rounded-full border-gray-300 text-gray-400 cursor-not-allowed">Replace
+                                    image (UI only)</button>
                             </div>
                         </div>
                     </div>
+                    <div id="lp-panel-about" role="tabpanel" class="lp-panel hidden">
+                        <div class="space-y-5">
+                            <div class="grid gap-4 md:grid-cols-2">
+                                <label class="form-control">
+                                    <div class="label">
+                                        <span class="label-text font-medium text-gray-700">About Badge</span>
+                                    </div>
+                                    <input type="text" value="About Your Business"
+                                        class="input input-bordered w-full bg-base-100">
+                                </label>
 
-                    <!-- Room Filter Controls -->
-                    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between bg-gray-50 p-4 rounded-2xl">
-                        <div class="flex flex-wrap gap-1.5" id="room-filter-container">
-                            <button type="button"
-                                class="btn btn-sm rounded-full filter-btn active border-0 bg-brand-primary text-white hover:bg-[#6d28d9]"
-                                data-filter="all">All Rooms</button>
-                            <button type="button"
-                                class="btn btn-sm rounded-full filter-btn btn-outline border-gray-300 text-gray-700 hover:bg-[#ffffff]"
-                                data-filter="Standard">Standard</button>
-                            <button type="button"
-                                class="btn btn-sm rounded-full filter-btn btn-outline border-gray-300 text-gray-700 hover:bg-[#ffffff]"
-                                data-filter="Junior Suite">Junior Suite</button>
-                            <button type="button"
-                                class="btn btn-sm rounded-full filter-btn btn-outline border-gray-300 text-gray-700 hover:bg-[#ffffff]"
-                                data-filter="Deluxe Twin">Deluxe Twin</button>
-                            <button type="button"
-                                class="btn btn-sm rounded-full filter-btn btn-outline border-gray-300 text-gray-700 hover:bg-[#ffffff]"
-                                data-filter="Family Suite">Family Suite</button>
-                            <button type="button"
-                                class="btn btn-sm rounded-full filter-btn btn-outline border-gray-300 text-gray-700 hover:bg-[#ffffff]"
-                                data-filter="Super Deluxe Room">Super Deluxe</button>
-                        </div>
+                                <label class="form-control">
+                                    <div class="label">
+                                        <span class="label-text font-medium text-gray-700">About Headline</span>
+                                    </div>
+                                    <input type="text" value="One platform. One assistant. Multiple businesses."
+                                        class="input input-bordered w-full bg-base-100">
+                                </label>
+                            </div>
 
-                        <div class="text-xs text-gray-500">
-                            * Changes reflect immediately in guest booking display and AI chatbot responses.
+                            <label class="form-control">
+                                <div class="label">
+                                    <span class="label-text font-medium text-gray-700">About Description</span>
+                                </div>
+                                <textarea rows="3"
+                                    class="textarea textarea-bordered w-full bg-base-100">Discover services, locations, offers, and FAQs through a polished landing page experience tailored to your business.</textarea>
+                            </label>
+
+                            <label class="form-control">
+                                <div class="label">
+                                    <span class="label-text font-medium text-gray-700">About Quote</span>
+                                </div>
+                                <textarea rows="2"
+                                    class="textarea textarea-bordered w-full bg-base-100">Fast answers, consistent information, and a smoother customer journey.</textarea>
+                            </label>
                         </div>
                     </div>
+                    <div id="lp-panel-features" role="tabpanel" class="lp-panel hidden">
+                        <div class="space-y-6">
 
-                    <!-- Room Grid Layout -->
-                    <div class="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" id="rooms-grid">
-                        @foreach ($rooms as $room)
-                            <div class="room-card card border border-gray-150 bg-white hover:shadow-md transition-all rounded-3xl"
-                                data-room-number="{{ $room['number'] }}" data-room-type="{{ $room['type'] }}"
-                                data-room-price="{{ $room['price'] }}" data-room-status="{{ $room['status'] }}">
-                                <div class="card-body p-4 space-y-3">
-                                    <div class="flex items-start justify-between">
-                                        <div class="space-y-0.5">
-                                            <span class="text-xs font-semibold text-gray-400">ROOM</span>
-                                            <h4 class="text-lg font-black text-gray-900 tracking-tight">{{ $room['number'] }}</h4>
-                                        </div>
-
-                                        <!-- Interactive Status Badge -->
-                                        <span
-                                            class="badge badge-sm border text-[10px] font-bold px-2.5 py-1.5 room-status-badge {{ $room['status_class'] }}">
-                                            {{ $room['status'] }}
-                                        </span>
+                            {{-- Feature Card 1 --}}
+                            <div class="rounded-3xl bg-[#f8fafc] p-5 space-y-4">
+                                <div class="text-sm font-bold text-gray-700 border-b border-gray-200 pb-2">Feature Card 1
+                                </div>
+                                <div class="space-y-4">
+                                    <div class="grid gap-4 md:grid-cols-2">
+                                        <label class="form-control">
+                                            <div class="label">
+                                                <span class="label-text font-medium text-gray-700">Label</span>
+                                            </div>
+                                            <input type="text" value="Featured Business One"
+                                                class="input input-bordered w-full bg-base-100">
+                                        </label>
+                                        <label class="form-control">
+                                            <div class="label">
+                                                <span class="label-text font-medium text-gray-700">Description</span>
+                                            </div>
+                                            <textarea rows="2"
+                                                class="textarea textarea-bordered w-full bg-base-100">A warm dining destination for authentic cuisine, family gatherings, and memorable meals.</textarea>
+                                        </label>
                                     </div>
-
-                                    <div class="space-y-1 text-xs">
-                                        <div class="flex justify-between">
-                                            <span class="text-gray-500">Category:</span>
-                                            <span class="font-medium text-gray-800">{{ $room['type'] }}</span>
-                                        </div>
-                                        <div class="flex justify-between">
-                                            <span class="text-gray-500">Rate:</span>
-                                            <span class="font-semibold text-gray-950">{{ $room['price'] }}</span>
-                                        </div>
+                                    <div class="grid gap-4 md:grid-cols-2">
+                                        <label class="form-control">
+                                            <div class="label">
+                                                <span class="label-text font-medium text-gray-700">Bullet 1</span>
+                                            </div>
+                                            <input type="text" value="" placeholder="e.g. Key feature or offering"
+                                                class="input input-bordered w-full bg-base-100">
+                                        </label>
+                                        <label class="form-control">
+                                            <div class="label">
+                                                <span class="label-text font-medium text-gray-700">Bullet 2</span>
+                                            </div>
+                                            <input type="text" value="" placeholder="e.g. Key feature or offering"
+                                                class="input input-bordered w-full bg-base-100">
+                                        </label>
                                     </div>
-
-                                    <!-- Status Toggle Dropdown -->
-                                    <div class="pt-2 border-t border-gray-100 flex flex-col gap-1.5">
-                                        <span class="text-[10px] font-medium text-gray-400">MANAGE STATUS</span>
-                                        <select
-                                            class="select select-xs select-bordered w-full rounded-lg bg-base-100 text-xs font-medium status-select"
-                                            data-room="{{ $room['number'] }}">
-                                            <option value="Available" @if($room['status'] === 'Available') selected @endif>Available
-                                            </option>
-                                            <option value="Occupied" @if($room['status'] === 'Occupied') selected @endif>Occupied
-                                            </option>
-                                            <option value="Maintenance" @if($room['status'] === 'Maintenance') selected @endif>
-                                                Maintenance</option>
-                                        </select>
+                                    <div class="grid gap-4 md:grid-cols-2">
+                                        <label class="form-control">
+                                            <div class="label">
+                                                <span class="label-text font-medium text-gray-700">Bullet 3</span>
+                                            </div>
+                                            <input type="text" value="" placeholder="e.g. Key feature or offering"
+                                                class="input input-bordered w-full bg-base-100">
+                                        </label>
+                                        <label class="form-control">
+                                            <div class="label">
+                                                <span class="label-text font-medium text-gray-700">Bullet 4</span>
+                                            </div>
+                                            <input type="text" value="" placeholder="e.g. Key feature or offering"
+                                                class="input input-bordered w-full bg-base-100">
+                                        </label>
                                     </div>
                                 </div>
                             </div>
-                        @endforeach
-                    </div>
 
-                    <!-- Empty State for Filters -->
-                    <div id="no-rooms-alert"
-                        class="hidden text-center py-10 rounded-3xl border-2 border-dashed border-gray-200">
-                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                        </svg>
-                        <h3 class="mt-2 text-sm font-semibold text-gray-900">No rooms found</h3>
-                        <p class="mt-1 text-sm text-gray-500">No rooms match the selected category filter.</p>
-                    </div>
-
-                    <!-- Pagination -->
-                    <div class="flex flex-col gap-4 border-t border-gray-150 pt-4 sm:flex-row sm:items-center sm:justify-between">
-                        <div class="text-xs text-gray-500" id="rooms-pagination-info"></div>
-                        <div class="join flex-wrap" id="rooms-pagination-buttons"></div>
-                    </div>
-
-                @else
-                    <!-- Products & Services Panel (Dakong Balay & Monclaire Pool) -->
-                    <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-                        <div>
-                            <h2 class="text-xl font-bold text-gray-900">Products & services for {{ $businessName }}</h2>
-                            <p class="mt-1 text-sm leading-6 text-gray-500">
-                                Manage published items, archive older entries, and keep customer-facing availability up to date.
-                            </p>
-                        </div>
-
-                        <div class="flex flex-wrap items-center gap-3 lg:justify-end">
-                            <button type="button"
-                                class="btn rounded-full border-0 bg-brand-primary whitespace-nowrap text-white transition-colors duration-200 hover:bg-[#6d28d9] hover:text-white">Active items</button>
-                            <button type="button"
-                                class="btn btn-outline rounded-full border-gray-300 whitespace-nowrap text-gray-700 transition-colors duration-200 hover:border-brand-border hover:bg-[#f5f3ff] hover:text-gray-900">Archived items</button>
-                            <button type="button" class="btn rounded-full border-0 bg-brand-primary whitespace-nowrap text-white transition-colors duration-200 hover:bg-[#6d28d9] hover:text-white">
-                                <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current" aria-hidden="true">
-                                    <path d="M19 11H13V5h-2v6H5v2h6v6h2v-6h6z" />
-                                </svg>
-                                Add item
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="overflow-x-auto">
-                        <table class="table table-zebra">
-                            <thead>
-                                <tr class="text-gray-500">
-                                    <th>Item</th>
-                                    <th>Description</th>
-                                    <th>Category</th>
-                                    <th>Price</th>
-                                    <th>Availability</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($products as $product)
-                                    <tr>
-                                        <td>
-                                            <div class="space-y-1">
-                                                <div class="font-semibold text-gray-900">{{ $product['name'] }}</div>
-                                                <div class="text-sm text-gray-500">{{ $product['note'] }}</div>
+                            {{-- Feature Card 2 --}}
+                            <div class="rounded-3xl bg-[#f8fafc] p-5 space-y-4">
+                                <div class="text-sm font-bold text-gray-700 border-b border-gray-200 pb-2">Feature Card 2
+                                </div>
+                                <div class="space-y-4">
+                                    <div class="grid gap-4 md:grid-cols-2">
+                                        <label class="form-control">
+                                            <div class="label">
+                                                <span class="label-text font-medium text-gray-700">Label</span>
                                             </div>
-                                        </td>
-                                        <td>
-                                            <div class="max-w-[320px] truncate text-sm leading-6 text-gray-600">
-                                                {{ $product['description'] }}
+                                            <input type="text" value="Featured Business Two"
+                                                class="input input-bordered w-full bg-base-100">
+                                        </label>
+                                        <label class="form-control">
+                                            <div class="label">
+                                                <span class="label-text font-medium text-gray-700">Description</span>
                                             </div>
-                                        </td>
-                                        <td class="whitespace-nowrap text-sm text-gray-600">{{ $product['category'] }}</td>
-                                        <td class="whitespace-nowrap text-sm font-medium text-gray-900">{{ $product['price'] }}</td>
-                                        <td>
-                                            <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold border border-brand-border bg-[#f8fafc] text-brand-primary-dark whitespace-nowrap">
-                                                {{ $product['availability'] }}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
-                                                <button type="button" class="btn btn-outline btn-sm rounded-full border-gray-300 whitespace-nowrap text-gray-700 transition-colors duration-200 hover:border-brand-border hover:bg-[#f5f3ff] hover:text-gray-900 product-edit-btn">
-                                                    Edit details
-                                                </button>
-                                                <button type="button" class="btn btn-outline btn-sm rounded-full border-gray-300 whitespace-nowrap text-gray-700 transition-colors duration-200 hover:border-brand-border hover:bg-[#f5f3ff] hover:text-gray-900 product-toggle-btn">
-                                                    Mark unavailable
-                                                </button>
+                                            <textarea rows="2"
+                                                class="textarea textarea-bordered w-full bg-base-100">Relax and enjoy a refreshing experience with amenities ideal for leisure and celebrations.</textarea>
+                                        </label>
+                                    </div>
+                                    <div class="grid gap-4 md:grid-cols-2">
+                                        <label class="form-control">
+                                            <div class="label">
+                                                <span class="label-text font-medium text-gray-700">Bullet 1</span>
                                             </div>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
+                                            <input type="text" value="" placeholder="e.g. Key feature or offering"
+                                                class="input input-bordered w-full bg-base-100">
+                                        </label>
+                                        <label class="form-control">
+                                            <div class="label">
+                                                <span class="label-text font-medium text-gray-700">Bullet 2</span>
+                                            </div>
+                                            <input type="text" value="" placeholder="e.g. Key feature or offering"
+                                                class="input input-bordered w-full bg-base-100">
+                                        </label>
+                                    </div>
+                                    <div class="grid gap-4 md:grid-cols-2">
+                                        <label class="form-control">
+                                            <div class="label">
+                                                <span class="label-text font-medium text-gray-700">Bullet 3</span>
+                                            </div>
+                                            <input type="text" value="" placeholder="e.g. Key feature or offering"
+                                                class="input input-bordered w-full bg-base-100">
+                                        </label>
+                                        <label class="form-control">
+                                            <div class="label">
+                                                <span class="label-text font-medium text-gray-700">Bullet 4</span>
+                                            </div>
+                                            <input type="text" value="" placeholder="e.g. Key feature or offering"
+                                                class="input input-bordered w-full bg-base-100">
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
 
-                    <!-- Pagination -->
-                    <div class="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-gray-150 pt-4 mt-4">
-                        <div class="text-xs text-gray-500">
-                            Showing <strong>1</strong> to <strong>4</strong> of <strong>4</strong> items
-                        </div>
-                        <div class="join">
-                            <button type="button" class="join-item btn btn-xs btn-outline border-gray-300 text-gray-700 transition-colors duration-200 hover:border-brand-border hover:bg-[#f5f3ff] hover:text-gray-900" disabled>«</button>
-                            <button type="button" class="join-item btn btn-xs btn-active border-0 bg-brand-primary text-white transition-colors duration-200 hover:bg-[#6d28d9] hover:text-white">1</button>
-                            <button type="button" class="join-item btn btn-xs btn-outline border-gray-300 text-gray-700 transition-colors duration-200 hover:border-brand-border hover:bg-[#f5f3ff] hover:text-gray-900" disabled>»</button>
+                            {{-- Feature Card 3 --}}
+                            <div class="rounded-3xl bg-[#f8fafc] p-5 space-y-4">
+                                <div class="text-sm font-bold text-gray-700 border-b border-gray-200 pb-2">Feature Card 3
+                                </div>
+                                <div class="space-y-4">
+                                    <div class="grid gap-4 md:grid-cols-2">
+                                        <label class="form-control">
+                                            <div class="label">
+                                                <span class="label-text font-medium text-gray-700">Label</span>
+                                            </div>
+                                            <input type="text" value="Featured Business Three"
+                                                class="input input-bordered w-full bg-base-100">
+                                        </label>
+                                        <label class="form-control">
+                                            <div class="label">
+                                                <span class="label-text font-medium text-gray-700">Description</span>
+                                            </div>
+                                            <textarea rows="2"
+                                                class="textarea textarea-bordered w-full bg-base-100">A comfortable hospitality destination for stays, gatherings, and poolside moments.</textarea>
+                                        </label>
+                                    </div>
+                                    <div class="grid gap-4 md:grid-cols-2">
+                                        <label class="form-control">
+                                            <div class="label">
+                                                <span class="label-text font-medium text-gray-700">Bullet 1</span>
+                                            </div>
+                                            <input type="text" value="" placeholder="e.g. Key feature or offering"
+                                                class="input input-bordered w-full bg-base-100">
+                                        </label>
+                                        <label class="form-control">
+                                            <div class="label">
+                                                <span class="label-text font-medium text-gray-700">Bullet 2</span>
+                                            </div>
+                                            <input type="text" value="" placeholder="e.g. Key feature or offering"
+                                                class="input input-bordered w-full bg-base-100">
+                                        </label>
+                                    </div>
+                                    <div class="grid gap-4 md:grid-cols-2">
+                                        <label class="form-control">
+                                            <div class="label">
+                                                <span class="label-text font-medium text-gray-700">Bullet 3</span>
+                                            </div>
+                                            <input type="text" value="" placeholder="e.g. Key feature or offering"
+                                                class="input input-bordered w-full bg-base-100">
+                                        </label>
+                                        <label class="form-control">
+                                            <div class="label">
+                                                <span class="label-text font-medium text-gray-700">Bullet 4</span>
+                                            </div>
+                                            <input type="text" value="" placeholder="e.g. Key feature or offering"
+                                                class="input input-bordered w-full bg-base-100">
+                                        </label>
+                                    </div>
+                                    <div
+                                        class="flex items-center justify-between rounded-2xl bg-white border border-[#e2e8f0] px-4 py-3">
+                                        <div>
+                                            <div class="text-sm font-medium text-gray-700">Show "Check Rooms &amp; Live
+                                                Availability" button</div>
+                                            <p class="text-xs text-gray-500 mt-0.5">Displays the room availability modal on
+                                                the public page.</p>
+                                        </div>
+                                        <input type="checkbox" class="toggle toggle-success" checked>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
-                @endif
+                    <div id="lp-panel-gallery" role="tabpanel" class="lp-panel hidden">
+                        <div class="space-y-6">
+
+                            {{-- Gallery Item 1 --}}
+                            <div class="rounded-3xl bg-[#f8fafc] p-5 space-y-4">
+                                <div class="text-sm font-bold text-gray-700 border-b border-gray-200 pb-2">Gallery Item 1
+                                </div>
+
+                                <div class="grid gap-4 md:grid-cols-2">
+                                    <label class="form-control">
+                                        <div class="label">
+                                            <span class="label-text font-medium text-gray-700">Title</span>
+                                        </div>
+                                        <input type="text" value="Warm Spaces"
+                                            class="input input-bordered w-full bg-base-100">
+                                    </label>
+
+                                    <label class="form-control">
+                                        <div class="label">
+                                            <span class="label-text font-medium text-gray-700">Description</span>
+                                        </div>
+                                        <textarea rows="2"
+                                            class="textarea textarea-bordered w-full bg-base-100">Warm spaces and inviting hospitality.</textarea>
+                                    </label>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <div class="label">
+                                        <span class="label-text font-medium text-gray-700">Image</span>
+                                    </div>
+                                    <div
+                                        class="h-28 w-full rounded-2xl bg-gradient-to-br from-[#f5f3ff] to-[#e2e8f0] flex items-center justify-center">
+                                        <span class="text-xs text-gray-400">No image uploaded</span>
+                                    </div>
+                                    <button type="button" disabled
+                                        class="btn btn-sm btn-outline rounded-full border-gray-300 text-gray-400 cursor-not-allowed">
+                                        Upload image (coming soon)
+                                    </button>
+                                </div>
+                            </div>
+
+                            {{-- Gallery Item 2 --}}
+                            <div class="rounded-3xl bg-[#f8fafc] p-5 space-y-4">
+                                <div class="text-sm font-bold text-gray-700 border-b border-gray-200 pb-2">Gallery Item 2
+                                </div>
+
+                                <div class="grid gap-4 md:grid-cols-2">
+                                    <label class="form-control">
+                                        <div class="label">
+                                            <span class="label-text font-medium text-gray-700">Title</span>
+                                        </div>
+                                        <input type="text" value="Dining Moments"
+                                            class="input input-bordered w-full bg-base-100">
+                                    </label>
+
+                                    <label class="form-control">
+                                        <div class="label">
+                                            <span class="label-text font-medium text-gray-700">Description</span>
+                                        </div>
+                                        <textarea rows="2"
+                                            class="textarea textarea-bordered w-full bg-base-100">Memorable meals and shared experiences.</textarea>
+                                    </label>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <div class="label">
+                                        <span class="label-text font-medium text-gray-700">Image</span>
+                                    </div>
+                                    <div
+                                        class="h-28 w-full rounded-2xl bg-gradient-to-br from-[#f5f3ff] to-[#e2e8f0] flex items-center justify-center">
+                                        <span class="text-xs text-gray-400">No image uploaded</span>
+                                    </div>
+                                    <button type="button" disabled
+                                        class="btn btn-sm btn-outline rounded-full border-gray-300 text-gray-400 cursor-not-allowed">
+                                        Upload image (coming soon)
+                                    </button>
+                                </div>
+                            </div>
+
+                            {{-- Gallery Item 3 --}}
+                            <div class="rounded-3xl bg-[#f8fafc] p-5 space-y-4">
+                                <div class="text-sm font-bold text-gray-700 border-b border-gray-200 pb-2">Gallery Item 3
+                                </div>
+
+                                <div class="grid gap-4 md:grid-cols-2">
+                                    <label class="form-control">
+                                        <div class="label">
+                                            <span class="label-text font-medium text-gray-700">Title</span>
+                                        </div>
+                                        <input type="text" value="Poolside Views"
+                                            class="input input-bordered w-full bg-base-100">
+                                    </label>
+
+                                    <label class="form-control">
+                                        <div class="label">
+                                            <span class="label-text font-medium text-gray-700">Description</span>
+                                        </div>
+                                        <textarea rows="2"
+                                            class="textarea textarea-bordered w-full bg-base-100">Relaxing scenes from leisure and stay destinations.</textarea>
+                                    </label>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <div class="label">
+                                        <span class="label-text font-medium text-gray-700">Image</span>
+                                    </div>
+                                    <div
+                                        class="h-28 w-full rounded-2xl bg-gradient-to-br from-[#f5f3ff] to-[#e2e8f0] flex items-center justify-center">
+                                        <span class="text-xs text-gray-400">No image uploaded</span>
+                                    </div>
+                                    <button type="button" disabled
+                                        class="btn btn-sm btn-outline rounded-full border-gray-300 text-gray-400 cursor-not-allowed">
+                                        Upload image (coming soon)
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div id="lp-panel-room-modal" role="tabpanel" class="lp-panel hidden">
+                        <div class="space-y-5">
+                            {{-- Informational note --}}
+                            <div class="rounded-2xl bg-[#f8fafc] border border-[#e2e8f0] px-4 py-3 text-sm text-gray-500">
+                                These fields control the modal that appears when a visitor clicks "Check Rooms &amp; Live
+                                Availability" on Feature Card 3.
+                            </div>
+
+                            {{-- Two-column row: Room Business Name + Modal Title --}}
+                            <div class="grid gap-4 md:grid-cols-2">
+                                <label class="form-control">
+                                    <div class="label">
+                                        <span class="label-text font-medium text-gray-700">Room Business Name</span>
+                                    </div>
+                                    <input type="text" value="Your Business"
+                                        class="input input-bordered w-full bg-base-100">
+                                </label>
+
+                                <label class="form-control">
+                                    <div class="label">
+                                        <span class="label-text font-medium text-gray-700">Modal Title</span>
+                                    </div>
+                                    <input type="text" value="Your Business Rooms &amp; Availability"
+                                        class="input input-bordered w-full bg-base-100">
+                                </label>
+                            </div>
+
+                            {{-- Full-width Modal Description --}}
+                            <label class="form-control">
+                                <div class="label">
+                                    <span class="label-text font-medium text-gray-700">Modal Description</span>
+                                </div>
+                                <textarea rows="2"
+                                    class="textarea textarea-bordered w-full bg-base-100">View real-time room rates and vacancies at Your Business</textarea>
+                            </label>
+
+                            {{-- Full-width Inquiry Text --}}
+                            <label class="form-control">
+                                <div class="label">
+                                    <span class="label-text font-medium text-gray-700">Inquiry Text</span>
+                                </div>
+                                <textarea rows="2"
+                                    class="textarea textarea-bordered w-full bg-base-100">For booking inquiries, select "Chat with AI" or call support.</textarea>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Footer --}}
+                <div
+                    class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-t border-gray-100 pt-6">
+                    <p class="text-xs text-gray-400">
+                        Changes are preview-only until the backend is connected.
+                    </p>
+                    <button type="button" id="lp-save-btn"
+                        class="btn rounded-full border-0 bg-brand-primary text-white hover:bg-[#6d28d9]">
+                        Save landing page content
+                    </button>
+                </div>
+
             </div>
         </section>
+
     </div>
 
     <!-- Scripts to support interactive room management & simulation toasts -->
@@ -691,14 +955,14 @@
                 const toast = document.createElement('div');
                 toast.className = 'fixed bottom-4 right-4 z-50';
                 toast.innerHTML = `
-                        <div class="alert alert-success bg-brand-primary text-white border-0 shadow-2xl rounded-2xl p-4 flex items-center gap-3">
-                            <svg class="h-6 w-6 shrink-0 stroke-current text-white" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                            <div>
-                                <span class="font-bold">${title}</span>
-                                <div class="text-xs text-white/80">${message}</div>
+                            <div class="alert alert-success bg-brand-primary text-white border-0 shadow-2xl rounded-2xl p-4 flex items-center gap-3">
+                                <svg class="h-6 w-6 shrink-0 stroke-current text-white" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                <div>
+                                    <span class="font-bold">${title}</span>
+                                    <div class="text-xs text-white/80">${message}</div>
+                                </div>
                             </div>
-                        </div>
-                    `;
+                        `;
                 document.body.appendChild(toast);
                 setTimeout(() => {
                     toast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
@@ -714,213 +978,47 @@
                 });
             }
 
-            // Form submit simulator
-            const detailsForm = document.querySelector('#edit-details-form');
-            if (detailsForm) {
-                detailsForm.addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    const name = document.querySelector('#details-name').value;
-                    showToast(`Business profile updated for ${name}.`, 'Profile Saved');
-                });
-            }
+            // ── Landing Page Editor — Tab Switching ──────────────────────────
+            const lpTabs = document.querySelectorAll('.lp-tab');
+            const lpPanels = document.querySelectorAll('.lp-panel');
 
-            // Product buttons simulators (for other businesses)
-            document.querySelectorAll('.product-edit-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const row = e.target.closest('tr');
-                    const itemName = row.querySelector('.font-semibold').textContent;
-                    showToast(`Editing panel for "${itemName}" simulated.`, 'Product Edit');
-                });
-            });
+            lpTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Deactivate all tabs
+                    lpTabs.forEach(t => {
+                        t.classList.remove('bg-[#1e293b]', 'text-white');
+                        t.classList.add('bg-[#f8fafc]', 'text-gray-700');
+                        t.setAttribute('aria-selected', 'false');
+                    });
+                    // Hide all panels
+                    lpPanels.forEach(p => p.classList.add('hidden'));
 
-            document.querySelectorAll('.product-toggle-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const row = e.target.closest('tr');
-                    const itemName = row.querySelector('.font-semibold').textContent;
-                    const badge = row.querySelector('.badge');
+                    // Activate clicked tab
+                    tab.classList.add('bg-[#1e293b]', 'text-white');
+                    tab.classList.remove('bg-[#f8fafc]', 'text-gray-700');
+                    tab.setAttribute('aria-selected', 'true');
 
-                    if (badge.textContent === 'Unavailable') {
-                        badge.textContent = 'Available';
-                        badge.className = 'badge badge-outline border-brand-border bg-[#f8fafc] text-brand-primary-dark';
-                        btn.textContent = 'Mark unavailable';
-                        showToast(`"${itemName}" is now marked as Available.`, 'Status Updated');
-                    } else {
-                        badge.textContent = 'Unavailable';
-                        badge.className = 'badge badge-outline border-rose-200 bg-rose-50 text-rose-700';
-                        btn.textContent = 'Mark available';
-                        showToast(`"${itemName}" is now marked as Unavailable.`, 'Status Updated');
+                    // Show matching panel
+                    const panel = document.getElementById('lp-panel-' + tab.dataset.tab);
+                    if (panel) {
+                        panel.classList.remove('hidden');
                     }
                 });
             });
 
-            // Rooms filters & managers (only when Villa Carmelita is selected)
-            if (document.querySelector('#rooms-grid')) {
-                const roomsPerPage = 8;
-                let currentFilter = 'all';
-                let currentPage = 1;
-                const filterButtons = document.querySelectorAll('.filter-btn');
-                const roomCards = Array.from(document.querySelectorAll('.room-card'));
-                const noRoomsAlert = document.querySelector('#no-rooms-alert');
-                const paginationInfo = document.querySelector('#rooms-pagination-info');
-                const paginationButtons = document.querySelector('#rooms-pagination-buttons');
+            // ── Landing Page Editor — Save Handler ───────────────────────────
+            const lpSaveBtn = document.getElementById('lp-save-btn');
+            if (lpSaveBtn) {
+                lpSaveBtn.addEventListener('click', () => {
+                    lpSaveBtn.disabled = true;
+                    lpSaveBtn.textContent = 'Saving…';
 
-                const getFilteredCards = () => roomCards.filter(card => {
-                    const type = card.getAttribute('data-room-type');
-                    return currentFilter === 'all' || type === currentFilter;
+                    setTimeout(() => {
+                        showToast('Landing page content updated successfully.', 'Content Saved');
+                        lpSaveBtn.disabled = false;
+                        lpSaveBtn.textContent = 'Save landing page content';
+                    }, 600);
                 });
-
-                const setFilterButtonState = (activeButton) => {
-                    filterButtons.forEach(button => {
-                        button.classList.remove('active', 'bg-brand-primary', 'text-white');
-                        button.classList.add('btn-outline', 'border-gray-300', 'text-gray-700');
-                    });
-
-                    activeButton.classList.add('active', 'bg-brand-primary', 'text-white');
-                    activeButton.classList.remove('btn-outline', 'border-gray-300', 'text-gray-700');
-                };
-
-                const renderPagination = () => {
-                    const filteredCards = getFilteredCards();
-                    const totalItems = filteredCards.length;
-                    const totalPages = Math.max(1, Math.ceil(totalItems / roomsPerPage));
-
-                    currentPage = Math.min(Math.max(currentPage, 1), totalPages);
-
-                    roomCards.forEach(card => card.classList.add('hidden'));
-
-                    if (totalItems === 0) {
-                        noRoomsAlert.classList.remove('hidden');
-
-                        if (paginationInfo) {
-                            paginationInfo.textContent = '';
-                        }
-
-                        if (paginationButtons) {
-                            paginationButtons.innerHTML = '';
-                        }
-
-                        return;
-                    }
-
-                    noRoomsAlert.classList.add('hidden');
-
-                    const startIndex = (currentPage - 1) * roomsPerPage;
-                    const endIndex = Math.min(startIndex + roomsPerPage, totalItems);
-
-                    filteredCards.slice(startIndex, endIndex).forEach(card => card.classList.remove('hidden'));
-
-                    if (paginationInfo) {
-                        paginationInfo.innerHTML = `Showing <strong>${startIndex + 1}</strong> to <strong>${endIndex}</strong> of <strong>${totalItems}</strong> rooms`;
-                    }
-
-                    if (!paginationButtons) {
-                        return;
-                    }
-
-                    paginationButtons.innerHTML = '';
-
-                    const createPageButton = (label, page, isActive = false, isDisabled = false, ariaLabel = null) => {
-                        const button = document.createElement('button');
-                        button.type = 'button';
-                        button.textContent = label;
-                        button.className = isActive
-                            ? 'join-item btn btn-xs btn-active border-0 bg-brand-primary text-white hover:bg-[#6d28d9]'
-                            : 'join-item btn btn-xs btn-outline border-gray-300 text-gray-700 hover:bg-[#f5f3ff]';
-
-                        if (ariaLabel) {
-                            button.setAttribute('aria-label', ariaLabel);
-                        }
-
-                        if (isDisabled) {
-                            button.disabled = true;
-                        } else {
-                            button.addEventListener('click', () => {
-                                currentPage = page;
-                                renderPagination();
-                            });
-                        }
-
-                        return button;
-                    };
-
-                    paginationButtons.appendChild(
-                        createPageButton('«', Math.max(1, currentPage - 1), false, currentPage === 1, 'Previous room page')
-                    );
-
-                    for (let page = 1; page <= totalPages; page += 1) {
-                        paginationButtons.appendChild(
-                            createPageButton(String(page), page, page === currentPage, false, `Go to room page ${page}`)
-                        );
-                    }
-
-                    paginationButtons.appendChild(
-                        createPageButton('»', Math.min(totalPages, currentPage + 1), false, currentPage === totalPages, 'Next room page')
-                    );
-                };
-
-                // Filter logic
-                filterButtons.forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        currentFilter = btn.getAttribute('data-filter');
-                        currentPage = 1;
-
-                        setFilterButtonState(btn);
-                        renderPagination();
-                    });
-                });
-
-                // Status selectors live updating simulation
-                const statusSelects = document.querySelectorAll('.status-select');
-
-                // Helper function to update count badges
-                const updateCounts = () => {
-                    let avail = 0;
-                    let occu = 0;
-                    let maint = 0;
-
-                    document.querySelectorAll('.room-card').forEach(card => {
-                        const status = card.getAttribute('data-room-status');
-                        if (status === 'Available') avail++;
-                        else if (status === 'Occupied') occu++;
-                        else if (status === 'Maintenance') maint++;
-                    });
-
-                    document.querySelector('#count-avail').textContent = avail;
-                    document.querySelector('#count-occu').textContent = occu;
-                    document.querySelector('#count-maint').textContent = maint;
-                };
-
-                statusSelects.forEach(select => {
-                    select.addEventListener('change', (e) => {
-                        const newStatus = e.target.value;
-                        const roomNum = select.getAttribute('data-room');
-                        const card = select.closest('.room-card');
-                        const badge = card.querySelector('.room-status-badge');
-
-                        // Set room card status attribute
-                        card.setAttribute('data-room-status', newStatus);
-                        badge.textContent = newStatus;
-
-                        // Update badge classes
-                        if (newStatus === 'Available') {
-                            badge.className = 'badge badge-sm border text-[10px] font-bold px-2.5 py-1.5 room-status-badge badge-success bg-emerald-50 text-emerald-700 border-emerald-200';
-                        } else if (newStatus === 'Occupied') {
-                            badge.className = 'badge badge-sm border text-[10px] font-bold px-2.5 py-1.5 room-status-badge badge-warning bg-amber-50 text-amber-700 border-amber-200';
-                        } else if (newStatus === 'Maintenance') {
-                            badge.className = 'badge badge-sm border text-[10px] font-bold px-2.5 py-1.5 room-status-badge badge-error bg-rose-50 text-rose-700 border-rose-200';
-                        }
-
-                        // Re-run counters
-                        updateCounts();
-
-                        // Fire toast
-                        showToast(`Status of room ${roomNum} changed to ${newStatus}.`, 'Room Status Updated');
-                    });
-                });
-
-                setFilterButtonState(document.querySelector('.filter-btn.active') || filterButtons[0]);
-                renderPagination();
-                updateCounts();
             }
         });
     </script>

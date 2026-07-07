@@ -45,6 +45,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
         return view('admin.businesses.logs');
     })->name('businesses.logs');
 
+    Route::get('/businesses/landing-editor', function () {
+        $slug = 'dakong-balay';
+        return view('admin.businesses.landing-editor', compact('slug'));
+    })->name('businesses.landing-editor-index');
+
     // Slug-based edit page — must come AFTER all static /businesses/* routes
     Route::get('/businesses/{slug}/edit', function (string $slug) {
         return view('admin.businesses.edit', compact('slug'));
@@ -79,6 +84,18 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/businesses/{slug}/seo', function (string $slug) {
         return view('admin.businesses.seo', compact('slug'));
     })->name('businesses.manager-seo');
+
+    Route::get('/businesses/{slug}/products', function (string $slug) {
+        return view('admin.businesses.products', compact('slug'));
+    })->name('businesses.manager-products');
+
+    Route::get('/businesses/{slug}/edit-profile', function (string $slug) {
+        return view('admin.businesses.edit', compact('slug'));
+    })->name('businesses.manager-edit');
+
+    Route::get('/businesses/{slug}/landing-editor', function (string $slug) {
+        return view('admin.businesses.landing-editor', compact('slug'));
+    })->name('businesses.landing-editor');
 
 });
 
