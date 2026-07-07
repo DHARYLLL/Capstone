@@ -313,12 +313,12 @@
                     </div>
 
                     <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 shrink-0">
-                        <a href="{{ route('admin.businesses.manager-dashboard', $currentSlug) }}"
+                        <a href="{{ $isManager ? route('admin.businesses.manager-dashboard', $currentSlug) : route('admin.businesses.index') }}"
                             class="btn btn-outline rounded-full border-gray-300 text-gray-700 transition-colors duration-200 hover:border-brand-border hover:bg-[#f5f3ff] hover:text-gray-900 whitespace-nowrap">
                             <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current" aria-hidden="true">
                                 <path d="M19 11H8.41l4.3-4.29L11.29 5 5 11.29l6.29 6.29 1.42-1.42-4.3-4.3H19v-2z" />
                             </svg>
-                            Back to dashboard
+                            {{ $isManager ? 'Back to dashboard' : 'Back to businesses' }}
                         </a>
                         <button type="button" id="save-all-btn"
                             class="btn rounded-full border-0 bg-brand-primary text-white transition-colors duration-200 hover:bg-[#6d28d9] hover:text-white whitespace-nowrap">
