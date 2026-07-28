@@ -1,35 +1,7 @@
-{{-- filepath: resources/views/admin/businesses/logs.blade.php --}}
-@php $isManager = isset($slug); @endphp
-@if($isManager)
-    @php
-        if ($slug === 'villa-carmelita') {
-            $unitName = 'Villa Carmelita';
-            $unitType = 'Accommodation / Hotel';
-            $unitIcon = '🏨';
-        } elseif ($slug === 'monclaire-pool') {
-            $unitName = 'Monclaire Pool';
-            $unitType = 'Facility / Pool';
-            $unitIcon = '🏊';
-        } else {
-            $unitName = 'Dakong Balay';
-            $unitType = 'Food & Restaurant';
-            $unitIcon = '🍽️';
-        }
-    @endphp
-@endif
-
-@extends($isManager ? 'layouts.manager' : 'layouts.admin')
+@extends('layouts.admin')
 
 @section('page_title', 'Knowledge Base Logs')
-@section('page_description', 'View upload history, processing events, and indexing results for all knowledge base files.')
-@section('breadcrumbs', ($isManager ? ($unitName ?? 'Manager') . ' / ' : 'Admin / Businesses / ') . 'Logs')
-@section('unit-type', $isManager ? ($unitType ?? '') : '')
-
-@if($isManager)
-    @section('manager-sidebar')
-        @include('partials.manager-sidebar')
-    @endsection
-@endif
+@section('breadcrumbs', 'Admin / Ingestion Logs')
 
 @section('content')
 <div class="space-y-8">
@@ -40,19 +12,8 @@
             <div>
                 <h1 class="text-3xl font-black tracking-tight text-gray-900">Knowledge Base Logs</h1>
                 <p class="mt-2 max-w-3xl text-sm leading-6 text-gray-500">
-                    A record of all upload events, processing steps, indexing outcomes, and approval actions
-                    {{ $isManager ? 'for <strong class="text-gray-800">' . $unitName . '</strong>' : 'across all business units' }}.
+                    A record of all upload events, processing steps, indexing outcomes, and approval actions for the waterproofing company.
                 </p>
-            </div>
-            <div class="flex flex-wrap gap-3">
-                <button type="button"
-                    class="btn rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-[#f5f3ff] hover:text-gray-700">
-                    Export CSV
-                </button>
-                <button type="button"
-                    class="btn rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-[#f5f3ff] hover:text-gray-700">
-                    Clear filters
-                </button>
             </div>
         </div>
     </section>
@@ -99,7 +60,7 @@
                         <tr class="text-xs font-semibold uppercase tracking-wider text-gray-400">
                             <th>Timestamp</th>
                             <th>File</th>
-                            @if (!$isManager)<th>Business Unit</th>@endif
+                            <th>Division</th>
                             <th>Event</th>
                             <th>Status</th>
                             <th>User</th>
@@ -108,14 +69,14 @@
                     <tbody>
                         @php
                             $logRows = [
-                                ['time' => 'Today 11:42 AM', 'file' => 'menu-updated.csv',              'unit' => 'Dakong Balay',     'event' => 'Indexed',         'status' => 'success', 'user' => 'Admin'],
-                                ['time' => 'Today 10:15 AM', 'file' => 'villa-policies.pdf',            'unit' => 'Villa Carmelita',  'event' => 'Approved',        'status' => 'success', 'user' => 'Manager'],
-                                ['time' => 'Today 09:03 AM', 'file' => 'pool-rates-summer.pdf',         'unit' => 'Monclaire Pool',   'event' => 'Staged',          'status' => 'pending', 'user' => 'Manager'],
-                                ['time' => 'Yesterday 4:50 PM','file' => 'allergen-guide.pdf',          'unit' => 'Dakong Balay',     'event' => 'Upload failed',   'status' => 'error',   'user' => 'Admin'],
-                                ['time' => 'Yesterday 2:11 PM','file' => 'room-rate-table.csv',         'unit' => 'Villa Carmelita',  'event' => 'Indexed',         'status' => 'success', 'user' => 'Admin'],
-                                ['time' => 'Yesterday 1:00 PM','file' => 'house-rules.pdf',             'unit' => 'Villa Carmelita',  'event' => 'Rejected',        'status' => 'error',   'user' => 'Manager'],
-                                ['time' => '2 days ago 3:30 PM','file' => 'daily-specials.csv',         'unit' => 'Dakong Balay',     'event' => 'Indexed',         'status' => 'success', 'user' => 'Admin'],
-                                ['time' => '2 days ago 9:10 AM','file' => 'gazebo-rates.csv',           'unit' => 'Monclaire Pool',   'event' => 'Indexed',         'status' => 'success', 'user' => 'Admin'],
+                                ['time' => 'Today 11:42 AM', 'file' => 'aquashield-services.csv',      'unit' => 'AquaShield', 'event' => 'Indexed',         'status' => 'success', 'user' => 'Admin'],
+                                ['time' => 'Today 10:15 AM', 'file' => 'drymax-epoxy-guide.pdf',      'unit' => 'DryMax',     'event' => 'Approved',        'status' => 'success', 'user' => 'Staff'],
+                                ['time' => 'Today 09:03 AM', 'file' => 'hydroguard-crystalline.pdf',  'unit' => 'HydroGuard', 'event' => 'Staged',          'status' => 'pending', 'user' => 'Staff'],
+                                ['time' => 'Yesterday 4:50 PM','file' => 'gutters-acrylic-spec.pdf',  'unit' => 'AquaShield', 'event' => 'Upload failed',   'status' => 'error',   'user' => 'Admin'],
+                                ['time' => 'Yesterday 2:11 PM','file' => 'interior-shower-leak.csv',   'unit' => 'DryMax',     'event' => 'Indexed',         'status' => 'success', 'user' => 'Admin'],
+                                ['time' => 'Yesterday 1:00 PM','file' => 'polyurethane-safety.pdf',    'unit' => 'AquaShield', 'event' => 'Rejected',        'status' => 'error',   'user' => 'Staff'],
+                                ['time' => '2 days ago 3:30 PM','file' => 'residential-rates.csv',     'unit' => 'AquaShield', 'event' => 'Indexed',         'status' => 'success', 'user' => 'Admin'],
+                                ['time' => '2 days ago 9:10 AM','file' => 'commercial-trench.csv',     'unit' => 'HydroGuard', 'event' => 'Indexed',         'status' => 'success', 'user' => 'Admin'],
                             ];
                         @endphp
                         @foreach ($logRows as $row)
@@ -127,9 +88,7 @@
                                     <span class="font-medium text-gray-800">{{ $row['file'] }}</span>
                                 </div>
                             </td>
-                            @if (!$isManager)
                             <td class="text-gray-600">{{ $row['unit'] }}</td>
-                            @endif
                             <td class="text-gray-700">{{ $row['event'] }}</td>
                             <td>
                                 @if ($row['status'] === 'success')

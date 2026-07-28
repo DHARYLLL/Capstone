@@ -428,7 +428,7 @@
                 Comparison matrix</div>
             <h2 class="text-3xl font-black tracking-tight text-gray-950 md:text-5xl">Why Project RED AI outperforms rigid
                 chat setups.</h2>
-            <p class="text-gray-600">This section should read like an executive decision table, showing the platform’s
+            <p class="text-gray-600">This shows the platform’s
                 practical advantage in knowledge management, support routing, and multi-unit scale.</p>
         </div>
 

@@ -1,24 +1,7 @@
-@php $isManager = isset($slug); @endphp
-@if($isManager)
-    @php
-        if ($slug === 'villa-carmelita') { $unitName = 'Villa Carmelita'; $unitType = 'Accommodation / Hotel'; $unitIcon = '🏨'; $sidebarExtras = ['Room Availability', 'Rate Configuration', 'Guest Inquiries']; }
-        elseif ($slug === 'monclaire-pool') { $unitName = 'Monclaire Pool'; $unitType = 'Facility / Pool'; $unitIcon = '🏊'; $sidebarExtras = ['Pool Schedule', 'Pass & Rental Rates', 'Guest Inquiries']; }
-        else { $unitName = 'Dakong Balay'; $unitType = 'Food & Restaurant'; $unitIcon = '🍽️'; $sidebarExtras = ['Menu Management', 'Dining Availability', 'Guest Inquiries']; }
-    @endphp
-@endif
-
-@extends($isManager ? 'layouts.manager' : 'layouts.admin')
+@extends('layouts.admin')
 
 @section('page_title', 'Live Chat & Staff Handoff')
-@section('page_description', 'Operate a split-screen console for active queues, conversation timelines, and live handoff actions.')
-@section('breadcrumbs', ($isManager ? $unitName . ' / ' : 'Admin / Businesses / ') . 'Chat & Handoff')
-@section('unit-type', $isManager ? $unitType : '')
-
-@if($isManager)
-@section('manager-sidebar')
-    @include('partials.manager-sidebar')
-@endsection
-@endif
+@section('breadcrumbs', 'Admin / Chat & Handoff')
 
 @section('content')
     <div class="space-y-8">
@@ -37,9 +20,9 @@
                 <div class="card-body p-6">
                     <h2 class="text-lg font-bold text-gray-900">Client queue</h2>
                     <div class="mt-4 space-y-3">
-                        <div class="rounded-2xl bg-[#ffffff] p-4"><div class="font-semibold text-gray-800">Maria D.</div><div class="text-sm text-gray-500">Waiting · Booking confirmation</div></div>
-                        <div class="rounded-2xl bg-[#ffffff] p-4"><div class="font-semibold text-gray-800">John P.</div><div class="text-sm text-gray-500">Bot override · Payment issue</div></div>
-                        <div class="rounded-2xl bg-[#ffffff] p-4"><div class="font-semibold text-gray-800">Aya R.</div><div class="text-sm text-gray-500">Live with operator · Room inquiry</div></div>
+                        <div class="rounded-2xl bg-[#ffffff] p-4"><div class="font-semibold text-gray-800">Maria D.</div><div class="text-sm text-gray-500">Waiting · Roof leak repair quote</div></div>
+                        <div class="rounded-2xl bg-[#ffffff] p-4"><div class="font-semibold text-gray-800">John P.</div><div class="text-sm text-gray-500">Bot override · Downpayment invoice</div></div>
+                        <div class="rounded-2xl bg-[#ffffff] p-4"><div class="font-semibold text-gray-800">Aya R.</div><div class="text-sm text-gray-500">Live with operator · Balcony sealing query</div></div>
                     </div>
                 </div>
             </div>
@@ -48,7 +31,7 @@
                 <div class="card-body p-6">
                     <h2 class="text-lg font-bold text-gray-900">Conversation timeline</h2>
                     <div class="mt-4 space-y-3 text-sm text-gray-600">
-                        <div class="rounded-2xl bg-[#f8fafc] p-4">Bot answered: room availability</div>
+                        <div class="rounded-2xl bg-[#f8fafc] p-4">Bot answered: waterproofing service options</div>
                         <div class="rounded-2xl bg-white border border-gray-100 p-4">System: routed to human because payment details were requested</div>
                         <div class="rounded-2xl bg-[#f8fafc] p-4">Operator joined the conversation</div>
                     </div>

@@ -1,39 +1,52 @@
 <?php
 
-test('landing page renders successfully', function () {
+test('landing page redirects successfully to admin dashboard', function () {
     $response = $this->get(route('home'));
-    $response->assertStatus(200);
-    $response->assertSee('Villa Carmelita');
-    $response->assertSee('Check Rooms & Live Availability', false);
+    $response->assertStatus(302);
+    $response->assertRedirect(route('admin.dashboard'));
 });
 
-test('admin dashboard renders successfully', function () {
+test('admin dashboard loads successfully', function () {
     $response = $this->get(route('admin.dashboard'));
     $response->assertStatus(200);
-    $response->assertSee('Manage Businesses');
-    $response->assertSee('Villa Carmelita');
+    $response->assertSee('Waterproofing Console');
+    $response->assertSee('AquaShield Waterproofing');
 });
 
-test('edit page loaded for dakong-balay defaults or accepts parameter', function () {
-    $response = $this->get(route('admin.businesses.edit', 'dakong-balay'));
+test('chat console page loads successfully', function () {
+    $response = $this->get(route('admin.chat'));
     $response->assertStatus(200);
-    $response->assertSee('Dakong Balay selected');
-    $response->assertSee('Chicken Inasal Meal');
+    $response->assertSee('Live Chat & Staff Handoff');
+    $response->assertSee('Maria D.');
 });
 
-test('edit page loads successfully for villa-carmelita', function () {
-    $response = $this->get(route('admin.businesses.edit', 'villa-carmelita'));
+test('services catalog page loads successfully', function () {
+    $response = $this->get(route('admin.products'));
     $response->assertStatus(200);
-    $response->assertSee('Villa Carmelita selected');
-    $response->assertSee('Rooms & Live Availability', false);
-    $response->assertSee('RM 310');
-    $response->assertSee('Standard');
-    $response->assertSee('PHP 1,800');
+    $response->assertSee('Waterproofing Services Catalog');
+    $response->assertSee('Roof Deck Waterproofing');
 });
 
-test('edit page loads successfully for monclaire-pool', function () {
-    $response = $this->get(route('admin.businesses.edit', 'monclaire-pool'));
+test('knowledge base upload page loads successfully', function () {
+    $response = $this->get(route('admin.knowledge-base'));
     $response->assertStatus(200);
-    $response->assertSee('Monclaire Pool selected');
-    $response->assertSee('Day Pass - Adult');
+    $response->assertSee('Knowledge Base Upload');
+});
+
+test('reporting and analytics page loads successfully', function () {
+    $response = $this->get(route('admin.analytics'));
+    $response->assertStatus(200);
+    $response->assertSee('Reporting & Analytics');
+});
+
+test('staff console page loads successfully', function () {
+    $response = $this->get(route('admin.staff'));
+    $response->assertStatus(200);
+    $response->assertSee('Staff & Roles');
+});
+
+test('ingestion logs page loads successfully', function () {
+    $response = $this->get(route('admin.logs'));
+    $response->assertStatus(200);
+    $response->assertSee('Knowledge Base Logs');
 });

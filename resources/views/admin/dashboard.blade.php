@@ -2,13 +2,13 @@
 @extends('layouts.admin')
 
 @section('page_title', 'Tenant Portal Overview')
-@section('page_description', 'Configure operations, manage knowledge files, monitor assisted conversations, and keep the tenant experience aligned.')
+{{-- @section('page_description', 'Configure operations, manage knowledge files, monitor assisted conversations, and keep the tenant experience aligned.') --}}
 @section('breadcrumbs', 'Admin / Businesses / Overview')
 
 @section('content')
     @php
-        $tenantName = 'Villa Carmelita';
-        $tenantType = 'Hotel / Villa';
+        $tenantName = 'AquaShield Waterproofing';
+        $tenantType = 'Residential & Roof Sealing';
         $tenantStatus = 'Live';
 
         $kpis = [
@@ -19,19 +19,18 @@
         ];
 
         $modules = [
-            ['title' => 'Business Profile', 'desc' => 'Identity, hours, locations, contact, and public metadata.', 'href' => route('admin.businesses.edit', 'villa-carmelita')],
-            ['title' => 'Products & Services', 'desc' => 'Manage menu items, room availability, and pass/rental pricing per business.', 'href' => route('admin.businesses.manager-products', 'villa-carmelita')],
-            ['title' => 'Knowledge Base Upload', 'desc' => 'Drop PDFs and CSVs, inspect ingestion results, and approve data.', 'href' => route('admin.businesses.knowledge-base')],
-            ['title' => 'Reporting & Analytics', 'desc' => 'Review answered, unanswered, and human-routed query volume.', 'href' => route('admin.businesses.analytics')],
-            ['title' => 'SEO & Profile Wizard', 'desc' => 'Edit metadata, landing pages, and QR code assets.', 'href' => route('admin.businesses.seo')],
-            ['title' => 'Chat & Handoff', 'desc' => 'Monitor queue, assign operators, and resolve escalations.', 'href' => route('admin.businesses.chat')],
-            ['title' => 'Staff & Roles', 'desc' => 'Manage operators, shifts, permissions, and routing rules.', 'href' => route('admin.businesses.staff')],
+            ['title' => 'Services Catalog', 'desc' => 'Manage waterproofing service offerings, pricing, and project durations.', 'href' => route('admin.products')],
+            ['title' => 'Knowledge Base Upload', 'desc' => 'Drop PDFs and CSVs, inspect ingestion results, and approve data.', 'href' => route('admin.knowledge-base')],
+            ['title' => 'Reporting & Analytics', 'desc' => 'Review answered, unanswered, and human-routed query volume.', 'href' => route('admin.analytics')],
+            ['title' => 'Widget Embed Playground', 'desc' => 'Generate and test copy-paste HTML chat widget integration code.', 'href' => route('chat.demo')],
+            ['title' => 'Chat & Handoff', 'desc' => 'Monitor queue, assign operators, and resolve escalations.', 'href' => route('admin.chat')],
+            ['title' => 'Staff & Roles', 'desc' => 'Manage operators, shifts, permissions, and routing rules.', 'href' => route('admin.staff')],
         ];
 
         $activity = [
             ['label' => 'Knowledge base indexed', 'meta' => '18 minutes ago · 4 files processed'],
             ['label' => 'Human handoff accepted', 'meta' => '42 minutes ago · Operator: Mae'],
-            ['label' => 'SEO preview updated', 'meta' => 'Today · Landing path regenerated'],
+            ['label' => 'Service catalog updated', 'meta' => 'Today · Roof deck pricing updated'],
         ];
     @endphp
 
@@ -45,20 +44,13 @@
                         <span class="h-1 w-1 rounded-full bg-gray-300"></span>
                         <span>{{ $tenantType }}</span>
                         <span class="h-1 w-1 rounded-full bg-gray-300"></span>
-                        <span class="text-emerald-600">{{ $tenantStatus }}</span>
+                        <span class="text-emerald-600">Active</span>
                     </div>
-                    <h1 class="text-3xl font-black tracking-tight text-gray-900 md:text-5xl">Tenant Portal Overview</h1>
+                    <h1 class="text-3xl font-black tracking-tight text-gray-900 md:text-5xl">Waterproofing Console</h1>
                     <p class="max-w-3xl text-sm leading-6 text-gray-500 md:text-base">
                         Configure operations, manage knowledge files, monitor assisted conversations, and keep the tenant
                         experience aligned across every public touchpoint.
                     </p>
-                </div>
-                <div class="flex flex-wrap gap-3">
-                    <a href="{{ route('admin.businesses.analytics') }}"
-                        class="btn rounded-full border-0 bg-brand-primary text-white hover:bg-[#6d28d9]">Open analytics</a>
-                    <a href="{{ route('admin.businesses.knowledge-base') }}"
-                        class="btn rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-[#f5f3ff] hover:text-gray-700">Upload
-                        knowledge</a>
                 </div>
             </div>
         </section>

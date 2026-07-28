@@ -6,7 +6,8 @@
                 @yield('breadcrumbs', 'Admin / Businesses / Overview')
             </div>
             <h1 class="mt-1 text-2xl font-extrabold tracking-tight text-gray-800">@yield('page_title', 'Tenant Portal')</h1>
-            <p class="mt-1 text-sm text-gray-500">@yield('page_description', 'Monitor business records and update core business details with ease.') </p>
+            <p class="mt-1 text-sm text-gray-500">@yield('page_description') </p>
+            {{-- 'Monitor business records and update core business details with ease.' --}}
         </div>
 
         <div class="flex items-center gap-3 rounded-2xl bg-base-100 px-4 py-3 shadow-sm">

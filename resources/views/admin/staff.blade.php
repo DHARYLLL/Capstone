@@ -1,24 +1,7 @@
-@php $isManager = isset($slug); @endphp
-@if($isManager)
-    @php
-        if ($slug === 'villa-carmelita') { $unitName = 'Villa Carmelita'; $unitType = 'Accommodation / Hotel'; $unitIcon = '🏨'; $sidebarExtras = ['Room Availability', 'Rate Configuration', 'Guest Inquiries']; }
-        elseif ($slug === 'monclaire-pool') { $unitName = 'Monclaire Pool'; $unitType = 'Facility / Pool'; $unitIcon = '🏊'; $sidebarExtras = ['Pool Schedule', 'Pass & Rental Rates', 'Guest Inquiries']; }
-        else { $unitName = 'Dakong Balay'; $unitType = 'Food & Restaurant'; $unitIcon = '🍽️'; $sidebarExtras = ['Menu Management', 'Dining Availability', 'Guest Inquiries']; }
-    @endphp
-@endif
-
-@extends($isManager ? 'layouts.manager' : 'layouts.admin')
+@extends('layouts.admin')
 
 @section('page_title', 'Staff & Roles')
-@section('page_description', 'Manage operators, permissions, shifts, and routing responsibilities.')
-@section('breadcrumbs', ($isManager ? $unitName . ' / ' : 'Admin / Businesses / ') . 'Staff & Roles')
-@section('unit-type', $isManager ? $unitType : '')
-
-@if($isManager)
-@section('manager-sidebar')
-    @include('partials.manager-sidebar')
-@endsection
-@endif
+@section('breadcrumbs', 'Admin / Staff & Roles')
 
 @section('content')
     <div class="space-y-8">
@@ -41,8 +24,8 @@
                             <thead><tr><th>Name</th><th>Role</th><th>Status</th><th>Routing</th></tr></thead>
                             <tbody>
                                 <tr><td>Mae S.</td><td>Lead operator</td><td><span class="badge badge-success badge-outline">Online</span></td><td>All escalations</td></tr>
-                                <tr><td>Jon P.</td><td>Front desk support</td><td><span class="badge badge-outline">Away</span></td><td>Booking questions</td></tr>
-                                <tr><td>Rina T.</td><td>Manager</td><td><span class="badge badge-success badge-outline">Online</span></td><td>High priority only</td></tr>
+                                <tr><td>Jon P.</td><td>Estimator support</td><td><span class="badge badge-outline">Away</span></td><td>Quote questions</td></tr>
+                                <tr><td>Rina T.</td><td>Operations Manager</td><td><span class="badge badge-success badge-outline">Online</span></td><td>High priority only</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -53,8 +36,8 @@
                 <div class="card-body p-6">
                     <h2 class="text-lg font-bold text-gray-900">Routing rules</h2>
                     <div class="mt-4 space-y-3 text-sm text-gray-600">
-                        <div class="rounded-2xl bg-[#f8fafc] p-4">Route payment and refund issues to management.</div>
-                        <div class="rounded-2xl bg-[#f8fafc] p-4">Route reservation questions to the front desk.</div>
+                        <div class="rounded-2xl bg-[#f8fafc] p-4">Route downpayment and contract issues to management.</div>
+                        <div class="rounded-2xl bg-[#f8fafc] p-4">Route basic quote requests to the estimating team.</div>
                         <div class="rounded-2xl bg-[#f8fafc] p-4">Escalate unanswered requests after 90 seconds.</div>
                     </div>
                 </div>

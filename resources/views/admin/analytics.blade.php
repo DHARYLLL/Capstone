@@ -1,24 +1,7 @@
-@php $isManager = isset($slug); @endphp
-@if($isManager)
-    @php
-        if ($slug === 'villa-carmelita') { $unitName = 'Villa Carmelita'; $unitType = 'Accommodation / Hotel'; $unitIcon = '🏨'; $sidebarExtras = ['Room Availability', 'Rate Configuration', 'Guest Inquiries']; }
-        elseif ($slug === 'monclaire-pool') { $unitName = 'Monclaire Pool'; $unitType = 'Facility / Pool'; $unitIcon = '🏊'; $sidebarExtras = ['Pool Schedule', 'Pass & Rental Rates', 'Guest Inquiries']; }
-        else { $unitName = 'Dakong Balay'; $unitType = 'Food & Restaurant'; $unitIcon = '🍽️'; $sidebarExtras = ['Menu Management', 'Dining Availability', 'Guest Inquiries']; }
-    @endphp
-@endif
-
-@extends($isManager ? 'layouts.manager' : 'layouts.admin')
+@extends('layouts.admin')
 
 @section('page_title', 'Reporting & Analytics')
-@section('page_description', 'Track answered, unanswered, and human-routed query volumes, then export CSV logs or formatted PDF summaries.')
-@section('breadcrumbs', ($isManager ? $unitName . ' / ' : 'Admin / Businesses / ') . 'Analytics')
-@section('unit-type', $isManager ? $unitType : '')
-
-@if($isManager)
-@section('manager-sidebar')
-    @include('partials.manager-sidebar')
-@endsection
-@endif
+@section('breadcrumbs', 'Admin / Analytics')
 
 @section('content')
     @php
@@ -36,10 +19,6 @@
                 <div>
                     <h1 class="text-3xl font-black tracking-tight text-gray-900">Reporting & Analytics</h1>
                     <p class="mt-2 max-w-3xl text-sm leading-6 text-gray-500">Track answered, unanswered, and human-routed query volumes, then export CSV logs or formatted PDF summaries.</p>
-                </div>
-                <div class="flex gap-3">
-                    <button class="btn btn-outline rounded-full border-gray-300 text-gray-700 hover:bg-[#f5f3ff]">Download CSV</button>
-                    <button class="btn rounded-full border-0 bg-brand-primary text-white hover:bg-[#6d28d9]">Generate PDF report</button>
                 </div>
             </div>
         </section>
@@ -77,9 +56,9 @@
                 <div class="card-body p-6 lg:p-8">
                     <h2 class="text-xl font-bold text-gray-900">Insights</h2>
                     <div class="mt-4 space-y-3 text-sm text-gray-600">
-                        <div class="rounded-2xl bg-[#f8fafc] p-4">Top intent: room rates and availability</div>
-                        <div class="rounded-2xl bg-[#f8fafc] p-4">Peak traffic: 6 PM to 9 PM</div>
-                        <div class="rounded-2xl bg-[#f8fafc] p-4">Escalation reason: booking confirmation</div>
+                        <div class="rounded-2xl bg-[#f8fafc] p-4">Top intent: waterproofing cost per sqm and warranties</div>
+                        <div class="rounded-2xl bg-[#f8fafc] p-4">Peak traffic: 9 AM to 3 PM</div>
+                        <div class="rounded-2xl bg-[#f8fafc] p-4">Escalation reason: custom site inspection quote</div>
                     </div>
                 </div>
             </div>

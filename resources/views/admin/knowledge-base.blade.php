@@ -1,38 +1,7 @@
-{{-- filepath: resources/views/admin/businesses/knowledge-base.blade.php --}}
-@php $isManager = isset($slug); @endphp
-@if($isManager)
-    @php
-        if ($slug === 'villa-carmelita') {
-            $unitName = 'Villa Carmelita';
-            $unitType = 'Accommodation / Hotel';
-            $unitIcon = '🏨';
-            $sidebarExtras = ['Room Availability', 'Rate Configuration', 'Guest Inquiries'];
-        } elseif ($slug === 'monclaire-pool') {
-            $unitName = 'Monclaire Pool';
-            $unitType = 'Facility / Pool';
-            $unitIcon = '🏊';
-            $sidebarExtras = ['Pool Schedule', 'Pass & Rental Rates', 'Guest Inquiries'];
-        } else {
-            $unitName = 'Dakong Balay';
-            $unitType = 'Food & Restaurant';
-            $unitIcon = '🍽️';
-            $sidebarExtras = ['Menu Management', 'Dining Availability', 'Guest Inquiries'];
-        }
-    @endphp
-@endif
-
-@extends($isManager ? 'layouts.manager' : 'layouts.admin')
+@extends('layouts.admin')
 
 @section('page_title', 'Knowledge Base Upload')
-@section('page_description', 'Upload PDFs and CSVs, review processing results, and approve knowledge entries for chatbot use.')
-@section('breadcrumbs', ($isManager ? $unitName . ' / ' : 'Admin / Businesses / ') . 'Knowledge Base')
-@section('unit-type', $isManager ? $unitType : '')
-
-@if($isManager)
-    @section('manager-sidebar')
-        @include('partials.manager-sidebar')
-    @endsection
-@endif
+@section('breadcrumbs', 'Admin / Knowledge Base')
 
 @section('content')
     <div class="space-y-8">
@@ -243,23 +212,16 @@
                         </div>
 
                         <div class="mt-4 space-y-4">
-                            @if ($isManager)
-                                <input type="hidden" id="modal-branch" value="{{ $slug }}">
-                                <div class="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-                                    Auto-assigned target business unit: <strong>{{ $unitName }}</strong>
-                                </div>
-                            @else
                                 <div>
-                                    <label for="modal-branch" class="block text-xs font-semibold text-gray-600 mb-1">Target Business Unit</label>
+                                    <label for="modal-branch" class="block text-xs font-semibold text-gray-600 mb-1">Target Business Division</label>
                                     <select id="modal-branch" required class="select select-bordered w-full rounded-2xl border-[#e2e8f0] bg-white text-sm focus:border-[#1e293b] focus:outline-none">
-                                        <option value="" disabled selected>Choose Unit...</option>
-                                        <option value="accommodation">Hotel - Villa Carmelita</option>
-                                        <option value="restaurant">Restaurant - Dakong Balay</option>
-                                        <option value="facility">Pool - Monclaire Pool</option>
+                                        <option value="" disabled selected>Choose Division...</option>
+                                        <option value="aquashield">AquaShield Waterproofing (Residential)</option>
+                                        <option value="hydroguard">HydroGuard Solutions (Commercial)</option>
+                                        <option value="drymax">DryMax Sealants (Interior)</option>
                                     </select>
-                                    <p id="modal-branch-error" class="mt-2 hidden text-xs font-medium text-rose-500">Please choose a business unit before continuing.</p>
+                                    <p id="modal-branch-error" class="mt-2 hidden text-xs font-medium text-rose-500">Please choose a business division before continuing.</p>
                                 </div>
-                            @endif
 
                         </div>
 
@@ -503,7 +465,7 @@
             const confirmBranch = document.getElementById('confirm-branch');
             const confirmChunks = document.getElementById('confirm-chunks');
             const confirmEditBox = document.getElementById('confirm-edit-box');
-            const managerBranchLabel = @json($isManager ? $unitName : null);
+            const managerBranchLabel = null;
 
             let currentFile = null;
             let currentParsedText = '';
@@ -513,9 +475,9 @@
             let stagedCount = document.querySelectorAll('.staged-row').length;
 
             const branchLabels = {
-                accommodation: 'Hotel - Villa Carmelita',
-                restaurant: 'Restaurant - Dakong Balay',
-                facility: 'Pool - Monclaire Pool'
+                aquashield: 'AquaShield Waterproofing',
+                hydroguard: 'HydroGuard Solutions',
+                drymax: 'DryMax Sealants'
             };
 
             function setModalStep(step) {
