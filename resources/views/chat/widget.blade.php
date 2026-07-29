@@ -62,12 +62,12 @@
     </style>
 </head>
 @php
-    if ($slug === 'aquashield') {
-        $unitName = 'AquaShield Waterproofing';
+    if ($slug === 'dariv') {
+        $unitName = 'DARIV Waterproofing';
         $unitType = 'Residential & Roof Sealing';
         $unitIcon = '☔';
         $color = '#0ea5e9'; // Sky blue
-        $welcome = "Welcome to AquaShield Waterproofing! ☔ Need assistance with roof, balcony, deck, or gutter waterproofing today?";
+        $welcome = "Welcome to DARIV Waterproofing! ☔ Need assistance with roof, balcony, deck, or gutter waterproofing today?";
         $suggestions = ["Roof waterproofing cost", "How long does it take?", "Do you offer warranty?", "Talk to a human"];
     } elseif ($slug === 'hydroguard') {
         $unitName = 'HydroGuard Solutions';
@@ -94,8 +94,12 @@
         <!-- Header -->
         <div class="flex items-center justify-between border-b border-gray-100 px-5 py-4 text-white shadow-sm" style="background: linear-gradient(135deg, {{ $color }}, #1e293b);">
             <div class="flex items-center gap-3">
-                <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/20 text-xl backdrop-blur-md shadow-sm">
-                    {{ $unitIcon }}
+                <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/20 p-2 backdrop-blur-md shadow-sm">
+                    @if ($slug === 'dariv')
+                        <img src="{{ asset('images/logo.svg') }}" alt="DARIV Logo" class="h-full w-full object-contain filter invert">
+                    @else
+                        <span class="text-xl">{{ $unitIcon }}</span>
+                    @endif
                 </div>
                 <div>
                     <h2 class="text-sm font-extrabold tracking-tight">{{ $unitName }}</h2>
@@ -278,15 +282,15 @@
                     return;
                 }
 
-                if (slug === 'aquashield') {
+                if (slug === 'dariv') {
                     if (msgLower.includes('rate') || msgLower.includes('price') || msgLower.includes('cost') || msgLower.includes('estimate') || msgLower.includes('quote')) {
-                        responseText = `Our AquaShield residential waterproofing rates are estimated based on area size:<br>• <b>Roof Deck Waterproofing</b>: Starts at 450 PHP / sqm<br>• <b>Balcony & Terrace Sealing</b>: Starts at 500 PHP / sqm<br>• <b>Gutter Leak Repair</b>: Custom quotation. All works include a <b>5-year warranty</b>!`;
+                        responseText = `Our DARIV residential waterproofing rates are estimated based on area size:<br>• <b>Roof Deck Waterproofing</b>: Starts at 450 PHP / sqm<br>• <b>Balcony & Terrace Sealing</b>: Starts at 500 PHP / sqm<br>• <b>Gutter Leak Repair</b>: Custom quotation. All works include a <b>5-year warranty</b>!`;
                     } else if (msgLower.includes('time') || msgLower.includes('duration') || msgLower.includes('long')) {
                         responseText = `A standard residential roof deck project takes about <b>3 to 5 sunny days</b> to complete, allowing proper curing time between coats.`;
                     } else if (msgLower.includes('warrant') || msgLower.includes('guarante')) {
                         responseText = `Yes! We provide a full <b>5-year warranty</b> on all our roof and balcony waterproofing services against any leakage.`;
                     } else {
-                        responseText = `Thanks for asking! I'm AquaShield's AI assistant. Ask me about our roof deck waterproofing costs, project duration, warranties, or locations. Type "Talk to human" to reach our estimators.`;
+                        responseText = `Thanks for asking! I'm DARIV's AI assistant. Ask me about our roof deck waterproofing costs, project duration, warranties, or locations. Type "Talk to human" to reach our estimators.`;
                     }
                 } else if (slug === 'hydroguard') {
                     if (msgLower.includes('inspection') || msgLower.includes('visit') || msgLower.includes('check') || msgLower.includes('look')) {

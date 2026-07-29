@@ -24,10 +24,10 @@
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
 </head>
 @php
-    $unitName = 'AquaShield Waterproofing';
+    $unitName = 'DARIV Waterproofing';
     $unitDesc = 'Specialized in professional waterproofing, roof deck sealants, balconies, foundations, and leak prevention.';
     $bgGradient = 'from-sky-500 to-indigo-600';
-    $selectedBusiness = 'aquashield';
+    $selectedBusiness = 'dariv';
 @endphp
 <body class="bg-[#f8fafc] font-sans text-gray-800 antialiased min-h-screen flex flex-col">
 
@@ -35,9 +35,11 @@
     <header class="bg-white border-b border-gray-200/80 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-900 text-xl">☔</span>
+                <span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-900 p-1.5 text-white">
+                    <img src="{{ asset('images/logo.svg') }}" alt="DARIV Logo" class="h-full w-full object-contain filter invert">
+                </span>
                 <div>
-                    <h1 class="text-base font-extrabold tracking-tight text-gray-900">AquaShield Chat Widget</h1>
+                    <h1 class="text-base font-extrabold tracking-tight text-gray-900 font-sans">DARIV Chat Widget</h1>
                     <p class="text-[10px] font-semibold text-violet-600 uppercase tracking-widest">Integration Console</p>
                 </div>
             </div>
@@ -84,10 +86,10 @@
                         <p class="text-xs text-gray-500 mt-1">Add this snippet right before the closing <code>&lt;/body&gt;</code> tag on your website.</p>
                         
                         <div class="relative mt-3">
-                            <pre class="bg-slate-900 text-slate-100 p-5 rounded-2xl text-xs overflow-x-auto font-mono select-all leading-5"><code>&lt;!-- AquaShield Waterproofing Live Chat Widget --&gt;
+                            <pre class="bg-slate-900 text-slate-100 p-5 rounded-2xl text-xs overflow-x-auto font-mono select-all leading-5"><code>&lt;!-- DARIV Waterproofing Live Chat Widget --&gt;
 &lt;script 
     src="{{ asset('js/chat-widget.js') }}" 
-    data-business="aquashield"&gt;
+    data-business="dariv"&gt;
 &lt;/script&gt;</code></pre>
                         </div>
                     </div>
@@ -108,37 +110,9 @@
                         </div>
                     </div>
 
-                    <!-- Phone Content (Simulating Customer Website) -->
-                    <div class="h-full flex flex-col overflow-y-auto">
-                        <!-- Hero Banner -->
-                        <div class="bg-gradient-to-br {{ $bgGradient }} p-6 text-white pt-8 pb-10">
-                            <div class="text-[10px] uppercase font-extrabold tracking-widest bg-white/20 px-2 py-0.5 rounded-full inline-block">Official Website</div>
-                            <h2 class="text-xl font-black mt-2 leading-tight">{{ $unitName }}</h2>
-                            <p class="text-white/80 text-[10px] leading-relaxed mt-1.5">Professional waterproofing services. We seal roofs, basements, balconies, and bathrooms with a long-term warranty.</p>
-                        </div>
-
-                        <!-- Content Cards -->
-                        <div class="p-4 space-y-4 flex-1">
-                            <div class="bg-slate-50 border border-slate-200/60 p-4 rounded-2xl">
-                                <span class="text-xs font-bold text-slate-700 block">⭐ Client Reviews</span>
-                                <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">"Highly recommended! The team successfully stopped a persistent roof deck leak that had bothered us for years."</p>
-                            </div>
-                            <div class="bg-slate-50 border border-slate-200/60 p-4 rounded-2xl">
-                                <span class="text-xs font-bold text-slate-700 block">📍 Location</span>
-                                <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">Serving Cebu City and nearby municipalities. Book a site inspection today.</p>
-                            </div>
-                        </div>
-
-                        <!-- Sticky Footer representing external site copyright -->
-                        <div class="bg-slate-50 border-t border-slate-200/60 p-4 text-center text-[10px] text-slate-400">
-                            &copy; {{ date('Y') }} {{ $unitName }}. Powered by Project RED.
-                        </div>
-                    </div>
-
-                    <!-- Watermark for preview launcher -->
-                    <div class="absolute bottom-24 left-4 bg-slate-900/85 backdrop-blur-sm text-white px-3 py-1.5 rounded-xl text-[10px] font-semibold flex items-center gap-1.5 shadow-md">
-                        <span class="inline-block h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
-                        Click bubble to test chat
+                    <!-- Phone Content (Simulating Customer Website inside Iframe) -->
+                    <div class="h-full pb-10">
+                        <iframe src="{{ route('chat.playground', ['business' => $selectedBusiness]) }}" class="w-full h-full border-0" style="background: white;"></iframe>
                     </div>
                 </div>
             </div>
@@ -149,9 +123,6 @@
     <footer class="bg-white border-t border-gray-100 py-6 mt-12 text-center text-xs text-gray-500">
         Project RED AI Chat System &middot; &copy; {{ date('Y') }} Capstone.
     </footer>
-
-    <!-- Inject the Chat Widget script loader -->
-    <script src="{{ asset('js/chat-widget.js') }}" data-business="{{ $selectedBusiness }}"></script>
 
 </body>
 </html>

@@ -1,10 +1,10 @@
 @php
     if (!isset($slug)) {
-        $slug = request('slug', request('business', 'aquashield'));
+        $slug = request('slug', request('business', 'dariv'));
     }
     $currentSlug = $slug;
-    if ($slug === 'aquashield') {
-        $unitName = 'AquaShield Waterproofing';
+    if ($slug === 'dariv') {
+        $unitName = 'DARIV Waterproofing';
         $unitType = 'Residential & Roof Sealing';
         $unitIcon = '☔';
         $unitBadgeBg = 'bg-[#E4EEF3] text-[#2A5F7A]';

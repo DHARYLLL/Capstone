@@ -1,13 +1,13 @@
 /**
  * Project RED Embeddable Chat Widget Loader
  * Add this script to any external website to render the chat widget:
- * <script src="http://localhost:8000/js/chat-widget.js" data-business="aquashield"></script>
+ * <script src="http://localhost:8000/js/chat-widget.js" data-business="dariv"></script>
  */
 
 (function () {
     // 1. Get the current script configuration
     const scriptEl = document.querySelector('script[src*="chat-widget.js"]');
-    const businessSlug = scriptEl ? (scriptEl.getAttribute('data-business') || 'aquashield') : 'aquashield';
+    const businessSlug = scriptEl ? (scriptEl.getAttribute('data-business') || 'dariv') : 'dariv';
     
     // Determine the base URL dynamically based on script source
     let baseUrl = 'http://localhost:8000';

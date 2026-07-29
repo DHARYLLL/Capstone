@@ -25,40 +25,80 @@
 
         <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             @foreach ($metrics as $metric)
-                <div class="card bg-base-100 shadow-sm">
-                    <div class="card-body p-6">
-                        <div class="text-sm text-gray-500">{{ $metric['label'] }}</div>
-                        <div class="mt-2 text-4xl font-black text-gray-900">{{ $metric['value'] }}</div>
-                        <p class="mt-2 text-sm text-emerald-600">{{ $metric['trend'] }} vs prior period</p>
+                <div class="card bg-base-100 shadow-sm border border-gray-100/60 rounded-3xl">
+                    <div class="card-body p-6 flex flex-row items-center justify-between gap-4">
+                        <div class="text-left space-y-1">
+                            <span class="text-xs font-semibold uppercase tracking-wider text-gray-400 block">{{ $metric['label'] }}</span>
+                            <span class="text-xs text-emerald-600 font-bold block">{{ $metric['trend'] }} vs prior period</span>
+                        </div>
+                        <div class="text-right text-3xl font-black text-gray-900 tracking-tight shrink-0">
+                            {{ $metric['value'] }}
+                        </div>
                     </div>
                 </div>
             @endforeach
         </section>
 
-        <section class="grid gap-6 lg:grid-cols-[2fr_1fr]">
+        <section class="grid gap-6 lg:grid-cols-2">
+            <!-- System Insights -->
             <div class="card bg-base-100 shadow-sm">
                 <div class="card-body p-6 lg:p-8">
-                    <h2 class="text-xl font-bold text-gray-900">Query volume trend</h2>
-                    <div class="mt-6 h-80 rounded-[2rem] bg-[#ffffff] p-6">
-                        <div class="flex h-full items-end gap-3">
-                            <div class="h-[30%] flex-1 rounded-t-2xl bg-[#D8C3A7]"></div>
-                            <div class="h-[45%] flex-1 rounded-t-2xl bg-[#C8B091]"></div>
-                            <div class="h-[38%] flex-1 rounded-t-2xl bg-[#B79A79]"></div>
-                            <div class="h-[62%] flex-1 rounded-t-2xl bg-[#8E6B4E]"></div>
-                            <div class="h-[55%] flex-1 rounded-t-2xl bg-brand-primary"></div>
-                            <div class="h-[72%] flex-1 rounded-t-2xl bg-[#7A5841]"></div>
+                    <h2 class="text-xl font-bold text-gray-900">Operational Insights</h2>
+                    <p class="text-xs text-gray-400 mt-1">Automatic patterns detected from customer assistant queries.</p>
+                    
+                    <div class="mt-6 space-y-4 text-sm text-gray-600">
+                        <div class="rounded-2xl bg-[#f8fafc] border border-gray-100 p-4">
+                            <span class="font-bold text-gray-900 block text-xs uppercase tracking-wide">Top Customer Intent</span>
+                            <p class="mt-1 text-sm text-gray-500">Waterproofing cost calculations and product warranty details.</p>
+                        </div>
+                        <div class="rounded-2xl bg-[#f8fafc] border border-gray-100 p-4">
+                            <span class="font-bold text-gray-900 block text-xs uppercase tracking-wide">Peak Traffic Hour</span>
+                            <p class="mt-1 text-sm text-gray-500">Highest volume recorded between 9:00 AM and 3:00 PM.</p>
+                        </div>
+                        <div class="rounded-2xl bg-[#f8fafc] border border-gray-100 p-4">
+                            <span class="font-bold text-gray-900 block text-xs uppercase tracking-wide">Escalation Trigger</span>
+                            <p class="mt-1 text-sm text-gray-500">Clients requesting custom site-inspection quotes are instantly routed to operators.</p>
                         </div>
                     </div>
                 </div>
             </div>
 
+            <!-- Top Search Keywords -->
             <div class="card bg-base-100 shadow-sm">
                 <div class="card-body p-6 lg:p-8">
-                    <h2 class="text-xl font-bold text-gray-900">Insights</h2>
-                    <div class="mt-4 space-y-3 text-sm text-gray-600">
-                        <div class="rounded-2xl bg-[#f8fafc] p-4">Top intent: waterproofing cost per sqm and warranties</div>
-                        <div class="rounded-2xl bg-[#f8fafc] p-4">Peak traffic: 9 AM to 3 PM</div>
-                        <div class="rounded-2xl bg-[#f8fafc] p-4">Escalation reason: custom site inspection quote</div>
+                    <h2 class="text-xl font-bold text-gray-900">Top Query Intent Distribution</h2>
+                    <p class="text-xs text-gray-400 mt-1">Most frequent customer topics requested inside the widget.</p>
+                    
+                    <div class="mt-6 space-y-4">
+                        <div>
+                            <div class="flex justify-between text-xs font-bold text-gray-700 mb-1.5">
+                                <span>Roof & Balcony Cost Estimates</span>
+                                <span>48%</span>
+                            </div>
+                            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                                <div class="bg-indigo-600 h-full rounded-full" style="width: 48%;"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs font-bold text-gray-700 mb-1.5">
+                                <span>Warranty & Guarantee Inquiries</span>
+                                <span>32%</span>
+                            </div>
+                            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                                <div class="bg-indigo-600 h-full rounded-full" style="width: 32%;"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs font-bold text-gray-700 mb-1.5">
+                                <span>Site Inspections & Bookings</span>
+                                <span>20%</span>
+                            </div>
+                            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                                <div class="bg-indigo-600 h-full rounded-full" style="width: 20%;"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

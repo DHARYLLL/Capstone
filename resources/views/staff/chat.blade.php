@@ -1,7 +1,7 @@
-@extends('layouts.admin')
+@extends('layouts.staff')
 
 @section('page_title', 'Live Chat & Staff Handoff')
-@section('breadcrumbs', 'Admin / Chat & Handoff')
+@section('breadcrumbs', 'Staff / Chat & Handoff')
 
 @section('content')
     <div class="space-y-8">

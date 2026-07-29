@@ -69,13 +69,13 @@
                     <tbody>
                         @php
                             $logRows = [
-                                ['time' => 'Today 11:42 AM', 'file' => 'aquashield-services.csv',      'unit' => 'AquaShield', 'event' => 'Indexed',         'status' => 'success', 'user' => 'Admin'],
+                                ['time' => 'Today 11:42 AM', 'file' => 'dariv-services.csv',           'unit' => 'DARIV',      'event' => 'Indexed',         'status' => 'success', 'user' => 'Admin'],
                                 ['time' => 'Today 10:15 AM', 'file' => 'drymax-epoxy-guide.pdf',      'unit' => 'DryMax',     'event' => 'Approved',        'status' => 'success', 'user' => 'Staff'],
                                 ['time' => 'Today 09:03 AM', 'file' => 'hydroguard-crystalline.pdf',  'unit' => 'HydroGuard', 'event' => 'Staged',          'status' => 'pending', 'user' => 'Staff'],
-                                ['time' => 'Yesterday 4:50 PM','file' => 'gutters-acrylic-spec.pdf',  'unit' => 'AquaShield', 'event' => 'Upload failed',   'status' => 'error',   'user' => 'Admin'],
+                                ['time' => 'Yesterday 4:50 PM','file' => 'gutters-acrylic-spec.pdf',  'unit' => 'DARIV',      'event' => 'Upload failed',   'status' => 'error',   'user' => 'Admin'],
                                 ['time' => 'Yesterday 2:11 PM','file' => 'interior-shower-leak.csv',   'unit' => 'DryMax',     'event' => 'Indexed',         'status' => 'success', 'user' => 'Admin'],
-                                ['time' => 'Yesterday 1:00 PM','file' => 'polyurethane-safety.pdf',    'unit' => 'AquaShield', 'event' => 'Rejected',        'status' => 'error',   'user' => 'Staff'],
-                                ['time' => '2 days ago 3:30 PM','file' => 'residential-rates.csv',     'unit' => 'AquaShield', 'event' => 'Indexed',         'status' => 'success', 'user' => 'Admin'],
+                                ['time' => 'Yesterday 1:00 PM','file' => 'polyurethane-safety.pdf',    'unit' => 'DARIV',      'event' => 'Rejected',        'status' => 'error',   'user' => 'Staff'],
+                                ['time' => '2 days ago 3:30 PM','file' => 'residential-rates.csv',     'unit' => 'DARIV',      'event' => 'Indexed',         'status' => 'success', 'user' => 'Admin'],
                                 ['time' => '2 days ago 9:10 AM','file' => 'commercial-trench.csv',     'unit' => 'HydroGuard', 'event' => 'Indexed',         'status' => 'success', 'user' => 'Admin'],
                             ];
                         @endphp

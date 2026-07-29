@@ -7,7 +7,7 @@
 
 @section('content')
     @php
-        $tenantName = 'AquaShield Waterproofing';
+        $tenantName = 'DARIV Waterproofing';
         $tenantType = 'Residential & Roof Sealing';
         $tenantStatus = 'Live';
 
@@ -19,7 +19,6 @@
         ];
 
         $modules = [
-            ['title' => 'Services Catalog', 'desc' => 'Manage waterproofing service offerings, pricing, and project durations.', 'href' => route('admin.products')],
             ['title' => 'Knowledge Base Upload', 'desc' => 'Drop PDFs and CSVs, inspect ingestion results, and approve data.', 'href' => route('admin.knowledge-base')],
             ['title' => 'Reporting & Analytics', 'desc' => 'Review answered, unanswered, and human-routed query volume.', 'href' => route('admin.analytics')],
             ['title' => 'Widget Embed Playground', 'desc' => 'Generate and test copy-paste HTML chat widget integration code.', 'href' => route('chat.demo')],
@@ -30,7 +29,6 @@
         $activity = [
             ['label' => 'Knowledge base indexed', 'meta' => '18 minutes ago · 4 files processed'],
             ['label' => 'Human handoff accepted', 'meta' => '42 minutes ago · Operator: Mae'],
-            ['label' => 'Service catalog updated', 'meta' => 'Today · Roof deck pricing updated'],
         ];
     @endphp
 
@@ -57,11 +55,15 @@
 
         <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             @foreach ($kpis as $kpi)
-                <div class="card bg-base-100 shadow-sm">
-                    <div class="card-body p-6">
-                        <div class="text-sm font-medium text-gray-500">{{ $kpi['label'] }}</div>
-                        <div class="mt-2 text-4xl font-black text-gray-800">{{ $kpi['value'] }}</div>
-                        <p class="mt-2 text-sm leading-6 text-emerald-600">{{ $kpi['delta'] }} vs last period</p>
+                <div class="card bg-base-100 shadow-sm border border-gray-100/60 rounded-3xl">
+                    <div class="card-body p-6 flex flex-row items-center justify-between gap-4">
+                        <div class="text-left space-y-1">
+                            <span class="text-xs font-semibold uppercase tracking-wider text-gray-400 block">{{ $kpi['label'] }}</span>
+                            <span class="text-xs text-emerald-600 font-bold block">{{ $kpi['delta'] }} vs last period</span>
+                        </div>
+                        <div class="text-right text-3xl font-black text-gray-800 tracking-tight shrink-0">
+                            {{ $kpi['value'] }}
+                        </div>
                     </div>
                 </div>
             @endforeach
