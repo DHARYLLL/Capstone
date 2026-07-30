@@ -80,8 +80,8 @@
             </div>
         @endif
 
-        <!-- Form -->
-        <form action="{{ route('login.post') }}" method="POST" class="space-y-4">
+        <!-- Form  dharyl-->
+        {{-- <form action="{{ route('login.post') }}" method="POST" class="space-y-4">
             @csrf
             <div>
                 <label for="email" class="block text-xs font-bold text-slate-400 mb-1.5 uppercase tracking-wide">Login
@@ -106,6 +106,36 @@
                     </button>
                 </div>
             </div>
+
+            <button type="submit"
+                class="btn w-full rounded-2xl border-0 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold tracking-wide hover:shadow-lg hover:shadow-indigo-500/20 active:scale-[0.98] transition-all py-3.5 h-auto mt-2">
+                Authenticate & Login
+            </button>
+        </form> --}}
+
+        <!-- Form  gar-->
+        <form action="{{ route('login.attempt') }}" method="POST" class="space-y-4">
+            @csrf
+            <div>
+                <label for="email" class="mb-2 block text-sm font-medium text-slate-200">Email</label>
+                    <input id="email" name="email" type="email" value="{{ old('email') }}" autocomplete="email" class="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500 focus:border-cyan-400">
+                    @error('email')
+                        <p class="mt-2 text-sm text-rose-300">{{ $message }}</p>
+                    @enderror
+            </div>
+
+            <div>
+                <label for="password" class="mb-2 block text-sm font-medium text-slate-200">Password</label>
+                <input id="password" name="password" type="password" autocomplete="current-password" class="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500 focus:border-cyan-400">
+                @error('password')
+                    <p class="mt-2 text-sm text-rose-300">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <label class="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-200">
+                <input type="checkbox" name="remember" value="1" class="h-4 w-4 rounded border-white/20 bg-slate-950 text-cyan-400 focus:ring-cyan-400" @checked(old('remember'))>
+                Remember me
+            </label>
 
             <button type="submit"
                 class="btn w-full rounded-2xl border-0 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold tracking-wide hover:shadow-lg hover:shadow-indigo-500/20 active:scale-[0.98] transition-all py-3.5 h-auto mt-2">

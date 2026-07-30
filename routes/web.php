@@ -2,6 +2,10 @@
 
 use Illuminate\Support\Facades\Route;
 
+//gi add ni gar -- start --
+use App\Http\Controllers\AuthController;
+//gi add ni gar -- end--
+
 // ── Public: redirects to login page ──
 Route::get('/', function () {
     return redirect()->route('login');
@@ -23,42 +27,52 @@ Route::get('/chat/playground', function () {
 
 
 // ── Authentication Login / Logout Routes ──
-Route::get('/login', function () {
-    if (session()->has('user_role')) {
-        if (session('user_role') === 'Administrator') {
-            return redirect()->route('admin.dashboard');
-        } else {
-            return redirect()->route('staff.chat');
-        }
-    }
-    return view('auth.login');
-})->name('login');
+// Route::get('/login', function () {
+//     if (session()->has('user_role')) {
+//         if (session('user_role') === 'Administrator') {
+//             return redirect()->route('admin.dashboard');
+//         } else {
+//             return redirect()->route('staff.chat');
+//         }
+//     }
+//     return view('auth.login');
+// })->name('login');
 
-Route::post('/login', function () {
-    $email = request('email');
-    $password = request('password');
+// Route::post('/login', function () {
+//     $email = request('email');
+//     $password = request('password');
 
-    // Simple mock authentication for demo / evaluation
-    if ($email === 'admin@dariv.com' && $password === 'password') {
-        session([
-            'user_name' => 'Admin User',
-            'user_email' => 'admin@dariv.com',
-            'user_role' => 'Administrator',
-            'user_avatar' => '🛡️'
-        ]);
-        return redirect()->route('admin.dashboard');
-    } elseif ($email === 'mae.s@dariv.com' && $password === 'password') {
-        session([
-            'user_name' => 'Mae S.',
-            'user_email' => 'mae.s@dariv.com',
-            'user_role' => 'Lead Operator',
-            'user_avatar' => '☔'
-        ]);
-        return redirect()->route('staff.chat');
-    }
+//     // Simple mock authentication for demo / evaluation
+//     if ($email === 'admin@dariv.com' && $password === 'password') {
+//         session([
+//             'user_name' => 'Admin User',
+//             'user_email' => 'admin@dariv.com',
+//             'user_role' => 'Administrator',
+//             'user_avatar' => '🛡️'
+//         ]);
+//         return redirect()->route('admin.dashboard');
+//     } elseif ($email === 'mae.s@dariv.com' && $password === 'password') {
+//         session([
+//             'user_name' => 'Mae S.',
+//             'user_email' => 'mae.s@dariv.com',
+//             'user_role' => 'Lead Operator',
+//             'user_avatar' => '☔'
+//         ]);
+//         return redirect()->route('staff.chat');
+//     }
 
-    return back()->withErrors(['auth' => 'Invalid email or password. Use "password" for both accounts.']);
-})->name('login.post');
+//     return back()->withErrors(['auth' => 'Invalid email or password. Use "password" for both accounts.']);
+// })->name('login.post');
+
+//login in gar
+Route::controller(AuthController::class)->group(function (): void {
+    Route::get('/login', 'showLogin')->name('login');
+    Route::post('/login', 'login')->name('login.attempt');
+    Route::get('/register', 'showRegister')->name('register');
+    Route::post('/register', 'register')->name('register.store');
+});
+
+
 
 Route::get('/logout', function () {
     session()->forget(['user_name', 'user_email', 'user_role', 'user_avatar']);
