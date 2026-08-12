@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 
 //gi add ni gar -- start --
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ChatbotController;
+use App\Http\Controllers\AdminController;
 //gi add ni gar -- end--
 
 // ── Public: redirects to login page ──
@@ -109,6 +111,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/', protectRoute('admin.dashboard', 'Administrator'))->name('dashboard');
 
     Route::get('/knowledge-base', protectRoute('admin.knowledge-base', 'Administrator'))->name('knowledge-base');
+    Route::post('/business-units/{businessUnit}/knowledge/upload-pdf', [AdminController::class, 'uploadPdf'])
+        ->name('knowledge.upload-pdf');
 
     Route::get('/analytics', protectRoute('admin.analytics', 'Administrator'))->name('analytics');
 
@@ -152,3 +156,15 @@ Route::prefix('staff')->name('staff.')->group(function () {
 Route::get('/{slug}', function () {
     return redirect()->route('admin.dashboard');
 })->name('business.landing');
+
+// para sa chatbot
+Route::controller(ChatbotController::class)->group(function (): void {
+    // 1. Direct page view (e.g. for standalone testing or full-page view)
+    Route::get('/chat/{businessUnit}', 'chat')->name('chat.show');
+
+    // 2. The endpoint that serves the UI inside the iframe
+    Route::get('/chat/widget', 'widget')->name('chat.widget');
+
+    // 3. The API endpoint that receives messages and returns Gemini replies
+    Route::post('/chat/{businessUnit}/ask', 'ask')->name('chat.ask');
+});

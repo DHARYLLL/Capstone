@@ -26,6 +26,21 @@
                     </p>
                 </div>
             </div>
+            {{-- <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                <div class="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
+                    <h3 class="text-lg font-semibold">Upload PDF Knowledge</h3>
+                    <p class="mt-1 text-sm text-slate-400">Use a small one-to-two page PDF for quick staging.</p>
+
+                    <form method="POST" enctype="multipart/form-data" action="{{ route('admin.knowledge.upload-pdf', ['businessUnit' => $selectedBusinessUnit->id ?? 1]) }}" class="mt-4 space-y-4">
+                        @csrf
+                        <input type="file" name="pdf" accept="application/pdf" class="block w-full rounded-xl border border-dashed border-white/15 bg-slate-950 px-4 py-3 text-sm text-slate-300 file:mr-4 file:rounded-lg file:border-0 file:bg-cyan-400 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-slate-950 hover:file:bg-cyan-300">
+                        @error('pdf')
+                            <p class="text-sm text-rose-300">{{ $message }}</p>
+                        @enderror
+                        <button type="submit" class="rounded-xl bg-cyan-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300">Upload and Extract</button>
+                    </form>
+                </div>
+            </div> --}}
         </section>
 
         <div id="kb-processing-banner"

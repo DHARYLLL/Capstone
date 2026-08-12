@@ -54,6 +54,7 @@
     </div>
 
     <!-- Injected widget -->
-    <script src="{{ asset('js/chat-widget.js') }}" data-business="{{ $slug }}"></script>
+    {{-- <script src="{{ asset('js/chat-widget.js') }}" data-business="{{ $slug }}"></script> --}}
+    <script src="{{ asset('js/chat-widget.js') }}" data-business="{{ $businessUnit->id ?? 1 }}"></script>
 </body>
 </html>

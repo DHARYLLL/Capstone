@@ -125,60 +125,139 @@ class ProcessPdfIngestion implements ShouldQueue
      * @param  array<int, string>  $chunks
      * @return array<int, string>
      */
-    private function batchEmbedChunks(array $chunks): array
-    {
-        $response = Http::baseUrl($this->geminiBaseUrl())
+    // private function batchEmbedChunks(array $chunks): array
+    // {
+    //     $response = Http::baseUrl($this->geminiBaseUrl())
+    //         ->acceptJson()
+    //         ->timeout((int) config('gemini.request_timeout', 30))
+    //         ->retry(2, 1000)
+    //         ->withQueryParameters(['key' => (string) config('gemini.api_key')])
+    //         ->post('models/text-embedding-004:batchEmbedContents', [
+    //             'requests' => array_map(
+    //                 static fn (string $chunk): array => [
+    //                     'content' => [
+    //                         'parts' => [
+    //                             ['text' => $chunk],
+    //                         ],
+    //                     ],
+    //                     'task_type' => 'RETRIEVAL_DOCUMENT',
+    //                     'output_dimensionality' => 768,
+    //                 ],
+    //                 $chunks
+    //             ),
+    //         ]);
+
+    //     if (! $response->successful()) {
+    //         Log::warning('Gemini batch embedding request failed.', [
+    //             'business_unit_id' => $this->businessUnitId,
+    //             'stored_path' => $this->storedPath,
+    //             'status' => $response->status(),
+    //             'body' => $response->body(),
+    //         ]);
+
+    //         return [];
+    //     }
+
+    //     $payload = $response->json();
+    //     $embeddingRows = $payload['embeddings'] ?? [];
+
+    //     if (! is_array($embeddingRows) || $embeddingRows === []) {
+    //         return [];
+    //     }
+
+    //     $vectors = [];
+
+    //     foreach ($embeddingRows as $index => $embeddingRow) {
+    //         $values = $embeddingRow['values'] ?? $embeddingRow['embedding']['values'] ?? null;
+
+    //         if (! is_array($values) || $values === []) {
+    //             continue;
+    //         }
+
+    //         $vectors[$index] = $this->formatVectorLiteral($values);
+    //     }
+
+    //     return $vectors;
+    // }
+
+// private function batchEmbedChunks(array $chunks): array
+// {
+//     $baseUrl = $this->geminiBaseUrl(); // e.g. https://generativelanguage.googleapis.com/v1beta
+//     $apiKey = (string) config('gemini.api_key');
+//     $vectors = [];
+
+//     foreach ($chunks as $index => $chunk) {
+//         $response = Http::baseUrl($baseUrl)
+//             ->acceptJson()
+//             ->timeout(15)
+//             ->withQueryParameters(['key' => $apiKey])
+//             ->post('models/text-embedding-004:embedContent', [
+//                 'model' => 'models/text-embedding-004',
+//                 'content' => [
+//                     'parts' => [
+//                         ['text' => $chunk],
+//                     ],
+//                 ],
+//                 'taskType' => 'RETRIEVAL_DOCUMENT',
+//                 'outputDimensionality' => 768,
+//             ]);
+
+//         if ($response->successful()) {
+//             $values = $response->json('embedding.values');
+//             if (is_array($values) && count($values) > 0) {
+//                 // Convert array [0.1, 0.2, ...] to PGvector array string "[0.1,0.2,...]"
+//                 $vectors[$index] = '[' . implode(',', $values) . ']';
+//             }
+//         } else {
+//             Log::error('Gemini Embed Content Failed', [
+//                 'status' => $response->status(),
+//                 'body' => $response->body(),
+//                 'chunk_index' => $index,
+//             ]);
+//         }
+//     }
+
+//     return $vectors;
+// }
+private function batchEmbedChunks(array $chunks): array
+{
+    $baseUrl = $this->geminiBaseUrl(); // e.g. https://generativelanguage.googleapis.com/v1beta
+    $apiKey = (string) config('gemini.api_key');
+    $vectors = [];
+
+    foreach ($chunks as $index => $chunk) {
+        $response = Http::baseUrl($baseUrl)
             ->acceptJson()
-            ->timeout((int) config('gemini.request_timeout', 30))
-            ->retry(2, 1000)
-            ->withQueryParameters(['key' => (string) config('gemini.api_key')])
-            ->post('models/text-embedding-004:batchEmbedContents', [
-                'requests' => array_map(
-                    static fn (string $chunk): array => [
-                        'content' => [
-                            'parts' => [
-                                ['text' => $chunk],
-                            ],
-                        ],
-                        'task_type' => 'RETRIEVAL_DOCUMENT',
-                        'output_dimensionality' => 768,
+            ->timeout(15)
+            ->withQueryParameters(['key' => $apiKey])
+            ->post('models/gemini-embedding-001:embedContent', [ // 👈 Updated model name
+                'model' => 'models/gemini-embedding-001',       // 👈 Updated model name
+                'content' => [
+                    'parts' => [
+                        ['text' => $chunk],
                     ],
-                    $chunks
-                ),
+                ],
+                'taskType' => 'RETRIEVAL_DOCUMENT',
+                'outputDimensionality' => 768,
             ]);
 
-        if (! $response->successful()) {
-            Log::warning('Gemini batch embedding request failed.', [
-                'business_unit_id' => $this->businessUnitId,
-                'stored_path' => $this->storedPath,
+        if ($response->successful()) {
+            $values = $response->json('embedding.values');
+            if (is_array($values) && count($values) > 0) {
+                // Convert array [0.1, 0.2, ...] to PGvector string "[0.1,0.2,...]"
+                $vectors[$index] = '[' . implode(',', $values) . ']';
+            }
+        } else {
+            Log::error('Gemini Embed Content Failed', [
                 'status' => $response->status(),
                 'body' => $response->body(),
+                'chunk_index' => $index,
             ]);
-
-            return [];
         }
-
-        $payload = $response->json();
-        $embeddingRows = $payload['embeddings'] ?? [];
-
-        if (! is_array($embeddingRows) || $embeddingRows === []) {
-            return [];
-        }
-
-        $vectors = [];
-
-        foreach ($embeddingRows as $index => $embeddingRow) {
-            $values = $embeddingRow['values'] ?? $embeddingRow['embedding']['values'] ?? null;
-
-            if (! is_array($values) || $values === []) {
-                continue;
-            }
-
-            $vectors[$index] = $this->formatVectorLiteral($values);
-        }
-
-        return $vectors;
     }
+
+    return $vectors;
+}
 
     private function geminiBaseUrl(): string
     {

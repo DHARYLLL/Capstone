@@ -179,7 +179,7 @@ class AdminController extends Controller
     private function redirectToAdmin(?int $companyId, ?int $businessUnitId, string $status): RedirectResponse
     {
         return redirect()
-            ->route('admin.index', array_filter([
+            ->route('admin.knowledge-base', array_filter([
                 'company_id' => $companyId,
                 'business_unit_id' => $businessUnitId,
             ]))

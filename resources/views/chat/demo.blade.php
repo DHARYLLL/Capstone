@@ -87,10 +87,10 @@
                         
                         <div class="relative mt-3">
                             <pre class="bg-slate-900 text-slate-100 p-5 rounded-2xl text-xs overflow-x-auto font-mono select-all leading-5"><code>&lt;!-- DARIV Waterproofing Live Chat Widget --&gt;
-&lt;script 
-    src="{{ asset('js/chat-widget.js') }}" 
-    data-business="dariv"&gt;
-&lt;/script&gt;</code></pre>
+                            &lt;script 
+                                src="{{ asset('js/chat-widget.js') }}" 
+                                data-business="dariv"&gt;
+                            &lt;/script&gt;</code></pre>
                         </div>
                     </div>
                 </div>
