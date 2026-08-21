@@ -26,7 +26,7 @@
                     </p>
                 </div>
             </div>
-            {{-- <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                 <div class="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
                     <h3 class="text-lg font-semibold">Upload PDF Knowledge</h3>
                     <p class="mt-1 text-sm text-slate-400">Use a small one-to-two page PDF for quick staging.</p>
@@ -40,7 +40,7 @@
                         <button type="submit" class="rounded-xl bg-cyan-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300">Upload and Extract</button>
                     </form>
                 </div>
-            </div> --}}
+            </div>
         </section>
 
         <div id="kb-processing-banner"

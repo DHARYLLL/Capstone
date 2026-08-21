@@ -3,15 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\BusinessUnit;
+use App\Models\ChatMessage;
+use App\Models\ChatSession;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\View\View;
 use Gemini\Laravel\Facades\Gemini;
-
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
-
 use Illuminate\Support\Facades\Cache;
-
 use Illuminate\Support\Str;
 
 class ChatbotController extends Controller
@@ -142,197 +142,497 @@ class ChatbotController extends Controller
         ]);
     }
 
+    //old
     // public function ask(Request $request, BusinessUnit $businessUnit): JsonResponse
     // {
-    //     // 1. Validate request payload including incoming user_id
     //     $validated = $request->validate([
-    //         'prompt'  => ['required', 'string', 'max:5000'],
-    //         'user_id' => ['required', 'string', 'max:255'],
+    //         'prompt' => ['required', 'string', 'max:5000'],
+    //         'user_identifier' => ['nullable', 'string', 'max:255'],
+    //         'user_id' => ['nullable', 'string', 'max:255'],
     //     ]);
 
-    //     $prompt = $validated['prompt'];
-    //     $userId = $validated['user_id'];
+    //     $promptText = trim($validated['prompt']);
+    //     $userIdentifier = trim((string) ($validated['user_identifier'] ?? $validated['user_id'] ?? 'guest'));
 
-    //     // 2. Fetch knowledge base facts for this business unit
-    //     $knowledgeBase = $businessUnit->businessKnowledge()
-    //         ->pluck('content')
-    //         ->implode("\n\n");
+    //     if ($userIdentifier === '') {
+    //         $userIdentifier = 'guest_' . Str::uuid()->toString();
+    //     }
 
-    //     // 3. System Instructions
-    //     $systemInstructions = "You are a helpful customer service AI for this business.\n" .
-    //         "Answer the user's question accurately using ONLY the business facts provided below.\n\n" .
-    //         "RULES:\n" .
-    //         "1. You ARE allowed to perform basic calculations (adding costs, quantities, discounts).\n" .
-    //         "2. If facts do not contain the answer, politely state that you do not have that information.\n" .
-    //         "3. Mirror the user's language/dialect and format responses clearly with bullet points where appropriate.\n\n" .
-    //         "BUSINESS FACTS:\n" . $knowledgeBase;
+    //     // $session = ChatSession::query()->firstOrCreate(
+    //     //     [
+    //     //         'business_unit_id' => $businessUnit->id,
+    //     //         'user_identifier' => $userIdentifier,
+    //     //     ],
+    //     //     [
+    //     //         'company_id' => $businessUnit->company_id,
+    //     //         'status' => 'bot_active',
+    //     //     ]
+    //     // );
+
+    //     // ChatMessage::query()->create([
+    //     //     'chat_session_id' => $session->id,
+    //     //     'sender_type' => 'user',
+    //     //     'message_text' => $promptText,
+    //     // ]);
+
+    //     // Retrieve or create the chat session bound to both Company and Business Unit
+    //     $session = ChatSession::firstOrCreate([
+    //         'company_id'       => $businessUnit->company_id,
+    //         'business_unit_id' => $businessUnit->id,
+    //         'user_identifier'  => $userIdentifier,
+    //     ], [
+    //         'status' => 'bot_active',
+    //     ]);
+
+    //     // Save the customer's message (matching your schema column `message_text`)
+    //     ChatMessage::create([
+    //         'chat_session_id' => $session->id,
+    //         'sender_type'     => 'user',
+    //         'message_text'    => $validated['prompt'],
+    //     ]);
+
+    //     if ($session->status === 'human_active') {
+    //         return response()->json([
+    //             'status' => 'human_active',
+    //             'message' => $promptText,
+    //             'response' => 'An operator is already assisting you. Please continue with the live staff console.',
+    //             'session_id' => $session->id,
+    //         ], 200);
+    //     }
 
     //     try {
-    //         // 4. Retrieve chat history from Cache (Keyed by business unit + unique user ID)
-    //         $cacheKey = "chat_history_{$businessUnit->id}_{$userId}";
-    //         $rawHistory = Cache::get($cacheKey, []);
+    //         $queryEmbedding = $this->embedUserPrompt($promptText);
 
-    //         // 5. Clean and format conversation context
-    //         $conversationContext = "";
-    //         if (!empty($rawHistory)) {
-    //             $conversationContext .= "CONVERSATION HISTORY:\n";
-    //             $recentTurns = array_slice($rawHistory, -8); // Keep last 8 entries (4 back-and-forth turns)
-    //             foreach ($recentTurns as $turn) {
-    //                 $speaker = $turn['role'] === 'user' ? 'User' : 'Assistant';
-    //                 $cleanText = str_replace(["\r", "\n"], " ", trim($turn['text']));
-    //                 $conversationContext .= "{$speaker}: {$cleanText}\n";
-    //             }
-    //             $conversationContext .= "\n";
+    //         $candidateRows = $businessUnit->businessKnowledge()
+    //             ->select(['content', 'embedding'])
+    //             ->when($queryEmbedding, function ($query) use ($queryEmbedding): void {
+    //                 $query->selectRaw('content, embedding, embedding <=> ?::extensions.vector AS distance', [$queryEmbedding]);
+    //             })
+    //             ->orderByRaw('embedding <=> ?::vector ASC', [$queryEmbedding ?? '[0]'])
+    //             ->limit(5)
+    //             ->get();
+
+    //         if ($candidateRows->isNotEmpty() && $queryEmbedding) {
+    //             $bestMatch = $candidateRows->sortBy(fn ($row) => (float) ($row->distance ?? 1.0))->first();
+    //             $bestDistance = (float) ($bestMatch->distance ?? 1.0);
+    //         } else {
+    //             $bestDistance = 1.0;
     //         }
 
-    //         // 6. Build prompt payload
-    //         $fullPrompt = "{$systemInstructions}\n\n{$conversationContext}USER QUESTION:\n{$prompt}";
+    //         if ($queryEmbedding && $bestDistance > 0.5) {
+    //             $session->update(['status' => 'handoff_suggested']);
 
-    //         // 7. Query Gemini
-    //         $response = Gemini::generativeModel('gemini-2.5-flash')
-    //             ->generateContent($fullPrompt);
+    //             return response()->json([
+    //                 'status' => 'handoff_suggested',
+    //                 'message' => $promptText,
+    //                 'response' => 'I could not find a confident answer from our knowledge base. Would you like me to connect you with a human operator?',
+    //                 'requires_human' => true,
+    //                 'distance' => round($bestDistance, 4),
+    //                 'session_id' => $session->id,
+    //             ]);
+    //         }
 
-    //         $rawResponse = $response->text();
+    //         $knowledgeBase = $candidateRows->isNotEmpty()
+    //             ? $candidateRows->pluck('content')->implode("\n\n")
+    //             : 'No relevant knowledge found.';
 
-    //         if (empty(trim($rawResponse))) {
+    //         $historyMessages = $session->chatMessages()->latest()->limit(8)->get()->reverse();
+    //         $conversationContext = '';
+
+    //         foreach ($historyMessages as $historyMessage) {
+    //             $speaker = $historyMessage->sender_type === 'user' ? 'User' : 'Assistant';
+    //             $safeText = str_replace(["\r", "\n"], ' ', trim((string) $historyMessage->message_text));
+    //             $conversationContext .= "{$speaker}: {$safeText}\n";
+    //         }
+
+    //         $systemInstructions = "You are a helpful customer service AI for this business.\n" .
+    //             "Answer the user's question accurately using only the facts provided below.\n\n" .
+    //             "RULES:\n" .
+    //             "1. Use the business facts strictly.\n" .
+    //             "2. If the facts do not contain the answer, politely say that you do not have that information.\n" .
+    //             "3. Keep the answer concise and customer-friendly.\n\n" .
+    //             "BUSINESS FACTS:\n" . $knowledgeBase;
+
+    //         $fullPrompt = "{$systemInstructions}\n\nCONVERSATION HISTORY:\n{$conversationContext}\nUSER QUESTION:\n{$promptText}";
+
+    //         $response = Gemini::generativeModel('gemini-2.5-flash')->generateContent($fullPrompt);
+    //         $rawResponse = trim((string) $response->text());
+
+    //         if ($rawResponse === '') {
     //             $rawResponse = "I couldn't process that request. Could you please rephrase?";
     //         }
 
-    //         // 8. Append new turn and save back to Cache for 24 hours
-    //         $rawHistory[] = ['role' => 'user', 'text' => $prompt];
-    //         $rawHistory[] = ['role' => 'model', 'text' => $rawResponse];
+    //         $session->update(['status' => 'bot_active']);
 
-    //         Cache::put($cacheKey, array_slice($rawHistory, -8), now()->addHours(24));
+    //         ChatMessage::query()->create([
+    //             'chat_session_id' => $session->id,
+    //             'sender_type' => 'bot',
+    //             'message_text' => $rawResponse,
+    //         ]);
 
     //         return response()->json([
-    //             'message'  => $prompt,
+    //             'status' => 'bot_active',
+    //             'message' => $promptText,
     //             'response' => Str::markdown($rawResponse),
+    //             'session_id' => $session->id,
+    //             'distance' => $queryEmbedding ? round($bestDistance, 4) : null,
     //         ]);
-
-    //     } catch (\Exception $e) {
-    //         logger()->error('Gemini Chat Error: ' . $e->getMessage(), [
-    //             'exception' => $e
-    //         ]);
+    //     } catch (\Throwable $e) {
+    //         logger()->error('Gemini Chat Error: ' . $e->getMessage(), ['exception' => $e]);
 
     //         return response()->json([
-    //             'message'  => $prompt,
-    //             'response' => "Sorry, an error occurred while generating a response.",
+    //             'status' => 'bot_active',
+    //             'message' => $promptText,
+    //             'response' => 'Sorry, an error occurred while generating a response.',
+    //             'session_id' => $session->id,
     //         ], 500);
     //     }
     // }
+
+    // public function ask(Request $request, BusinessUnit $businessUnit): JsonResponse
+    // {
+    //     $validated = $request->validate([
+    //         'prompt' => ['required', 'string', 'max:5000'],
+    //         'user_identifier' => ['nullable', 'string', 'max:255'],
+    //         'user_id' => ['nullable', 'string', 'max:255'],
+    //     ]);
+
+    //     $promptText = trim($validated['prompt']);
+    //     $userIdentifier = trim((string) ($validated['user_identifier'] ?? $validated['user_id'] ?? 'guest'));
+
+    //     if ($userIdentifier === '' || $userIdentifier === 'guest') {
+    //         $userIdentifier = 'guest_' . Str::uuid()->toString();
+    //     }
+
+    //     // 1. Retrieve or create the chat session bound to both Company and Business Unit
+    //     $session = ChatSession::firstOrCreate([
+    //         'company_id'       => $businessUnit->company_id,
+    //         'business_unit_id' => $businessUnit->id,
+    //         'user_identifier'  => $userIdentifier, // 👈 Fixed: Using evaluated $userIdentifier
+    //     ], [
+    //         'status' => 'bot_active',
+    //     ]);
+
+    //     // 2. Save customer message
+    //     ChatMessage::create([
+    //         'chat_session_id' => $session->id,
+    //         'sender_type'     => 'user',
+    //         'message_text'    => $promptText,
+    //     ]);
+
+    //     if ($session->status === 'human_active') {
+    //         return response()->json([
+    //             'status'     => 'human_active',
+    //             'message'    => $promptText,
+    //             'response'   => 'An operator is already assisting you. Please continue with the live staff console.',
+    //             'session_id' => $session->id,
+    //         ], 200);
+    //     }
+
+    //     try {
+    //         // 3. Generate Gemini Embedding vector
+    //         $queryEmbedding = $this->embedUserPrompt($promptText);
+
+    //         $candidateRows = collect();
+    //         $bestDistance = 1.0;
+
+    //         // 4. Vector distance search (Only query vector distance if embedding generation succeeded)
+    //         if ($queryEmbedding) {
+    //             $candidateRows = $businessUnit->businessKnowledge()
+    //                 ->select(['content', 'embedding'])
+    //                 ->selectRaw('embedding <=> ?::vector AS distance', [$queryEmbedding])
+    //                 ->whereNotNull('embedding')
+    //                 ->orderByRaw('embedding <=> ?::vector ASC', [$queryEmbedding])
+    //                 ->limit(5)
+    //                 ->get();
+
+    //             if ($candidateRows->isNotEmpty()) {
+    //                 $bestMatch = $candidateRows->sortBy(fn ($row) => (float) ($row->distance ?? 1.0))->first();
+    //                 $bestDistance = (float) ($bestMatch->distance ?? 1.0);
+    //             }
+    //         }
+
+    //         // 5. Check vector distance threshold (Handoff trigger)
+    //         if ($queryEmbedding && $bestDistance > 0.6) { // 0.6 is ideal for cosine distance in text-embedding-004
+    //             $session->update(['status' => 'handoff_suggested']);
+
+    //             return response()->json([
+    //                 'status'         => 'handoff_suggested',
+    //                 'message'        => $promptText,
+    //                 'response'       => 'I could not find a confident answer from our knowledge base. Would you like me to connect you with a human operator?',
+    //                 'requires_human' => true,
+    //                 'distance'       => round($bestDistance, 4),
+    //                 'session_id'     => $session->id,
+    //             ]);
+    //         }
+
+    //         // 6. Build Context from vector matches
+    //         $knowledgeBase = $candidateRows->isNotEmpty()
+    //             ? $candidateRows->pluck('content')->implode("\n\n")
+    //             : 'No relevant knowledge found.';
+
+    //         // 7. Get Recent Conversation History
+    //         $historyMessages = $session->chatMessages()->latest()->limit(8)->get()->reverse();
+    //         $conversationContext = '';
+
+    //         foreach ($historyMessages as $historyMessage) {
+    //             $speaker = $historyMessage->sender_type === 'user' ? 'User' : 'Assistant';
+    //             $safeText = str_replace(["\r", "\n"], ' ', trim((string) $historyMessage->message_text));
+    //             $conversationContext .= "{$speaker}: {$safeText}\n";
+    //         }
+
+    //         // 8. Construct Prompt & Prompt Gemini Model
+    //         $systemInstructions = "You are a helpful customer service AI for this business.\n" .
+    //             "Answer the user's question accurately using only the facts provided below.\n\n" .
+    //             "RULES:\n" .
+    //             "1. Use the business facts strictly.\n" .
+    //             "2. If the facts do not contain the answer, politely say that you do not have that information.\n" .
+    //             "3. Keep the answer concise and customer-friendly.\n\n" .
+    //             "BUSINESS FACTS:\n" . $knowledgeBase;
+
+    //         $fullPrompt = "{$systemInstructions}\n\nCONVERSATION HISTORY:\n{$conversationContext}\nUSER QUESTION:\n{$promptText}";
+
+    //         // Use standard official model name
+    //         $response = Gemini::generativeModel('gemini-3.6-flash')->generateContent($fullPrompt);
+    //         $rawResponse = trim((string) $response->text());
+
+    //         if ($rawResponse === '') {
+    //             $rawResponse = "I couldn't process that request. Could you please rephrase?";
+    //         }
+
+    //         $session->update(['status' => 'bot_active']);
+
+    //         ChatMessage::create([
+    //             'chat_session_id' => $session->id,
+    //             'sender_type'     => 'bot',
+    //             'message_text'    => $rawResponse,
+    //         ]);
+
+    //         return response()->json([
+    //             'status'     => 'bot_active',
+    //             'message'    => $promptText,
+    //             'response'   => Str::markdown($rawResponse),
+    //             'session_id' => $session->id,
+    //             'distance'   => $queryEmbedding ? round($bestDistance, 4) : null,
+    //         ]);
+
+    //     } catch (\Throwable $e) {
+    //         logger()->error('Gemini Chat Error: ' . $e->getMessage(), ['exception' => $e]);
+
+    //         return response()->json([
+    //             'status'     => 'bot_active',
+    //             'message'    => $promptText,
+    //             'response'   => 'Sorry, an error occurred while generating a response.',
+    //             'session_id' => $session->id,
+    //         ], 500);
+    //     }
+    // }
+
 
     public function ask(Request $request, BusinessUnit $businessUnit): JsonResponse
     {
         $validated = $request->validate([
             'prompt' => ['required', 'string', 'max:5000'],
+            'user_identifier' => ['nullable', 'string', 'max:255'],
+            'user_id' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $promptText = $validated['prompt'];
+        $promptText = trim($validated['prompt']);
+        $userIdentifier = trim((string) ($validated['user_identifier'] ?? $validated['user_id'] ?? 'guest'));
 
-        // 1. Embed user query using Gemini embedding model
-        $queryEmbedding = $this->embedUserPrompt($promptText);
-
-        // 2. Vector search: fetch top 5 relevant chunks
-        if ($queryEmbedding) {
-            $relevantChunks = $businessUnit->businessKnowledge()
-                ->select('content')
-                ->orderByRaw('embedding <=> ?::vector', [$queryEmbedding])
-                ->limit(5)
-                ->pluck('content');
-
-            $knowledgeBase = $relevantChunks->implode("\n\n");
-        } else {
-            // Fallback if embedding fails
-            $knowledgeBase = $businessUnit->businessKnowledge()
-                ->limit(5)
-                ->pluck('content')
-                ->implode("\n\n");
+        if ($userIdentifier === '' || $userIdentifier === 'guest') {
+            $userIdentifier = 'guest_' . Str::uuid()->toString();
         }
 
-        // 3. System Instruction
-        $systemInstructions = "You are a helpful customer service AI for this business.\n" .
-            "Answer the user's question accurately using ONLY the business facts provided below.\n\n" .
-            "RULES:\n" .
-            "1. You ARE allowed to perform basic calculations (adding costs, quantities, discounts).\n" .
-            "2. If facts do not contain the answer, politely state that you do not have that information.\n" .
-            "3. Mirror the user's language/dialect and format responses clearly with bullet points where appropriate.\n\n" .
-            "BUSINESS FACTS:\n" . ($knowledgeBase ?: 'No relevant knowledge found.');
+        $session = ChatSession::firstOrCreate(
+            [
+                'company_id' => $businessUnit->company_id,
+                'business_unit_id' => $businessUnit->id,
+                'user_identifier' => $userIdentifier,
+            ],
+            [
+                'status' => 'bot_active',
+            ]
+        );
 
-        try {
-            $sessionKey = "chat_history_{$businessUnit->id}";
-            $rawHistory = session($sessionKey, []);
+        ChatMessage::create([
+            'chat_session_id' => $session->id,
+            'sender_type' => 'user',
+            'message_text' => $promptText,
+        ]);
 
-            // 4. Conversation History (last 8 turns)
-            $conversationContext = "";
-            if (!empty($rawHistory)) {
-                $conversationContext .= "CONVERSATION HISTORY:\n";
-                $recentTurns = array_slice($rawHistory, -8);
-                foreach ($recentTurns as $turn) {
-                    $speaker = $turn['role'] === 'user' ? 'User' : 'Assistant';
-                    $cleanText = str_replace(["\r", "\n"], " ", trim($turn['text']));
-                    $conversationContext .= "{$speaker}: {$cleanText}\n";
-                }
-                $conversationContext .= "\n";
-            }
-
-            // 5. Query Gemini 2.5
-            $fullPrompt = "{$systemInstructions}\n\n{$conversationContext}USER QUESTION:\n{$promptText}";
-
-            $response = Gemini::generativeModel('gemini-2.5-flash')
-                ->generateContent($fullPrompt);
-
-            $rawResponse = $response->text();
-
-            if (empty(trim($rawResponse))) {
-                $rawResponse = "I couldn't process that request. Could you please rephrase?";
-            }
-
-            // 6. Save chat session history
-            $rawHistory[] = ['role' => 'user', 'text' => $promptText];
-            $rawHistory[] = ['role' => 'model', 'text' => $rawResponse];
-            session([$sessionKey => array_slice($rawHistory, -8)]);
-
+        if ($session->status === 'human_active') {
             return response()->json([
-                'message'  => $promptText,
-                'response' => Str::markdown($rawResponse),
+                'status' => 'human_active',
+                'message' => $promptText,
+                'response' => 'An operator is already assisting you. Please continue with the live staff console.',
+                'session_id' => $session->id,
+            ], 200);
+        }
+
+        $normalized = mb_strtolower($promptText);
+        $isGreetingOnly = (bool) preg_match(
+            '/^(hi|hello|hey|good morning|good afternoon|good evening|yo|hola)[!,.?\\s]*$/iu',
+            $normalized
+        );
+
+        if ($isGreetingOnly) {
+            $greetingReply = "Hello. Welcome to {$businessUnit->name}. How can I help you today?";
+
+            ChatMessage::create([
+                'chat_session_id' => $session->id,
+                'sender_type' => 'bot',
+                'message_text' => $greetingReply,
             ]);
 
-        } catch (\Exception $e) {
-            logger()->error('Gemini Chat Error: ' . $e->getMessage(), ['exception' => $e]);
+            return response()->json([
+                'status' => 'bot_active',
+                'message' => $promptText,
+                'response' => Str::markdown($greetingReply),
+                'session_id' => $session->id,
+                'distance' => null,
+            ]);
+        }
+
+        try {
+            $queryEmbedding = $this->embedUserPrompt($promptText);
+
+            $candidateRows = collect();
+            $bestDistance = 1.0;
+
+            // if (! empty($queryEmbedding)) {
+            //     $candidateRows = $businessUnit->businessKnowledge()
+            //         ->select(['content', 'embedding'])
+            //         ->selectRaw('embedding <=> ?::vector AS distance', [$queryEmbedding])
+            //         ->whereNotNull('embedding')
+            //         ->orderByRaw('embedding <=> ?::vector ASC', [$queryEmbedding])
+            //         ->limit(5)
+            //         ->get();
+
+            //     if ($candidateRows->isNotEmpty()) {
+            //         $bestDistance = (float) ($candidateRows->min('distance') ?? 1.0);
+            //     }
+            // }
+
+            if (! empty($queryEmbedding)) {
+    $candidateRows = $businessUnit->businessKnowledge()
+        ->select(['content', 'embedding'])
+        ->selectRaw('embedding::extensions.vector <=> ?::extensions.vector AS distance', [$queryEmbedding])
+        ->whereNotNull('embedding')
+        ->orderByRaw('embedding::extensions.vector <=> ?::extensions.vector ASC', [$queryEmbedding])
+        ->limit(5)
+        ->get();
+
+    if ($candidateRows->isNotEmpty()) {
+        $bestDistance = (float) ($candidateRows->min('distance') ?? 1.0);
+    }
+}
+
+            $knowledgeBase = $candidateRows->isNotEmpty()
+                ? $candidateRows->pluck('content')->implode("\n\n")
+                : 'No relevant knowledge snippets were found in the business knowledge base.';
+
+            $historyMessages = $session->chatMessages()->latest()->limit(8)->get()->reverse();
+            $conversationContext = '';
+
+            foreach ($historyMessages as $historyMessage) {
+                $speaker = $historyMessage->sender_type === 'user' ? 'User' : 'Assistant';
+                $safeText = str_replace(["\r", "\n"], ' ', trim((string) $historyMessage->message_text));
+                $conversationContext .= "{$speaker}: {$safeText}\n";
+            }
+
+            $systemInstructions =
+                "You are a helpful customer service AI for {$businessUnit->name}.\n" .
+                "Use BUSINESS FACTS as your primary source of truth.\n\n" .
+                "RULES:\n" .
+                "1. If user asks a greeting/small-talk, reply politely.\n" .
+                "2. For business-specific questions, answer from BUSINESS FACTS.\n" .
+                "3. If facts are missing, clearly say you do not have enough information.\n" .
+                "4. Keep responses concise and customer-friendly.\n\n" .
+                "BUSINESS FACTS:\n{$knowledgeBase}";
+
+            $fullPrompt =
+                "{$systemInstructions}\n\n" .
+                "CONVERSATION HISTORY:\n{$conversationContext}\n" .
+                "USER QUESTION:\n{$promptText}";
+
+            $response = Gemini::generativeModel('gemini-3.6-flash')->generateContent($fullPrompt);
+            $rawResponse = trim((string) $response->text());
+
+            if ($rawResponse === '') {
+                $rawResponse = "I couldn't find enough information to answer that clearly. Could you rephrase your question?";
+            }
+
+            $session->update(['status' => 'bot_active']);
+
+            ChatMessage::create([
+                'chat_session_id' => $session->id,
+                'sender_type' => 'bot',
+                'message_text' => $rawResponse,
+            ]);
 
             return response()->json([
-                'message'  => $promptText,
-                'response' => "Sorry, an error occurred while generating a response.",
+                'status' => 'bot_active',
+                'message' => $promptText,
+                'response' => Str::markdown($rawResponse),
+                'session_id' => $session->id,
+                'distance' => $candidateRows->isNotEmpty() ? round($bestDistance, 4) : null,
+            ]);
+        } catch (\Throwable $e) {
+            logger()->error('Gemini Chat Error', [
+                'business_unit_id' => $businessUnit->id,
+                'session_id' => $session->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'status' => 'bot_active',
+                'message' => $promptText,
+                'response' => 'Sorry, an error occurred while generating a response.',
+                'session_id' => $session->id,
             ], 500);
         }
     }
 
     /**
-     * Generate 768-dim vector embedding for incoming user questions.
+     * Returns pgvector-formatted embedding string: "[0.123,0.456,...]"
      */
     private function embedUserPrompt(string $prompt): ?string
     {
-        $baseUrl = rtrim((string) (config('gemini.base_url') ?: 'https://generativelanguage.googleapis.com/v1beta'), '/');
+        try {
+            $response = app(\Gemini\Contracts\ClientContract::class)
+                ->embeddingModel('gemini-embedding-001')
+                ->embedContent(
+                    $prompt,
+                    \Gemini\Enums\TaskType::RETRIEVAL_QUERY,
+                    null,
+                    768
+                );
 
-        $response = Http::baseUrl($baseUrl)
-            ->acceptJson()
-            ->timeout(10)
-            ->withQueryParameters(['key' => (string) config('gemini.api_key')])
-            ->post('models/text-embedding-004:embedContent', [
-                'model' => 'models/text-embedding-004',
-                'content' => [
-                    'parts' => [['text' => $prompt]],
-                ],
-                'task_type' => 'RETRIEVAL_QUERY',
-                'output_dimensionality' => 768,
+            $values = $response->embedding->values ?? null;
+
+            if (! is_array($values) || count($values) === 0) {
+                return null;
+            }
+
+            $floatValues = array_map(
+                static fn ($value): float => (float) $value,
+                $values
+            );
+
+            return '[' . implode(',', $floatValues) . ']';
+        } catch (\Throwable $e) {
+            logger()->error('Embedding generation failed', [
+                'error' => $e->getMessage(),
             ]);
 
-        if (!$response->successful()) {
             return null;
         }
-
-        $values = $response->json('embedding.values');
-
-        return is_array($values) ? '[' . implode(',', $values) . ']' : null;
     }
+
+//     private function embedUserPrompt(string $prompt): ?string
+// {
+//     $model = Gemini::embeddingModel('text-embedding-004');
+//     dd(get_class_methods($model));
+// }
 }

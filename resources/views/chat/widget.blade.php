@@ -187,6 +187,7 @@
         // Extract user_id from query string or fallback to Blade value
         const urlParams = new URLSearchParams(window.location.search);
         const userId = urlParams.get('user_id') || '{{ $userId ?? "guest" }}';
+        const userIdentifier = userId || 'guest';
 
         // Auto-scroll chat window
         function scrollToBottom() {
@@ -268,7 +269,8 @@
                     },
                     body: JSON.stringify({ 
                         prompt: prompt,
-                        user_id: userId
+                        user_id: userId,
+                        user_identifier: userIdentifier
                     }),
                 });
 

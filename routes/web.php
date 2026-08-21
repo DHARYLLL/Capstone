@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\OperatorChatController;
 //gi add ni gar -- end--
 
 // ── Public: redirects to login page ──
