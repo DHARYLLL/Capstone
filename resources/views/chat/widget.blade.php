@@ -183,6 +183,8 @@
         const chatStatus = document.getElementById('chat-status');
         const typingIndicator = document.getElementById('typing-indicator');
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        const renderedAgentMessageIds = new Set();
+        let messagePollingInterval = null;
 
         // Extract user_id from query string or fallback to Blade value
         const urlParams = new URLSearchParams(window.location.search);
@@ -192,6 +194,54 @@
         // Auto-scroll chat window
         function scrollToBottom() {
             messageContainer.scrollTop = messageContainer.scrollHeight;
+        }
+
+        async function pollAgentMessages(sessionId) {
+            try {
+                const response = await fetch(`/get-messages/${encodeURIComponent(sessionId)}`, {
+                    headers: { 'Accept': 'application/json' },
+                });
+
+                if (!response.ok) return;
+
+                const payload = await response.json();
+                const messages = payload.messages ?? [];
+
+                if (payload.status === 'bot_active') {
+                    stopMessagePolling();
+                    chatStatus.textContent = 'AI assistant online.';
+                    return;
+                }
+
+                messages
+                    .filter(message => message.sender_type === 'agent')
+                    .forEach(message => {
+                        if (renderedAgentMessageIds.has(message.id)) return;
+
+                        renderedAgentMessageIds.add(message.id);
+                        appendBubble(message.message_text, false);
+                    });
+
+                if (messages.some(message => message.sender_type === 'agent')) {
+                    chatStatus.textContent = 'Live staff reply received.';
+                }
+            } catch (error) {
+                console.error('Live message polling error:', error);
+            }
+        }
+
+        function stopMessagePolling() {
+            if (!messagePollingInterval) return;
+
+            clearInterval(messagePollingInterval);
+            messagePollingInterval = null;
+        }
+
+        function startMessagePolling(sessionId) {
+            stopMessagePolling();
+
+            pollAgentMessages(sessionId);
+            messagePollingInterval = setInterval(() => pollAgentMessages(sessionId), 3000);
         }
 
         // Send postMessage to parent iframe loader to toggle chat visibility
@@ -280,9 +330,16 @@
                     throw new Error(payload.message || 'Server error');
                 }
 
-                // 4. Render AI response
-                appendBubble(payload.response ?? 'No response was returned.', false);
-                chatStatus.textContent = 'Response generated.';
+                if (payload.status === 'human_active') {
+                    startMessagePolling(payload.session_id);
+                    chatStatus.textContent = 'A staff member is assisting you.';
+                } else if (payload.status === 'success') {
+                    startMessagePolling(payload.session_id);
+                    chatStatus.textContent = 'Your message was sent to staff.';
+                } else {
+                    appendBubble(payload.response ?? 'No response was returned.', false);
+                    chatStatus.textContent = 'Response generated.';
+                }
             } catch (error) {
                 console.error('Chat submit error:', error);
                 appendBubble('Something went wrong while sending your message.', false);

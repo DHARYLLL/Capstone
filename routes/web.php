@@ -7,18 +7,13 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\OperatorChatController;
+use App\Http\Controllers\StaffChatController;
 //gi add ni gar -- end--
 
 // ── Public: redirects to login page ──
 Route::get('/', function () {
     return redirect()->route('login');
 })->name('home');
-
-// ── Embeddable Chat Widget Routes ──
-Route::get('/chat/widget', function () {
-    $slug = request('business', 'dariv');
-    return view('chat.widget', compact('slug'));
-})->name('chat.widget');
 
 Route::get('/chat/demo', function () {
     return view('chat.demo');
@@ -136,9 +131,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
 });
 
 // ── Staff panel (Protected Chat & Handoff Console) ──────────────────────────────────────────────
-Route::prefix('staff')->name('staff.')->group(function () {
+Route::prefix('staff')->name('staff.')->middleware('auth')->group(function () {
 
-    Route::get('/chat', protectRoute('staff.chat', 'Lead Operator'))->name('chat');
+    Route::get('/chat', [StaffChatController::class, 'index'])->name('chat');
+    Route::get('/chats', [StaffChatController::class, 'sessions'])->name('chats.index');
+    Route::get('/chats/{session}/messages', [StaffChatController::class, 'messages'])->name('chats.messages');
+    Route::post('/chats/{session}/messages', [StaffChatController::class, 'sendMessage'])->name('chats.messages.store');
+    Route::post('/chats/{session}/claim', [StaffChatController::class, 'claimSession'])->name('chats.claim');
+    Route::post('/chats/{session}/resolve', [StaffChatController::class, 'resolveSession'])->name('chats.resolve');
 
     Route::get('/settings', protectRoute('staff.settings', 'Lead Operator'))->name('settings');
 
@@ -160,12 +160,19 @@ Route::get('/{slug}', function () {
 
 // para sa chatbot
 Route::controller(ChatbotController::class)->group(function (): void {
-    // 1. Direct page view (e.g. for standalone testing or full-page view)
-    Route::get('/chat/{businessUnit}', 'chat')->name('chat.show');
-
-    // 2. The endpoint that serves the UI inside the iframe
+    // 1. The endpoint that serves the UI inside the iframe
     Route::get('/chat/widget', 'widget')->name('chat.widget');
 
+    // 2. Direct page view (e.g. for standalone testing or full-page view)
+    Route::get('/chat/{businessUnit}', 'chat')
+        ->whereNumber('businessUnit')
+        ->name('chat.show');
+
     // 3. The API endpoint that receives messages and returns Gemini replies
-    Route::post('/chat/{businessUnit}/ask', 'ask')->name('chat.ask');
+    Route::post('/chat/{businessUnit}/ask', 'ask')
+        ->whereNumber('businessUnit')
+        ->name('chat.ask');
+
+    // 4. Public endpoint used by the embedded widget to poll live replies
+    Route::get('/get-messages/{sessionId}', 'getMessages')->name('chat.messages');
 });

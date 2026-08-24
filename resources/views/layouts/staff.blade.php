@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Staff Portal | DARIV Waterproofing</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -35,6 +36,7 @@
     </script>
 
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.11.0/dist/axios.min.js"></script>
 </head>
 <body class="bg-[#f8fafc] font-sans text-gray-800 antialiased">
     <div class="flex h-screen overflow-hidden">

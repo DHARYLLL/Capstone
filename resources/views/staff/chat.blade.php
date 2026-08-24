@@ -109,8 +109,9 @@
         </section>
     </div>
 
-    <!-- Client-side Interactive Session State Simulation -->
+    <!-- Legacy mockup kept below as reference while the live console is active. -->
     <script>
+        if (false) {
         // Initial dataset representing databases
         const chats = {
             'maria-d': {
@@ -342,5 +343,133 @@
 
         // Bootstrap on page load
         renderQueue();
+        }
+    </script>
+
+    <script>
+        const chatEndpoints = {
+            sessions: @json(route('staff.chats.index')),
+            messages: sessionId => @json(url('/staff/chats')) + `/${sessionId}/messages`,
+            send: sessionId => @json(url('/staff/chats')) + `/${sessionId}/messages`,
+            claim: sessionId => @json(url('/staff/chats')) + `/${sessionId}/claim`,
+            resolve: sessionId => @json(url('/staff/chats')) + `/${sessionId}/resolve`,
+        };
+
+        let sessions = [];
+        let activeSessionId = null;
+        let renderedMessageIds = new Set();
+
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+        if (csrfToken && window.axios) window.axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken;
+
+        function sessionLabel(session) {
+            return session.user_identifier || `Customer #${session.id}`;
+        }
+
+        function renderQueue() {
+            const list = document.getElementById('queue-list');
+            list.innerHTML = '';
+            sessions.forEach(session => {
+                const item = document.createElement('button');
+                item.type = 'button';
+                item.className = `w-full p-4 rounded-2xl border text-left transition ${session.id === activeSessionId ? 'bg-indigo-50 border-indigo-200' : 'bg-white border-gray-100 hover:bg-slate-50'}`;
+                item.innerHTML = `<div class="flex justify-between gap-2"><span class="font-bold text-gray-900 text-sm"></span><span class="badge badge-xs font-bold border-0 px-2 py-1 text-[9px] uppercase ${session.status === 'pending' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'}">${session.status}</span></div><p class="text-xs text-gray-500 mt-1 truncate">${session.business_unit?.name || 'Chat session'}</p>`;
+                item.querySelector('span').textContent = sessionLabel(session);
+                item.addEventListener('click', () => selectChat(session.id));
+                list.appendChild(item);
+            });
+            document.getElementById('queue-count').textContent = `${sessions.length} chats`;
+            document.getElementById('header-waiting-badge').textContent = `${sessions.filter(session => session.status === 'pending').length} Waiting`;
+            document.getElementById('header-active-badge').textContent = `${sessions.filter(session => session.status === 'human_active').length} Active`;
+        }
+
+        function appendMessage(message) {
+            if (renderedMessageIds.has(message.id)) return;
+            renderedMessageIds.add(message.id);
+            const isAgent = message.sender_type === 'agent';
+            const isCustomer = message.sender_type === 'customer';
+            const wrapper = document.createElement('div');
+            wrapper.className = isAgent ? 'flex justify-end max-w-[85%] ml-auto' : 'flex justify-start max-w-[85%]';
+            const bubble = document.createElement('div');
+            bubble.className = isAgent ? 'bg-indigo-600 text-white p-4 rounded-[1.5rem] rounded-br-none text-sm shadow-sm' : 'bg-slate-100 border border-slate-200/60 p-4 rounded-[1.5rem] rounded-tl-none text-sm text-gray-800';
+            const label = isAgent ? 'You (Agent)' : (isCustomer ? 'Customer' : message.sender_type);
+            bubble.innerHTML = `<p class="text-[10px] font-extrabold uppercase tracking-widest mb-1">${label}</p><p class="message-body"></p><span class="block text-[9px] opacity-60 mt-2 text-right"></span>`;
+            bubble.querySelector('.message-body').textContent = message.message_text;
+            bubble.querySelector('span').textContent = new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            wrapper.appendChild(bubble);
+            document.getElementById('chat-timeline').appendChild(wrapper);
+        }
+
+        async function loadSessions() {
+            const response = await axios.get(chatEndpoints.sessions);
+            sessions = response.data.data;
+            renderQueue();
+            if (activeSessionId && !sessions.some(session => session.id === activeSessionId)) resetChat();
+        }
+
+        async function loadMessages() {
+            if (!activeSessionId) return;
+            const response = await axios.get(chatEndpoints.messages(activeSessionId));
+            response.data.data.forEach(appendMessage);
+            const timeline = document.getElementById('chat-timeline');
+            timeline.scrollTop = timeline.scrollHeight;
+        }
+
+        async function selectChat(sessionId) {
+            activeSessionId = sessionId;
+            renderedMessageIds = new Set();
+            const session = sessions.find(item => item.id === sessionId);
+            document.getElementById('chat-empty-state').classList.add('hidden');
+            document.getElementById('active-client-name').textContent = sessionLabel(session);
+            document.getElementById('active-client-status').textContent = session.business_unit?.name || 'Live customer conversation';
+            document.getElementById('session-badge').textContent = session.status;
+            document.getElementById('session-badge').classList.remove('hidden');
+            document.getElementById('claim-btn').disabled = session.status === 'human_active' && session.assigned_user_id;
+            document.getElementById('resolve-btn').disabled = !session.assigned_user_id;
+            document.getElementById('reply-input').disabled = !session.assigned_user_id;
+            document.getElementById('send-btn').disabled = !session.assigned_user_id;
+            document.getElementById('canned-btn').disabled = !session.assigned_user_id;
+            document.getElementById('chat-timeline').innerHTML = '';
+            await loadMessages();
+            renderQueue();
+        }
+
+        function resetChat() {
+            activeSessionId = null;
+            document.getElementById('chat-empty-state').classList.remove('hidden');
+            document.getElementById('active-client-name').textContent = 'No Chat Selected';
+            document.getElementById('active-client-status').textContent = 'Select a conversation from the queue to start reply';
+            document.getElementById('chat-timeline').innerHTML = '';
+            ['reply-input', 'send-btn', 'claim-btn', 'canned-btn', 'resolve-btn'].forEach(id => document.getElementById(id).disabled = true);
+        }
+
+        async function claimActiveChat() {
+            if (!activeSessionId) return;
+            await axios.post(chatEndpoints.claim(activeSessionId));
+            await loadSessions();
+            await selectChat(activeSessionId);
+        }
+
+        async function resolveActiveChat() {
+            if (!activeSessionId) return;
+            await axios.post(chatEndpoints.resolve(activeSessionId));
+            await loadSessions();
+            resetChat();
+        }
+
+        document.getElementById('operator-reply-form').addEventListener('submit', async event => {
+            event.preventDefault();
+            const input = document.getElementById('reply-input');
+            const message = input.value.trim();
+            if (!message || !activeSessionId) return;
+            const response = await axios.post(chatEndpoints.send(activeSessionId), { message });
+            input.value = '';
+            appendMessage(response.data.data);
+            const timeline = document.getElementById('chat-timeline');
+            timeline.scrollTop = timeline.scrollHeight;
+        });
+
+        loadSessions().catch(console.error);
+        setInterval(() => loadSessions().then(loadMessages).catch(console.error), 3000);
     </script>
 @endsection
