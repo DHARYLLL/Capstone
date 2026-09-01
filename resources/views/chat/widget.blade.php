@@ -105,7 +105,7 @@
                 </div>
                 <div>
                     <h2 class="text-sm font-extrabold tracking-tight">{{ $unitName }}</h2>
-                    <div class="flex items-center gap-1.5 text-xs text-white/80">
+                    <div id="header-status" class="flex items-center gap-1.5 text-xs text-white/80">
                         <span class="inline-block h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
                         AI assistant online
                     </div>
@@ -123,7 +123,7 @@
         <div id="chat-messages" class="flex-1 overflow-y-auto p-5 space-y-4 bg-gray-50/50">
             
             <!-- Welcome Message -->
-            <div class="chat chat-start">
+            <div id="welcome-message" class="chat chat-start">
                 <div class="chat-image avatar">
                     <div class="w-8 rounded-full bg-gray-100 flex items-center justify-center border text-base">
                         🤖
@@ -182,18 +182,360 @@
         const messageContainer = document.getElementById('chat-messages');
         const chatStatus = document.getElementById('chat-status');
         const typingIndicator = document.getElementById('typing-indicator');
+        const welcomeMessage = document.getElementById('welcome-message');
+        const suggestionsContainer = document.getElementById('suggestions-container');
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-        const renderedAgentMessageIds = new Set();
+        const renderedIds = new Set();
+        const sessionStorageKey = 'session_id';
+        const scopedSessionStorageKey = 'session_id_{{ $businessUnit->id ?? 0 }}';
+        const businessSlug = '{{ $slug ?? ($businessUnit->slug ?? "dariv") }}';
+        const companyContactMap = {
+            dariv: {
+                email: 'support@darivwaterproofing.com',
+                phone: '1-800-555-DARIV',
+                hours: 'Mon–Fri: 7:30 AM–5:30 PM, Sat: 8:00 AM–1:00 PM',
+            },
+            hydroguard: {
+                email: 'support@darivwaterproofing.com',
+                phone: '1-800-555-DARIV',
+                hours: 'Mon–Fri: 7:30 AM–5:30 PM, Sat: 8:00 AM–1:00 PM',
+            },
+            drymax: {
+                email: 'support@darivwaterproofing.com',
+                phone: '1-800-555-DARIV',
+                hours: 'Mon–Fri: 7:30 AM–5:30 PM, Sat: 8:00 AM–1:00 PM',
+            },
+        };
         let messagePollingInterval = null;
+        let activeSessionId = null;
+        let handoffTimeoutId = null;
+        let handoffTimeoutNoticeShown = false;
+        let transferNoticeVisible = false;
+        let lastKnownSessionStatus = null;
+        let handoffRequestedAt = null;
 
         // Extract user_id from query string or fallback to Blade value
         const urlParams = new URLSearchParams(window.location.search);
         const userId = urlParams.get('user_id') || '{{ $userId ?? "guest" }}';
         const userIdentifier = userId || 'guest';
 
+        function persistSessionId(sessionId) {
+            if (!sessionId) return;
+
+            activeSessionId = String(sessionId);
+            localStorage.setItem(sessionStorageKey, activeSessionId);
+            localStorage.setItem(scopedSessionStorageKey, activeSessionId);
+        }
+
+        function suppressWelcomeMessage() {
+            if (welcomeMessage) {
+                welcomeMessage.style.display = 'none';
+            }
+
+            if (suggestionsContainer) {
+                suggestionsContainer.style.display = 'none';
+            }
+        }
+
+        function restoreWelcomeMessage() {
+            if (welcomeMessage) {
+                welcomeMessage.style.display = 'flex';
+            }
+
+            if (suggestionsContainer) {
+                suggestionsContainer.style.display = 'flex';
+            }
+        }
+
+        function sortByCreatedAt(messages) {
+            return [...messages].sort((a, b) => {
+                const aTime = new Date(a.created_at || 0).getTime();
+                const bTime = new Date(b.created_at || 0).getTime();
+                return aTime - bTime;
+            });
+        }
+
+        function renderMessageHistory(messages) {
+            const orderedMessages = sortByCreatedAt(messages ?? []);
+            messageContainer.innerHTML = '';
+            renderedIds.clear();
+
+            orderedMessages.forEach((message) => {
+                const senderType = message.sender_type ?? 'customer';
+                const isUser = ['customer', 'user'].includes(senderType);
+                appendMessageIfNew(message);
+            });
+
+            if (orderedMessages.length > 0) {
+                suppressWelcomeMessage();
+            }
+
+            scrollToBottom();
+        }
+
+        function clearHandoffTimeout() {
+            if (handoffTimeoutId) {
+                clearTimeout(handoffTimeoutId);
+                handoffTimeoutId = null;
+            }
+        }
+
+        function scheduleHandoffTimeout() {
+            clearHandoffTimeout();
+
+            if (!handoffRequestedAt) {
+                return;
+            }
+
+            handoffTimeoutId = setTimeout(() => {
+                if (!['human_active', 'pending'].includes(lastKnownSessionStatus)) {
+                    return;
+                }
+
+                if (handoffTimeoutNoticeShown) {
+                    return;
+                }
+
+                if (Date.now() - handoffRequestedAt < 30000) {
+                    return;
+                }
+
+                appendTimeoutNotice();
+            }, 30000);
+        }
+
+        function appendTimeoutNotice() {
+            if (handoffTimeoutNoticeShown) return;
+
+            const timeoutBubble = document.createElement('div');
+            timeoutBubble.className = 'chat chat-start';
+            timeoutBubble.dataset.handoffTimeout = '1';
+            timeoutBubble.innerHTML = `
+                <div class="chat-image avatar">
+                    <div class="w-8 rounded-full bg-amber-100 flex items-center justify-center border border-amber-200 text-base">⏱️</div>
+                </div>
+                <div class="chat-bubble bg-amber-50 text-amber-900 border border-amber-200 shadow-sm text-sm leading-relaxed max-w-[85%]">
+                    <div class="mb-2 font-medium">Taking too long? Show Contact Info</div>
+                    <button type="button" class="btn btn-xs rounded-full bg-amber-600 text-white border-0 hover:bg-amber-700 normal-case" data-contact-button>Show Contact Info</button>
+                </div>
+            `;
+            messageContainer.appendChild(timeoutBubble);
+            timeoutBubble.querySelector('[data-contact-button]')?.addEventListener('click', showCompanyContactInfo);
+            handoffTimeoutNoticeShown = true;
+            scrollToBottom();
+        }
+
+        async function showCompanyContactInfo() {
+            try {
+                const contactParams = new URLSearchParams({
+                    business: businessSlug,
+                });
+
+                if (activeSessionId) {
+                    contactParams.set('session_id', activeSessionId);
+                }
+
+                const response = await fetch(`/api/chatbot/contact-info?${contactParams.toString()}`, {
+                    headers: { 'Accept': 'application/json' },
+                });
+
+                const payload = await response.json();
+                if (!payload?.response) {
+                    appendBubble(payload?.message || "We couldn't retrieve our direct contact details right now, but please hang tight—an agent will be with you shortly!", false, 'bot');
+                    return;
+                }
+
+                appendBubble(payload.response, false, 'bot');
+                
+                // Add "Cancel Staff Request" button below contact info
+                if (activeSessionId && ['human_active', 'pending'].includes(lastKnownSessionStatus)) {
+                    setTimeout(() => {
+                        const cancelButtonContainer = document.createElement('div');
+                        cancelButtonContainer.className = 'flex justify-center pt-2 px-5';
+                        cancelButtonContainer.id = 'cancel-handoff-container';
+                        
+                        const cancelButton = document.createElement('button');
+                        cancelButton.className = 'btn btn-xs bg-red-500 text-white border-0 hover:bg-red-600 rounded-lg px-4 py-2 text-xs font-semibold normal-case transition-all';
+                        cancelButton.textContent = 'Cancel Staff Request';
+                        cancelButton.onclick = () => performCancelHandoff(activeSessionId);
+                        
+                        cancelButtonContainer.appendChild(cancelButton);
+                        messageContainer.appendChild(cancelButtonContainer);
+                        scrollToBottom();
+                    }, 300);
+                }
+            } catch (error) {
+                console.error('Contact info fetch error:', error);
+                appendBubble("We couldn't retrieve our direct contact details right now, but please hang tight—an agent will be with you shortly!", false, 'system');
+            }
+        }
+
+        async function performCancelHandoff(sessionId) {
+            try {
+                const response = await fetch('/api/chatbot/cancel-handoff', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                    },
+                    body: JSON.stringify({ session_id: sessionId }),
+                });
+
+                const payload = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(payload.message || 'Failed to cancel handoff');
+                }
+
+                // Remove the cancel button container
+                const cancelContainer = document.getElementById('cancel-handoff-container');
+                if (cancelContainer) {
+                    cancelContainer.remove();
+                }
+
+                // Add system message indicating handoff was cancelled
+                appendSystemBubble('Staff handoff request canceled. You are back in chat with the AI assistant.');
+
+                // Update header status to reflect AI state
+                const headerStatus = document.getElementById('header-status');
+                if (headerStatus) {
+                    headerStatus.innerHTML = '<span class="inline-block h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span> AI assistant online';
+                }
+
+                // Reset session state
+                lastKnownSessionStatus = 'bot_active';
+                clearHandoffTimeout();
+                handoffTimeoutNoticeShown = false;
+                transferNoticeVisible = false;
+                handoffRequestedAt = null;
+                stopMessagePolling();
+
+                chatStatus.textContent = 'Handoff cancelled. Ready to chat with AI.';
+            } catch (error) {
+                console.error('Cancel handoff error:', error);
+                chatStatus.textContent = 'Failed to cancel staff request. Please try again.';
+            }
+        }
+
+        function appendSystemBubble(message, senderType = 'system') {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'chat chat-start';
+
+            const avatarWrapper = document.createElement('div');
+            avatarWrapper.className = 'chat-image avatar';
+            avatarWrapper.innerHTML = '<div class="w-8 rounded-full bg-slate-100 flex items-center justify-center border text-base">ℹ️</div>';
+
+            const bubble = document.createElement('div');
+            bubble.className = 'chat-bubble bg-slate-900 text-white border border-slate-700 shadow-sm text-sm leading-relaxed max-w-[85%]';
+            bubble.innerHTML = message;
+
+            wrapper.appendChild(avatarWrapper);
+            wrapper.appendChild(bubble);
+            messageContainer.appendChild(wrapper);
+            scrollToBottom();
+        }
+
+        function appendMessageIfNew(message) {
+            const messageId = message?.id;
+            if (messageId === null || messageId === undefined || renderedIds.has(String(messageId))) {
+                return null;
+            }
+
+            renderedIds.add(String(messageId));
+            const senderType = message.sender_type ?? 'customer';
+            return appendBubble(message.message_text, ['customer', 'user'].includes(senderType), senderType, messageId);
+        }
+
+        function handleSessionStatusChange(status, payload = {}) {
+            const assignedUserId = payload.assigned_user_id ?? null;
+
+            if (status === 'bot_active' && ['human_active', 'pending'].includes(lastKnownSessionStatus)) {
+                appendSystemBubble('Your live chat with staff has ended. You are now speaking with the AI assistant again.');
+                clearHandoffTimeout();
+                handoffTimeoutNoticeShown = false;
+                transferNoticeVisible = false;
+                handoffRequestedAt = null;
+                chatStatus.textContent = 'AI assistant online.';
+            }
+
+            if (status === 'human_active' || status === 'pending') {
+                if (assignedUserId === null && !handoffRequestedAt) {
+                    handoffRequestedAt = Date.now();
+                }
+
+                if (!transferNoticeVisible) {
+                    appendSystemBubble('Connecting you to a live representative...');
+                    transferNoticeVisible = true;
+                }
+
+                if (assignedUserId === null && Date.now() - handoffRequestedAt >= 30000) {
+                    appendTimeoutNotice();
+                }
+
+                scheduleHandoffTimeout();
+                chatStatus.textContent = 'A staff member is assisting you.';
+            } else {
+                clearHandoffTimeout();
+                handoffTimeoutNoticeShown = false;
+                transferNoticeVisible = false;
+                handoffRequestedAt = null;
+            }
+
+            lastKnownSessionStatus = status;
+        }
+
         // Auto-scroll chat window
         function scrollToBottom() {
-            messageContainer.scrollTop = messageContainer.scrollHeight;
+            messageContainer.scrollTo({
+                top: messageContainer.scrollHeight,
+                behavior: 'smooth',
+            });
+        }
+
+        async function fetchSessionMessages(sessionId) {
+            try {
+                const response = await fetch(`/get-messages/${encodeURIComponent(sessionId)}`, {
+                    headers: { 'Accept': 'application/json' },
+                });
+
+                if (!response.ok) {
+                    return null;
+                }
+
+                return await response.json();
+            } catch (error) {
+                console.error('Session history fetch error:', error);
+                return null;
+            }
+        }
+
+        async function hydrateSessionFromStorage() {
+            const storedSessionId = localStorage.getItem(sessionStorageKey) || localStorage.getItem(scopedSessionStorageKey);
+
+            if (!storedSessionId) {
+                return;
+            }
+
+            const payload = await fetchSessionMessages(storedSessionId);
+            if (!payload || !Array.isArray(payload.messages)) {
+                return;
+            }
+
+            const filteredMessages = payload.handed_off_at
+                ? payload.messages.filter((message) => new Date(message.created_at || 0) >= new Date(payload.handed_off_at))
+                : payload.messages;
+
+            activeSessionId = String(storedSessionId);
+            persistSessionId(activeSessionId);
+            renderMessageHistory(filteredMessages);
+            handleSessionStatusChange(payload.status, payload);
+
+            if (payload.status === 'human_active' || payload.status === 'pending') {
+                startMessagePolling(activeSessionId);
+            } else {
+                chatStatus.textContent = 'Chat restored.';
+            }
         }
 
         async function pollAgentMessages(sessionId) {
@@ -205,24 +547,25 @@
                 if (!response.ok) return;
 
                 const payload = await response.json();
-                const messages = payload.messages ?? [];
+                const filteredMessages = payload.handed_off_at
+                    ? (payload.messages ?? []).filter((message) => new Date(message.created_at || 0) >= new Date(payload.handed_off_at))
+                    : (payload.messages ?? []);
+
+                if (filteredMessages.length > 0) {
+                    filteredMessages.forEach((message) => {
+                        appendMessageIfNew(message);
+                    });
+                }
+
+                handleSessionStatusChange(payload.status, payload);
 
                 if (payload.status === 'bot_active') {
                     stopMessagePolling();
-                    chatStatus.textContent = 'AI assistant online.';
                     return;
                 }
 
-                messages
-                    .filter(message => message.sender_type === 'agent')
-                    .forEach(message => {
-                        if (renderedAgentMessageIds.has(message.id)) return;
-
-                        renderedAgentMessageIds.add(message.id);
-                        appendBubble(message.message_text, false);
-                    });
-
-                if (messages.some(message => message.sender_type === 'agent')) {
+                const hasAgentMessages = filteredMessages.some(message => ['agent', 'operator'].includes(message.sender_type));
+                if (hasAgentMessages) {
                     chatStatus.textContent = 'Live staff reply received.';
                 }
             } catch (error) {
@@ -250,20 +593,30 @@
         }
 
         // Helper function to append bubbles to the DOM
-        function appendBubble(message, isUser = false) {
+        function appendBubble(message, isUser = false, senderType = 'bot', messageId = null) {
             const wrapper = document.createElement('div');
             wrapper.className = isUser ? 'chat chat-end' : 'chat chat-start';
+            if (messageId !== null) {
+                wrapper.dataset.messageId = String(messageId);
+                renderedIds.add(String(messageId));
+            }
 
             const avatarWrapper = document.createElement('div');
             avatarWrapper.className = 'chat-image avatar';
-            avatarWrapper.innerHTML = `<div class="w-8 rounded-full bg-gray-100 flex items-center justify-center border text-base">${isUser ? '👤' : '🤖'}</div>`;
+            const avatarLabel = senderType === 'system'
+                ? 'ℹ️'
+                : (isUser ? '👤' : (senderType === 'agent' || senderType === 'operator' ? '💬' : '🤖'));
+            avatarWrapper.innerHTML = `<div class="w-8 rounded-full bg-gray-100 flex items-center justify-center border text-base">${avatarLabel}</div>`;
 
             const bubble = document.createElement('div');
-            bubble.className = isUser 
-                ? 'chat-bubble shadow-sm text-sm leading-relaxed max-w-[85%]' 
-                : 'chat-bubble bg-white text-gray-800 border border-gray-200/80 shadow-sm text-sm leading-relaxed max-w-[85%]';
+            bubble.className = senderType === 'system'
+                ? 'chat-bubble bg-slate-900 text-white border border-slate-700 shadow-sm text-sm leading-relaxed max-w-[85%]'
+                : (isUser
+                    ? 'chat-bubble shadow-sm text-sm leading-relaxed max-w-[85%]'
+                    : (senderType === 'agent' || senderType === 'operator'
+                        ? 'chat-bubble bg-emerald-50 text-emerald-900 border border-emerald-200 shadow-sm text-sm leading-relaxed max-w-[85%]'
+                        : 'chat-bubble bot bg-white text-gray-800 border border-gray-200/80 shadow-sm text-sm leading-relaxed max-w-[85%]'));
             
-            // Allow HTML formatting in AI responses
             bubble.innerHTML = message;
 
             wrapper.appendChild(avatarWrapper);
@@ -271,6 +624,7 @@
             messageContainer.appendChild(wrapper);
 
             scrollToBottom();
+            return wrapper;
         }
 
         // Handle quick action suggestion buttons
@@ -289,15 +643,16 @@
             const prompt = promptField.value.trim();
             if (!prompt) return;
 
-            // Hide initial suggestions if present
             const suggestionsEl = document.getElementById('suggestions-container');
             if (suggestionsEl) suggestionsEl.style.display = 'none';
 
-            // 1. Render visitor prompt immediately
-            appendBubble(prompt, true);
+            if (!activeSessionId) {
+                suppressWelcomeMessage();
+            }
+
+            const customerBubble = appendBubble(prompt, true, 'customer');
             promptField.value = '';
             
-            // 2. Show UI loaders
             typingIndicator.classList.remove('hidden');
             scrollToBottom();
             chatStatus.textContent = 'Generating a response...';
@@ -309,7 +664,6 @@
                     throw new Error('Business Unit endpoint route is missing.');
                 }
 
-                // 3. Make AJAX API call to backend
                 const response = await fetch(askEndpoint, {
                     method: 'POST',
                     headers: {
@@ -330,25 +684,46 @@
                     throw new Error(payload.message || 'Server error');
                 }
 
+                if (payload.session_id) {
+                    persistSessionId(payload.session_id);
+                    activeSessionId = String(payload.session_id);
+                    suppressWelcomeMessage();
+                }
+
+                const customerMessageId = payload.customer_message_id || payload.message_id;
+                if (customerMessageId) {
+                    customerBubble.dataset.messageId = String(customerMessageId);
+                    renderedIds.add(String(customerMessageId));
+                }
+
                 if (payload.status === 'human_active') {
+                    lastKnownSessionStatus = 'human_active';
+                    handoffRequestedAt = Date.now();
+                    handleSessionStatusChange('human_active', payload);
                     startMessagePolling(payload.session_id);
-                    chatStatus.textContent = 'A staff member is assisting you.';
                 } else if (payload.status === 'success') {
+                    lastKnownSessionStatus = 'human_active';
+                    handoffRequestedAt = Date.now();
+                    handleSessionStatusChange('human_active', payload);
                     startMessagePolling(payload.session_id);
                     chatStatus.textContent = 'Your message was sent to staff.';
                 } else {
-                    appendBubble(payload.response ?? 'No response was returned.', false);
+                    appendBubble(payload.response ?? 'No response was returned.', false, 'bot', payload.message_id);
+                    lastKnownSessionStatus = 'bot_active';
+                    handleSessionStatusChange('bot_active');
                     chatStatus.textContent = 'Response generated.';
                 }
             } catch (error) {
                 console.error('Chat submit error:', error);
-                appendBubble('Something went wrong while sending your message.', false);
+                appendBubble('Something went wrong while sending your message.', false, 'bot');
                 chatStatus.textContent = 'The request could not be completed.';
             } finally {
                 typingIndicator.classList.add('hidden');
                 scrollToBottom();
             }
         });
+
+        hydrateSessionFromStorage();
     </script>
 </body>
 </html>

@@ -23,6 +23,11 @@ class ChatSession extends Model
         'business_unit_id',
         'user_identifier',
         'status',
+        'handed_off_at',
+    ];
+
+    protected $casts = [
+        'handed_off_at' => 'datetime',
     ];
 
     public function company(): BelongsTo

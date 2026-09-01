@@ -117,12 +117,10 @@ class ChatbotController extends Controller
                     $q->where('id', (int) $businessParam);
                 } else {
                     $q->where('name', $businessParam);
-                    // If you added a 'slug' column to business_units:
-                    // $q->orWhere('slug', $businessParam);
                 }
             });
         })
-        ->first() ?? BusinessUnit::first(); // 👈 Uses first available record instead of 404ing
+        ->first() ?? BusinessUnit::first(); // Uses first available record instead of 404ing
 
     if (! $businessUnit) {
         abort(404, 'No business units configured.');
@@ -169,7 +167,7 @@ class ChatbotController extends Controller
             ]
         );
 
-        ChatMessage::create([
+        $customerMessage = ChatMessage::create([
             'chat_session_id' => $session->id,
             'sender_type' => 'customer',
             'message_text' => $promptText,
@@ -179,10 +177,30 @@ class ChatbotController extends Controller
             return response()->json([
                 'status' => 'success',
                 'session_id' => $session->id,
+                'message_id' => $customerMessage->id,
+            ]);
+        }
+
+        if ($session->status === 'pending') {
+            return response()->json([
+                'status' => 'pending',
+                'session_id' => $session->id,
+                'message_id' => $customerMessage->id,
             ]);
         }
 
         $normalized = mb_strtolower($promptText);
+        if ($this->containsHandoffTrigger($normalized)) {
+            $this->markSessionHumanActive($session);
+
+            return response()->json([
+                'status' => 'human_active',
+                'message' => $promptText,
+                'response' => 'Connecting you to a live representative...',
+                'session_id' => $session->id,
+                'message_id' => $customerMessage->id,
+            ]);
+        }
         $isGreetingOnly = (bool) preg_match(
             '/^(hi|hello|hey|good morning|good afternoon|good evening|yo|hola)[!,.?\\s]*$/iu',
             $normalized
@@ -191,7 +209,7 @@ class ChatbotController extends Controller
         if ($isGreetingOnly) {
             $greetingReply = "Hello. Welcome to {$businessUnit->name}. How can I help you today?";
 
-            ChatMessage::create([
+            $botMessage = ChatMessage::create([
                 'chat_session_id' => $session->id,
                 'sender_type' => 'bot',
                 'message_text' => $greetingReply,
@@ -202,6 +220,8 @@ class ChatbotController extends Controller
                 'message' => $promptText,
                 'response' => Str::markdown($greetingReply),
                 'session_id' => $session->id,
+                'message_id' => $botMessage->id,
+                'customer_message_id' => $customerMessage->id,
                 'distance' => null,
             ]);
         }
@@ -263,7 +283,7 @@ class ChatbotController extends Controller
 
             $session->update(['status' => 'bot_active']);
 
-            ChatMessage::create([
+            $botMessage = ChatMessage::create([
                 'chat_session_id' => $session->id,
                 'sender_type' => 'bot',
                 'message_text' => $rawResponse,
@@ -274,6 +294,8 @@ class ChatbotController extends Controller
                 'message' => $promptText,
                 'response' => Str::markdown($rawResponse),
                 'session_id' => $session->id,
+                'message_id' => $botMessage->id,
+                'customer_message_id' => $customerMessage->id,
                 'distance' => $candidateRows->isNotEmpty() ? round($bestDistance, 4) : null,
             ]);
         } catch (\Throwable $e) {
@@ -288,6 +310,7 @@ class ChatbotController extends Controller
                 'message' => $promptText,
                 'response' => 'Sorry, an error occurred while generating a response.',
                 'session_id' => $session->id,
+                'customer_message_id' => $customerMessage->id,
             ], 500);
         }
     }
@@ -296,10 +319,340 @@ class ChatbotController extends Controller
     {
         $session = ChatSession::findOrFail($sessionId);
 
+        $messagesQuery = $session->chatMessages()->orderBy('created_at');
+
+        if ($session->handed_off_at) {
+            $messagesQuery = $messagesQuery->where('created_at', '>=', $session->handed_off_at);
+        }
+
         return response()->json([
             'status' => $session->status,
-            'messages' => $session->chatMessages()->oldest('created_at')->get(),
+            'assigned_user_id' => $session->assigned_user_id ?? null,
+            'handed_off_at' => $session->handed_off_at?->toISOString(),
+            'messages' => $messagesQuery->get()->map(function ($message) {
+                return [
+                    'id' => $message->id,
+                    'chat_session_id' => $message->chat_session_id,
+                    'sender_type' => $message->sender_type,
+                    'message_text' => $message->message_text,
+                    'created_at' => $message->created_at?->toISOString(),
+                ];
+            })->values(),
         ]);
+    }
+
+    public function getContactInfo(Request $request): JsonResponse
+    {
+        try {
+            $businessParam = trim((string) ($request->query('business') ?? ''));
+            $sessionId = $request->query('session_id') ?? $request->query('sessionId');
+            $session = $sessionId ? ChatSession::find($sessionId) : null;
+            $businessUnit = $session?->business_unit_id
+                ? BusinessUnit::find($session->business_unit_id)
+                : null;
+
+            if (! $businessUnit && $businessParam !== '') {
+                $businessUnit = BusinessUnit::where('name', 'LIKE', "%{$businessParam}%")
+                    ->first();
+            }
+
+            $businessUnit ??= BusinessUnit::first();
+
+            if (! $businessUnit) {
+                return response()->json([
+                    'message' => "We couldn't retrieve our direct contact details right now, but please hang tight—an agent will be with you shortly!",
+                ]);
+            }
+
+            $contactPrompt = 'Provide official contact information including phone, email, and operating hours for DARIV Waterproofing';
+            $systemInstructions =
+                "You are a contact information extractor for {$businessUnit->name}. " .
+                "Extract ONLY the direct contact information (Phone Number, Email Address, Operating Hours) from the provided facts. " .
+                "Do NOT include pricing, services, guarantees, or warranty details under any circumstances. " .
+                "Format the output cleanly in 3 bullet points.";
+
+            $botReply = $this->generateAiResponse($contactPrompt, $businessUnit, $systemInstructions);
+
+            return response()->json(['response' => $botReply]);
+        } catch (\Throwable $e) {
+            logger()->error('Contact lookup failed', [
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'message' => "We couldn't retrieve our direct contact details right now, but please hang tight—an agent will be with you shortly!",
+            ]);
+        }
+    }
+
+    private function generateAiResponse(string $prompt, BusinessUnit $businessUnit, ?string $systemInstructions = null): string
+    {
+        $embedding = $this->embedUserPrompt($prompt);
+        $knowledgeRows = collect();
+
+        if (! empty($embedding)) {
+            $knowledgeRows = $businessUnit->businessKnowledge()
+                ->select(['content', 'embedding'])
+                ->selectRaw('embedding::extensions.vector <=> ?::extensions.vector AS distance', [$embedding])
+                ->whereNotNull('embedding')
+                ->orderByRaw('embedding::extensions.vector <=> ?::extensions.vector ASC', [$embedding])
+                ->limit(5)
+                ->get();
+        }
+
+            if ($knowledgeRows->isEmpty()) {
+                $knowledgeRows = $businessUnit->businessKnowledge()
+                ->select('content')
+                ->whereNotNull('content')
+                ->limit(20)
+                ->get();
+            }
+
+        $knowledgeText = $knowledgeRows->pluck('content')->implode("\n\n");
+
+        if (trim($knowledgeText) === '') {
+            return "We couldn't retrieve our direct contact details right now, but please hang tight—an agent will be with you shortly!";
+        }
+
+        $systemInstructions ??=
+            "You are a helpful customer service AI for {$businessUnit->name}.\n" .
+            "Answer using only the BUSINESS FACTS below. Give the official phone number, email, and operating hours when present.\n\n" .
+            "BUSINESS FACTS:\n";
+
+        // Filter knowledge text to keep only contact-relevant lines if system instructions focus on contact info
+        if (stripos($systemInstructions, 'contact information') !== false) {
+            $knowledgeText = $this->filterContactRelevantContent($knowledgeText);
+        }
+
+        $systemInstructions .= $knowledgeText;
+
+        try {
+            $response = Gemini::generativeModel('gemini-3.6-flash')
+                ->generateContent($systemInstructions . "\n\nUSER QUESTION:\n" . $prompt);
+
+            $rawResponse = trim((string) $response->text());
+            
+            // Additional fallback: filter response if it contains pricing/warranty keywords
+            if (stripos($systemInstructions, 'contact information') !== false) {
+                $rawResponse = $this->stripNonContactContent($rawResponse);
+            }
+
+            return $rawResponse ?: $knowledgeText;
+        } catch (\Throwable $e) {
+            logger()->warning('Contact response generation failed; returning retrieved knowledge.', [
+                'business_unit_id' => $businessUnit->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return $knowledgeText;
+        }
+    }
+
+    private function markSessionHumanActive(ChatSession $session): void
+    {
+        $session->status = 'human_active';
+        $session->handed_off_at = $session->handed_off_at ?? now();
+        $session->save();
+    }
+
+    private function containsHandoffTrigger(string $message): bool
+    {
+        $normalized = trim($message);
+
+        if ($normalized === '') {
+            return false;
+        }
+
+        try {
+            $classificationPrompt = <<<'PROMPT'
+            Classify whether the customer wants to be transferred to a live human agent.
+            Return valid JSON only in this exact shape:
+            {"needs_human_agent": true|false}
+
+            Customer message:
+            PROMPT;
+
+            $classificationPrompt .= "\n\n" . $normalized;
+
+            $response = Gemini::generativeModel('gemini-3.6-flash')
+                ->generateContent($classificationPrompt);
+
+            $rawResponse = trim((string) $response->text());
+            $json = $this->parseJsonObject($rawResponse);
+
+            if (is_array($json) && array_key_exists('needs_human_agent', $json)) {
+                return (bool) $json['needs_human_agent'];
+            }
+        } catch (\Throwable $e) {
+            logger()->warning('AI handoff intent check failed; using human-language fallback.', [
+                'error' => $e->getMessage(),
+                'message' => $normalized,
+            ]);
+        }
+
+        $lowerMessage = mb_strtolower($normalized);
+        $transferIntent = preg_match(
+            '/\b(?:want|need|must|require|ask|speak|talk|chat|contact|connect|get|reach|help me with)\b/i',
+            $lowerMessage
+        );
+        $humanTarget = preg_match(
+            '/\b(?:human|agent|live|support|staff|representative|person|operator|someone|customer service)\b/i',
+            $lowerMessage
+        );
+
+        if ($transferIntent && $humanTarget) {
+            return true;
+        }
+
+        return (bool) preg_match(
+            '/(?:speak|talk|chat|contact|connect|get|reach)\s+(?:to\s+)?(?:a\s+)?(?:human|agent|live|support|staff|representative|person|operator|someone|customer service)/i',
+            $lowerMessage
+        );
+    }
+
+    private function parseJsonObject(string $rawResponse): ?array
+    {
+        $trimmed = trim($rawResponse);
+
+        if ($trimmed === '') {
+            return null;
+        }
+
+        if (str_starts_with($trimmed, '```')) {
+            $trimmed = preg_replace('/^```(?:json)?\s*/i', '', $trimmed);
+            $trimmed = preg_replace('/\s*```\s*$/', '', $trimmed);
+        }
+
+        $decoded = json_decode($trimmed, true);
+
+        if (is_array($decoded)) {
+            return $decoded;
+        }
+
+        preg_match('/\{.*\}/s', $trimmed, $matches);
+
+        if (! isset($matches[0])) {
+            return null;
+        }
+
+        $decoded = json_decode($matches[0], true);
+
+        return is_array($decoded) ? $decoded : null;
+    }
+
+    /**
+     * Filter knowledge text to keep only lines relevant to contact information.
+     * Removes lines containing pricing, warranty, service details, etc.
+     */
+    private function filterContactRelevantContent(string $knowledgeText): string
+    {
+        $lines = explode("\n", $knowledgeText);
+        $contactKeywords = ['email', 'phone', 'contact', 'hours', 'support', 'call', 'reach', 'available', 'address', 'location', 'fax', 'whatsapp'];
+        $excludeKeywords = ['price', 'cost', 'warranty', 'guarantee', 'package', 'service', 'rate', 'fee', 'discount', 'offer', 'promotion', 'payment', 'financing'];
+
+        $filteredLines = array_filter($lines, function ($line) use ($contactKeywords, $excludeKeywords) {
+            $lowerLine = mb_strtolower(trim($line));
+
+            // Skip empty lines
+            if ($lowerLine === '') {
+                return false;
+            }
+
+            // Exclude lines with pricing/warranty keywords
+            foreach ($excludeKeywords as $keyword) {
+                if (stripos($lowerLine, $keyword) !== false) {
+                    return false;
+                }
+            }
+
+            // Keep lines with contact keywords or lines that look like actual contact info
+            $hasContactKeyword = false;
+            foreach ($contactKeywords as $keyword) {
+                if (stripos($lowerLine, $keyword) !== false) {
+                    $hasContactKeyword = true;
+                    break;
+                }
+            }
+
+            // Also keep lines that look like phone numbers, emails, or addresses
+            $looksLikeContactInfo = preg_match('/\+?\d{1,3}[-.\s]?\d{3,}[-.\s]?\d{3,}|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/', $lowerLine);
+
+            return $hasContactKeyword || $looksLikeContactInfo;
+        });
+
+        return implode("\n", $filteredLines);
+    }
+
+    /**
+     * Strip non-contact content from LLM response as a fallback filter.
+     * Ensures the response doesn't accidentally include pricing or warranty info.
+     */
+    private function stripNonContactContent(string $response): string
+    {
+        // If response contains pricing/warranty keywords, attempt to extract only contact info
+        $excludeKeywords = ['price', 'cost', 'warranty', 'guarantee', 'package', 'service', 'rate', 'fee', 'discount', 'offer'];
+        $lowerResponse = mb_strtolower($response);
+
+        foreach ($excludeKeywords as $keyword) {
+            if (stripos($lowerResponse, $keyword) !== false) {
+                // Try to extract just the contact-relevant section
+                $lines = explode("\n", $response);
+                $contactLines = [];
+                foreach ($lines as $line) {
+                    // Skip lines with excluded keywords
+                    $skip = false;
+                    foreach ($excludeKeywords as $keyword) {
+                        if (stripos($line, $keyword) !== false) {
+                            $skip = true;
+                            break;
+                        }
+                    }
+                    if (! $skip && trim($line) !== '') {
+                        $contactLines[] = $line;
+                    }
+                }
+                return implode("\n", $contactLines);
+            }
+        }
+
+        return $response;
+    }
+
+    /**
+     * Cancel an active handoff request and return the session to bot_active status.
+     */
+    public function cancelHandoff(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'session_id' => ['required', 'integer'],
+        ]);
+
+        try {
+            $session = ChatSession::findOrFail($validated['session_id']);
+
+            // Update session to bot_active and clear operator assignments
+            $session->update([
+                'status' => 'bot_active',
+                'assigned_user_id' => null,
+                'handed_off_at' => null,
+            ]);
+
+            return response()->json([
+                'status' => 'cancelled',
+                'message' => 'Handoff request cancelled.',
+                'session_id' => $session->id,
+            ]);
+        } catch (\Throwable $e) {
+            logger()->error('Cancel handoff failed', [
+                'session_id' => $validated['session_id'],
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to cancel handoff request.',
+            ], 500);
+        }
     }
 
     /**

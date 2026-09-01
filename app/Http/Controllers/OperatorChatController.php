@@ -78,6 +78,7 @@ class OperatorChatController extends Controller
 
         $session->update([
             'status' => 'human_active',
+            'handed_off_at' => $session->handed_off_at ?? now(),
             'assigned_user_id' => $user?->id ?? $session->assigned_user_id,
         ]);
 

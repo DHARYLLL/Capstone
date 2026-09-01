@@ -112,3 +112,91 @@ test('submitting setting updates changes session credentials successfully', func
     $this->assertEquals('Updated Name', session('user_name'));
     $this->assertEquals('updated@dariv.com', session('user_email'));
 });
+
+test('customer request to speak with a human routes directly to a live agent', function () {
+    $company = \App\Models\Company::create(['name' => 'Acme Co']);
+    $businessUnit = \App\Models\BusinessUnit::create([
+        'company_id' => $company->id,
+        'name' => 'Support Desk',
+    ]);
+
+    $response = $this->postJson(route('chat.ask', ['businessUnit' => $businessUnit->id]), [
+        'prompt' => 'I need to speak to a human support agent.',
+        'user_identifier' => 'customer-123',
+    ]);
+
+    $response->assertStatus(200)
+        ->assertJsonPath('status', 'human_active')
+        ->assertJsonPath('message', 'I need to speak to a human support agent.');
+
+    $this->assertDatabaseHas('chat_sessions', [
+        'company_id' => $company->id,
+        'business_unit_id' => $businessUnit->id,
+        'user_identifier' => 'customer-123',
+        'status' => 'human_active',
+    ]);
+});
+
+test('live chat history only includes messages created after the handoff timestamp', function () {
+    $company = \App\Models\Company::create(['name' => 'Acme Co']);
+    $businessUnit = \App\Models\BusinessUnit::create([
+        'company_id' => $company->id,
+        'name' => 'Support Desk',
+    ]);
+
+    $session = \App\Models\ChatSession::create([
+        'company_id' => $company->id,
+        'business_unit_id' => $businessUnit->id,
+        'user_identifier' => 'customer-456',
+        'status' => 'human_active',
+        'handed_off_at' => now()->subMinutes(5),
+    ]);
+
+    \Illuminate\Support\Facades\DB::table('chat_messages')->insert([
+        [
+            'chat_session_id' => $session->id,
+            'sender_type' => 'customer',
+            'message_text' => 'Before handoff message',
+            'created_at' => now()->subMinutes(10),
+            'updated_at' => now()->subMinutes(10),
+        ],
+        [
+            'chat_session_id' => $session->id,
+            'sender_type' => 'customer',
+            'message_text' => 'After handoff message',
+            'created_at' => now()->subMinute(),
+            'updated_at' => now()->subMinute(),
+        ],
+        [
+            'chat_session_id' => $session->id,
+            'sender_type' => 'agent',
+            'message_text' => 'Live reply',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ],
+    ]);
+
+    $response = $this->getJson(route('chat.messages', ['sessionId' => $session->id]));
+
+    $response->assertStatus(200)
+        ->assertJsonCount(2, 'messages')
+        ->assertJsonPath('messages.0.message_text', 'After handoff message')
+        ->assertJsonPath('messages.1.message_text', 'Live reply');
+});
+
+test('widget renders the loading transfer notice and timeout fallback contact info', function () {
+    $company = \App\Models\Company::create(['name' => 'Acme Co']);
+    $businessUnit = \App\Models\BusinessUnit::create([
+        'company_id' => $company->id,
+        'name' => 'Support Desk',
+    ]);
+
+    $response = $this->get('/chat/widget?business=' . urlencode($businessUnit->name));
+
+    $response->assertStatus(200)
+        ->assertSee('Connecting you to a live representative...')
+        ->assertSee('Taking too long? Show Contact Info')
+        ->assertSee('support@darivwaterproofing.com')
+        ->assertSee('1-800-555-DARIV')
+        ->assertSee('Mon–Fri: 7:30 AM–5:30 PM, Sat: 8:00 AM–1:00 PM');
+});

@@ -175,4 +175,8 @@ Route::controller(ChatbotController::class)->group(function (): void {
 
     // 4. Public endpoint used by the embedded widget to poll live replies
     Route::get('/get-messages/{sessionId}', 'getMessages')->name('chat.messages');
+    Route::get('/api/chatbot/contact-info', [ChatbotController::class, 'getContactInfo'])->name('chatbot.contact-info');
+    
+    // 5. Cancel handoff endpoint
+    Route::post('/api/chatbot/cancel-handoff', [ChatbotController::class, 'cancelHandoff'])->name('chatbot.cancel-handoff');
 });

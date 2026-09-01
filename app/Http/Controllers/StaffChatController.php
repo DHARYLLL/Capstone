@@ -60,6 +60,7 @@ class StaffChatController extends Controller
         abort_unless(in_array($session->status, ['pending', 'human_active'], true), 422);
 
         $session->status = 'human_active';
+        $session->handed_off_at = $session->handed_off_at ?? now();
         $session->assigned_user_id = Auth::id();
         $session->save();
 
