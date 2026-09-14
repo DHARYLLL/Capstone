@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\BusinessKnowledge;
 use App\Models\BusinessUnit;
+use App\Models\StagedKnowledgeDocument;
 use App\Services\TextChunker;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Bus\Queueable;
@@ -30,6 +31,9 @@ class ProcessPdfIngestion implements ShouldQueue
         public int $businessUnitId,
         public string $storageDisk,
         public string $storedPath,
+        public ?int $stagedDocumentId = null,
+        public ?string $editedContent = null,
+        public ?string $mimeType = null,
     ) {
         $this->onQueue('imports');
     }
@@ -39,6 +43,9 @@ class ProcessPdfIngestion implements ShouldQueue
      */
     public function handle(): void
     {
+        $stagedDocument = $this->stagedDocumentId
+            ? StagedKnowledgeDocument::query()->find($this->stagedDocumentId)
+            : null;
         $businessUnit = BusinessUnit::query()->find($this->businessUnitId);
 
         if (! $businessUnit) {
@@ -46,20 +53,32 @@ class ProcessPdfIngestion implements ShouldQueue
                 'business_unit_id' => $this->businessUnitId,
                 'stored_path' => $this->storedPath,
             ]);
+            $stagedDocument?->update(['status' => 'failed']);
 
             return;
         }
 
-        $pdfPath = Storage::disk($this->storageDisk)->path($this->storedPath);
-        $parser = new Parser;
-        $pdf = $parser->parseFile($pdfPath);
-        $extractedText = TextChunker::cleanExtractedText((string) $pdf->getText());
+        $extractedText = $this->editedContent;
+
+        if ($extractedText === null || trim($extractedText) === '') {
+            if (str_contains((string) $this->mimeType, 'csv')) {
+                $extractedText = Storage::disk($this->storageDisk)->get($this->storedPath);
+            } else {
+                $pdfPath = Storage::disk($this->storageDisk)->path($this->storedPath);
+                $parser = new Parser;
+                $pdf = $parser->parseFile($pdfPath);
+                $extractedText = (string) $pdf->getText();
+            }
+        }
+
+        $extractedText = TextChunker::cleanExtractedText((string) $extractedText);
 
         if ($extractedText === '') {
             Log::warning('PDF ingestion produced no readable text after cleaning.', [
                 'business_unit_id' => $businessUnit->id,
                 'stored_path' => $this->storedPath,
             ]);
+            $stagedDocument?->update(['status' => 'failed']);
 
             return;
         }
@@ -72,6 +91,7 @@ class ProcessPdfIngestion implements ShouldQueue
                 'business_unit_id' => $businessUnit->id,
                 'stored_path' => $this->storedPath,
             ]);
+            $stagedDocument?->update(['status' => 'failed']);
 
             return;
         }
@@ -103,6 +123,7 @@ class ProcessPdfIngestion implements ShouldQueue
                 'business_unit_id' => $businessUnit->id,
                 'stored_path' => $this->storedPath,
             ]);
+            $stagedDocument?->update(['status' => 'failed']);
 
             return;
         }
@@ -117,6 +138,14 @@ class ProcessPdfIngestion implements ShouldQueue
         });
 
         Storage::disk($this->storageDisk)->delete($this->storedPath);
+        $stagedDocument?->update(['status' => 'indexed']);
+    }
+
+    public function failed(\Throwable $exception): void
+    {
+        StagedKnowledgeDocument::query()
+            ->whereKey($this->stagedDocumentId)
+            ->update(['status' => 'failed']);
     }
 
     /**

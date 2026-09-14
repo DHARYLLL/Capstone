@@ -26,21 +26,6 @@
                     </p>
                 </div>
             </div>
-            <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-                <div class="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
-                    <h3 class="text-lg font-semibold">Upload PDF Knowledge</h3>
-                    <p class="mt-1 text-sm text-slate-400">Use a small one-to-two page PDF for quick staging.</p>
-
-                    <form method="POST" enctype="multipart/form-data" action="{{ route('admin.knowledge.upload-pdf', ['businessUnit' => $selectedBusinessUnit->id ?? 1]) }}" class="mt-4 space-y-4">
-                        @csrf
-                        <input type="file" name="pdf" accept="application/pdf" class="block w-full rounded-xl border border-dashed border-white/15 bg-slate-950 px-4 py-3 text-sm text-slate-300 file:mr-4 file:rounded-lg file:border-0 file:bg-cyan-400 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-slate-950 hover:file:bg-cyan-300">
-                        @error('pdf')
-                            <p class="text-sm text-rose-300">{{ $message }}</p>
-                        @enderror
-                        <button type="submit" class="rounded-xl bg-cyan-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300">Upload and Extract</button>
-                    </form>
-                </div>
-            </div>
         </section>
 
         <div id="kb-processing-banner"
@@ -54,7 +39,7 @@
             <div class="min-w-0 space-y-6">
 
                 {{-- ── Drop zone ─────────────────────────────────────────────── --}}
-                <input type="file" id="kb-file-input" accept=".pdf,.csv" class="sr-only"
+                <input type="file" id="kb-file-input" accept=".pdf,.csv,application/pdf,text/csv" class="sr-only"
                     aria-label="Upload knowledge base file">
 
                 <div id="kb-drop-zone"
@@ -430,6 +415,7 @@
             const phasePill3 = document.getElementById('phase-pill-3');
             const phasePill4 = document.getElementById('phase-pill-4');
             const successToast = document.getElementById('kb-success-toast');
+            const toastTitle = document.getElementById('toast-title');
             const toastFileName = document.getElementById('toast-file-name');
             const toastClose = document.getElementById('kb-toast-close');
             const successClose = document.getElementById('kb-success-close');
@@ -459,6 +445,11 @@
             const confirmChunks = document.getElementById('confirm-chunks');
             const confirmEditBox = document.getElementById('confirm-edit-box');
             const managerBranchLabel = null;
+            const csrfToken = @json(csrf_token());
+            const uploadUrl = @json(route('admin.knowledge.upload'));
+            const stagedUrl = @json(route('admin.knowledge.staged'));
+            const approveUrlTemplate = @json(route('admin.knowledge.approve', ['stagedDocument' => '__ID__']));
+            const discardUrlTemplate = @json(route('admin.knowledge.discard', ['stagedDocument' => '__ID__']));
 
             let currentFile = null;
             let currentParsedText = '';
@@ -466,6 +457,7 @@
             let currentPreviewChunkCount = 0;
             let selectedStagedId = null;
             let stagedCount = document.querySelectorAll('.staged-row').length;
+            const maxFileSize = 25 * 1024 * 1024;
 
             const branchLabels = {
                 dariv: 'DARIV Waterproofing',
@@ -490,6 +482,8 @@
                             ? 'rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700'
                             : 'rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-500';
                 });
+
+                    if (step === 2 || step === 3) populateConfirmSummary();
             }
 
             function populateConfirmSummary() {
@@ -502,7 +496,7 @@
                 if (confirmFileMeta) confirmFileMeta.textContent = `${fileType} · ${formatBytes(currentFile.size)}`;
                 if (confirmBranch) confirmBranch.textContent = branchSelect && branchSelect.tagName === 'SELECT'
                     ? (branchLabels[branchValue] || '—')
-                    : (managerBranchLabel || '—');
+                    : (managerBranchLabel || 'Selected business unit');
                 if (confirmChunks) confirmChunks.textContent = `${currentPreviewChunkCount} chunk${currentPreviewChunkCount === 1 ? '' : 's'} prepared for training`;
                 if (confirmEditBox) {
                     confirmEditBox.value = currentEditedText || currentParsedText || '';
@@ -543,11 +537,10 @@
                 currentFile = file;
                 currentParsedText = '';
                 currentEditedText = '';
-                const maxBytes = 25 * 1024 * 1024;
                 const isCsv = file.type === 'text/csv' || file.name.toLowerCase().endsWith('.csv');
                 const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
                 const isAllowedType = isCsv || isPdf;
-                const isWithinLimit = file.size <= maxBytes;
+                const isWithinLimit = file.size <= maxFileSize;
 
                 if (modalTitle) modalTitle.textContent = file.name;
                 if (modalFileName) modalFileName.textContent = file.name;
@@ -594,13 +587,20 @@
                     return;
                 }
 
-                if (uploadProgressText) uploadProgressText.textContent = '35%';
-                if (uploadProgressMessage) uploadProgressMessage.textContent = 'Parsing document text in the browser...';
-                if (uploadProgressBar) uploadProgressBar.style.width = '35%';
-
                 const reader = new FileReader();
+                reader.onprogress = event => {
+                    if (!event.lengthComputable) return;
+                    const progress = Math.min(95, Math.max(35, Math.round((event.loaded / event.total) * 60) + 35));
+                    if (uploadProgressText) uploadProgressText.textContent = `${progress}%`;
+                    if (uploadProgressBar) uploadProgressBar.style.width = `${progress}%`;
+                    if (uploadProgressMessage) uploadProgressMessage.textContent = isCsv
+                        ? 'Reading CSV rows in the browser...'
+                        : 'Reading PDF bytes and preparing document chunks...';
+                };
                 reader.onload = event => {
-                    const parsedText = typeof event.target.result === 'string' ? event.target.result : '';
+                    const parsedText = isCsv
+                        ? (typeof event.target.result === 'string' ? event.target.result : '')
+                        : buildPdfPreview(file, event.target.result);
                     renderPreviewChunks(file, parsedText);
                     if (uploadProgressText) uploadProgressText.textContent = '100%';
                     if (uploadProgressMessage) uploadProgressMessage.textContent = 'File parsed and ready for staging review.';
@@ -622,16 +622,24 @@
                     return;
                 }
 
-                renderPreviewChunks(file, `CHUNK 1\n${file.name} is ready for text extraction.\n\nCHUNK 2\nThe parsed document will be routed to the selected business unit for training.`);
-                setConfirmEnabled(true);
-                openModal();
+                reader.readAsArrayBuffer(file);
+            }
+
+            function buildPdfPreview(file, buffer) {
+                const bytes = buffer instanceof ArrayBuffer ? buffer.byteLength : 0;
+                const chunkSize = 1024 * 1024;
+                const chunkCount = Math.max(1, Math.min(8, Math.ceil(bytes / chunkSize)));
+                return Array.from({ length: chunkCount }, (_, index) => {
+                    const start = index * chunkSize;
+                    const end = Math.min(bytes, start + chunkSize);
+                    return `PDF CHUNK ${index + 1}\n${file.name}\nByte range: ${start.toLocaleString()}-${Math.max(start, end - 1).toLocaleString()}\nText extraction will continue during server-side ingestion.`;
+                }).join('\n\n');
             }
 
             function renderPreviewChunks(file, parsedText) {
                 if (!modalPreviewChunks) return;
 
                 currentParsedText = String(parsedText || '');
-                if (!currentEditedText) currentEditedText = currentParsedText;
 
                 const chunks = buildChunks(file, parsedText);
                 currentPreviewChunkCount = chunks.length;
@@ -693,17 +701,28 @@
                 document.body.classList.remove('overflow-hidden');
                 fileInput.value = '';
                 currentFile = null;
+                currentParsedText = '';
+                currentEditedText = '';
                 currentPreviewChunkCount = 0;
                 if (uploadProgressText) uploadProgressText.textContent = '0%';
                 if (uploadProgressMessage) uploadProgressMessage.textContent = 'Waiting for file parsing to begin.';
                 if (uploadProgressBar) uploadProgressBar.style.width = '0%';
                 if (modalPreviewChunks) modalPreviewChunks.innerHTML = '';
+                if (modalFileName) modalFileName.textContent = '—';
+                if (modalFileSummary) modalFileSummary.textContent = '—';
+                if (modalTitle) modalTitle.textContent = '—';
+                if (modalTypeError) modalTypeError.classList.add('hidden');
+                if (modalSizeBadge) {
+                    modalSizeBadge.className = 'inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200';
+                    modalSizeBadge.innerHTML = '<span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span> Within 25 MB';
+                }
+                if (confirmEditBox) confirmEditBox.value = '';
                 if (modalStatus) {
                     modalStatus.className = 'inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200';
                     modalStatus.innerHTML = '<span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span> Parsed Successfully';
                 }
                 setModalStep(1);
-                setConfirmEnabled(true);
+                setConfirmEnabled(false);
             }
 
             if (modalClose) modalClose.addEventListener('click', closeModal);
@@ -736,19 +755,13 @@
             function addProcessingQueueItem(name, type, size, branchVal) {
                 if (!queueCont) return;
 
-                const branchLabels = {
-                    accommodation: 'Accommodation',
-                    restaurant: 'Restaurant',
-                    facility: 'Facility'
-                };
-
                 const item = document.createElement('div');
                 item.className = 'rounded-2xl border border-blue-100 bg-white p-4 shadow-sm';
                 item.innerHTML = `
                     <div class="flex items-center justify-between gap-4">
                         <div class="min-w-0">
                             <div class="font-semibold text-gray-800 truncate">${escHtml(name)}</div>
-                            <div class="text-sm text-gray-500">${escHtml(type)} · ${escHtml(size)} · ${escHtml(branchLabels[branchVal] || 'Routing pending')}</div>
+                            <div class="text-sm text-gray-500">${escHtml(type)} · ${escHtml(size)} · ${escHtml(branchLabels[branchVal] || 'Selected business unit')}</div>
                         </div>
                         <span class="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 ring-1 ring-blue-200">
                             <span class="h-2 w-2 animate-spin rounded-full border-2 border-blue-300 border-t-blue-700"></span>
@@ -760,8 +773,66 @@
                 kpiQueued.textContent = String(parseInt(kpiQueued.textContent || '0', 10) + 1);
             }
 
+            function showModalError(message) {
+                if (modalStatus) {
+                    modalStatus.className = 'inline-flex items-center gap-1.5 rounded-full bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700 ring-1 ring-rose-200';
+                    modalStatus.innerHTML = '<span class="h-1.5 w-1.5 rounded-full bg-rose-500"></span> Upload failed';
+                }
+                if (uploadProgressMessage) uploadProgressMessage.textContent = message;
+            }
+
+            function createStagedRow(data, branchVal) {
+                const container = stagedRows || queueCont;
+                if (!container) return null;
+
+                const row = document.createElement('div');
+                row.className = 'staged-row rounded-2xl bg-[#ffffff] p-4 border border-amber-100';
+                row.dataset.id = data.id;
+                row.dataset.name = data.name;
+                row.dataset.type = data.type;
+                row.dataset.size = formatBytes(data.size);
+                row.dataset.branch = data.branch || branchLabels[branchVal] || 'Selected business unit';
+                row.dataset.topics = 'Pending server-side extraction';
+                row.dataset.duplicate = 'false';
+                row.innerHTML = `
+                    <div class="flex items-center justify-between gap-4">
+                        <div class="min-w-0">
+                            <div class="font-semibold text-gray-800 truncate">${escHtml(data.name)}</div>
+                            <div class="text-sm text-gray-500">${escHtml(data.type)} · ${escHtml(formatBytes(data.size))} · Pending approval</div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button type="button" class="btn-approve-queue rounded-full bg-[#1e293b] px-3 py-1 text-xs font-semibold text-white">Approve</button>
+                            <button type="button" class="btn-discard rounded-full border border-gray-300 bg-white px-3 py-1 text-xs font-semibold text-gray-600">Discard</button>
+                        </div>
+                    </div>`;
+                container.prepend(row);
+                bindRowEvents(row);
+                return row;
+            }
+
+            async function loadStagedRows() {
+                try {
+                    const response = await fetch(stagedUrl, {
+                        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                    });
+                    const payload = await response.json();
+                    if (!response.ok || !payload.success) return;
+
+                    payload.data.forEach(data => {
+                        if (!document.querySelector(`.staged-row[data-id="${data.id}"]`)) {
+                            createStagedRow(data, data.branch);
+                        }
+                    });
+                    stagedCount = payload.data.length;
+                    if (kpiStaged) kpiStaged.textContent = String(stagedCount);
+                    updateStagedCount(stagedCount);
+                } catch (error) {
+                    // The upload workflow remains available if the initial staged list cannot load.
+                }
+            }
+
             if (modalConfirm) {
-                modalConfirm.addEventListener('click', () => {
+                modalConfirm.addEventListener('click', async () => {
                     if (!currentFile) return;
 
                     // Skip division validation check
@@ -773,25 +844,53 @@
                     const fileSize = formatBytes(currentFile.size);
                     const branchVal = branchSelect ? branchSelect.value : '';
                     const correctedText = confirmEditBox ? confirmEditBox.value.trim() : '';
+                    const editedContent = correctedText && correctedText !== currentParsedText ? correctedText : '';
 
-                    if (correctedText) {
-                        currentEditedText = correctedText;
-                    }
+                    modalConfirm.disabled = true;
+
+                    currentEditedText = editedContent;
 
                     setModalStep(3);
-                    if (uploadProgressText) uploadProgressText.textContent = '100%';
-                    if (uploadProgressMessage) uploadProgressMessage.textContent = 'Ingestion is processing in the background.';
-                    if (modalStatus) modalStatus.innerHTML = '<span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span> Processing';
+                    if (uploadProgressText) uploadProgressText.textContent = '35%';
+                    if (uploadProgressMessage) uploadProgressMessage.textContent = 'Saving the staged document...';
+                    if (modalStatus) modalStatus.innerHTML = '<span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span> Saving';
 
-                    showProcessingBanner(fileName);
-                    addProcessingQueueItem(fileName, fileType, fileSize, branchVal);
+                    const formData = new FormData();
+                    formData.append('file', currentFile);
+                    formData.append('branch', branchVal);
+                    formData.append('edited_content', currentEditedText);
 
-                    window.setTimeout(() => {
+                    try {
+                        const response = await fetch(uploadUrl, {
+                            method: 'POST',
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken,
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            body: formData
+                        });
+                        const payload = await response.json();
+                        if (!response.ok || !payload.success) {
+                            throw new Error(payload.message || 'The server could not save this file.');
+                        }
+
+                        createStagedRow(payload.data, branchVal);
+                        stagedCount += 1;
+                        if (kpiStaged) kpiStaged.textContent = String(stagedCount);
+                        updateStagedCount(stagedCount);
+                        showProcessingBanner(fileName);
                         setModalStep(4);
-                        toastFileName.textContent = `"${fileName}" is now active.`;
+                        modalConfirm.disabled = false;
+                        if (toastTitle) toastTitle.textContent = 'File sent to staging';
+                        toastFileName.textContent = `"${fileName}" is awaiting approval.`;
                         successToast.classList.remove('hidden');
                         window.setTimeout(() => successToast.classList.add('hidden'), 5000);
-                    }, 2200);
+                    } catch (error) {
+                        modalConfirm.disabled = false;
+                        setModalStep(2);
+                        showModalError(error.message || 'The upload failed. Please try again.');
+                    }
                 });
             }
 
@@ -851,22 +950,23 @@
                 document.querySelectorAll('.staged-row').forEach(candidate => candidate.classList.remove('ring-2', 'ring-[#1e293b]'));
                 row.classList.add('ring-2', 'ring-[#1e293b]');
 
-                reviewName.textContent = row.dataset.name;
-                reviewType.textContent = row.dataset.type;
-                reviewSize.textContent = row.dataset.size;
-                reviewBranch.textContent = row.dataset.branch;
-                reviewTopics.textContent = row.dataset.topics;
+                if (reviewName) reviewName.textContent = row.dataset.name || '—';
+                if (reviewType) reviewType.textContent = row.dataset.type || '—';
+                if (reviewSize) reviewSize.textContent = row.dataset.size || '—';
+                if (reviewBranch) reviewBranch.textContent = row.dataset.branch || '—';
+                if (reviewTopics) reviewTopics.textContent = row.dataset.topics || '—';
 
                 const isDuplicate = row.dataset.duplicate === 'true';
-                reviewDupWrap.classList.toggle('hidden', !isDuplicate);
-                reviewNoDupWrap.classList.toggle('hidden', isDuplicate);
+                if (reviewDupWrap) reviewDupWrap.classList.toggle('hidden', !isDuplicate);
+                if (reviewNoDupWrap) reviewNoDupWrap.classList.toggle('hidden', isDuplicate);
 
-                reviewEmpty.classList.add('hidden');
-                reviewDetail.classList.remove('hidden');
-                document.getElementById('review-note').value = '';
+                if (reviewEmpty) reviewEmpty.classList.add('hidden');
+                if (reviewDetail) reviewDetail.classList.remove('hidden');
+                const reviewNote = document.getElementById('review-note');
+                if (reviewNote) reviewNote.value = '';
             }
 
-            function approveRow(id) {
+            async function approveRow(id) {
                 const row = document.querySelector(`.staged-row[data-id="${id}"]`);
                 if (!row) return;
 
@@ -874,21 +974,37 @@
                 const type = row.dataset.type;
                 const size = row.dataset.size;
 
-                row.remove();
-                stagedCount = Math.max(0, stagedCount - 1);
-                kpiStaged.textContent = stagedCount;
-                updateStagedCount(stagedCount);
-                checkStagedEmpty();
+                const approveBtn = row.querySelector('.btn-approve-queue');
+                if (approveBtn) approveBtn.disabled = true;
 
-                if (selectedStagedId === id) {
-                    selectedStagedId = null;
-                    reviewEmpty.classList.remove('hidden');
-                    reviewDetail.classList.add('hidden');
-                }
+                try {
+                    const response = await fetch(approveUrlTemplate.replace('__ID__', encodeURIComponent(id)), {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+                    const payload = await response.json();
+                    if (!response.ok || !payload.success) throw new Error(payload.message || 'Approval failed.');
 
-                const queueItem = document.createElement('div');
-                queueItem.className = 'rounded-2xl bg-[#ffffff] p-4 border border-emerald-100';
-                queueItem.innerHTML = `
+                    row.remove();
+                    stagedCount = Math.max(0, stagedCount - 1);
+                    if (kpiStaged) kpiStaged.textContent = String(stagedCount);
+                    updateStagedCount(stagedCount);
+                    checkStagedEmpty();
+
+                    if (selectedStagedId === id) {
+                        selectedStagedId = null;
+                        if (reviewEmpty) reviewEmpty.classList.remove('hidden');
+                        if (reviewDetail) reviewDetail.classList.add('hidden');
+                    }
+
+                    const queueItem = document.createElement('div');
+                    queueItem.className = 'rounded-2xl bg-[#ffffff] p-4 border border-emerald-100';
+                    queueItem.dataset.id = id;
+                    queueItem.innerHTML = `
                     <div class="flex items-center justify-between gap-4">
                         <div>
                             <div class="font-semibold text-gray-800">${escHtml(name)}</div>
@@ -899,27 +1015,60 @@
                             Queued
                         </span>
                     </div>`;
-                queueCont.appendChild(queueItem);
-                kpiQueued.textContent = parseInt(kpiQueued.textContent || '0', 10) + 1;
+                    if (queueCont) queueCont.appendChild(queueItem);
+                    if (kpiQueued) kpiQueued.textContent = String(parseInt(kpiQueued.textContent || '0', 10) + 1);
 
-                toastFileName.textContent = `"${name}" has been approved and queued for indexing.`;
-                successToast.classList.remove('hidden');
-                window.setTimeout(() => successToast.classList.add('hidden'), 5000);
+                    if (toastTitle) toastTitle.textContent = 'File approved';
+                    toastFileName.textContent = `"${name}" has been approved and queued for indexing.`;
+                    successToast.classList.remove('hidden');
+                    window.setTimeout(() => successToast.classList.add('hidden'), 5000);
+                } catch (error) {
+                    if (approveBtn) approveBtn.disabled = false;
+                    if (toastTitle) toastTitle.textContent = 'Approval failed';
+                    toastFileName.textContent = error.message || 'The file could not be approved.';
+                    successToast.classList.remove('hidden');
+                }
             }
 
-            function discardRow(id) {
+            async function discardRow(id) {
                 const row = document.querySelector(`.staged-row[data-id="${id}"]`);
                 if (!row) return;
-                row.remove();
-                stagedCount = Math.max(0, stagedCount - 1);
-                kpiStaged.textContent = stagedCount;
-                updateStagedCount(stagedCount);
-                checkStagedEmpty();
+                const discardBtn = row.querySelector('.btn-discard');
+                if (discardBtn) discardBtn.disabled = true;
 
-                if (selectedStagedId === id) {
-                    selectedStagedId = null;
-                    reviewEmpty.classList.remove('hidden');
-                    reviewDetail.classList.add('hidden');
+                try {
+                    const response = await fetch(discardUrlTemplate.replace('__ID__', encodeURIComponent(id)), {
+                        method: 'DELETE',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+                    const payload = await response.json();
+                    if (!response.ok || !payload.success) throw new Error(payload.message || 'Discard failed.');
+
+                    const name = row.dataset.name || 'The file';
+                    row.remove();
+                    stagedCount = Math.max(0, stagedCount - 1);
+                    if (kpiStaged) kpiStaged.textContent = String(stagedCount);
+                    updateStagedCount(stagedCount);
+                    checkStagedEmpty();
+                    if (selectedStagedId === id) {
+                        selectedStagedId = null;
+                        if (reviewEmpty) reviewEmpty.classList.remove('hidden');
+                        if (reviewDetail) reviewDetail.classList.add('hidden');
+                    }
+
+                    if (toastTitle) toastTitle.textContent = 'File discarded';
+                    if (toastFileName) toastFileName.textContent = `"${name}" was removed from staging.`;
+                    successToast.classList.remove('hidden');
+                    window.setTimeout(() => successToast.classList.add('hidden'), 5000);
+                } catch (error) {
+                    if (discardBtn) discardBtn.disabled = false;
+                    if (toastTitle) toastTitle.textContent = 'Discard failed';
+                    toastFileName.textContent = error.message || 'The file could not be discarded.';
+                    successToast.classList.remove('hidden');
                 }
             }
 
@@ -943,6 +1092,7 @@
 
             updateStagedCount(stagedCount);
             checkStagedEmpty();
+            loadStagedRows();
         });
     </script>
 @endsection

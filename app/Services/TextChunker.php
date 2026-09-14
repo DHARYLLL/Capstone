@@ -16,7 +16,8 @@ class TextChunker
      */
     public static function cleanExtractedText(string $text): string
     {
-        $normalizedText = str_replace(["\r\n", "\r"], "\n", $text);
+        $normalizedText = self::sanitizeExtractedText($text);
+        $normalizedText = str_replace(["\r\n", "\r"], "\n", $normalizedText);
         $lines = preg_split('/\n+/u', $normalizedText) ?: [];
         $lineFrequency = [];
 
@@ -46,6 +47,18 @@ class TextChunker
         }
 
         return trim((string) preg_replace('/\s+/u', ' ', implode(' ', $cleanLines)));
+    }
+
+    private static function sanitizeExtractedText(string $text): string
+    {
+        $text = str_replace(["\0", "\xC2\xA0", "\xA0"], ' ', $text);
+        $text = strip_tags($text);
+        $text = (string) preg_replace('/<[^>]*>/u', '', $text);
+        $text = (string) preg_replace('/<>/', '', $text);
+        $text = (string) preg_replace('/[\x{FFFD}\x{E000}-\x{F8FF}]/u', ' ', $text);
+        $text = (string) preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', ' ', $text);
+
+        return trim((string) preg_replace('/\s+/u', ' ', $text));
     }
 
     /**

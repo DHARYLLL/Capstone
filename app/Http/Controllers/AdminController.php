@@ -6,8 +6,10 @@ use App\Jobs\ProcessPdfIngestion;
 use App\Models\BusinessKnowledge;
 use App\Models\BusinessUnit;
 use App\Models\Company;
+use App\Models\StagedKnowledgeDocument;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -15,6 +17,106 @@ use Illuminate\View\View;
 
 class AdminController extends Controller
 {
+    public function stagedKnowledge(): JsonResponse
+    {
+        abort_unless(session('user_role') === 'Administrator', 403);
+
+        $documents = StagedKnowledgeDocument::query()
+            ->where('status', 'staged')
+            ->latest()
+            ->get()
+            ->map(static fn (StagedKnowledgeDocument $document): array => [
+                'id' => $document->id,
+                'branch' => $document->branch,
+                'name' => $document->original_name,
+                'type' => str_contains($document->mime_type, 'csv') ? 'CSV' : 'PDF',
+                'size' => $document->file_size,
+                'status' => $document->status,
+            ]);
+
+        return response()->json(['success' => true, 'data' => $documents]);
+    }
+
+    public function uploadKnowledge(Request $request): JsonResponse
+    {
+        abort_unless(session('user_role') === 'Administrator', 403);
+
+        $validated = $request->validate([
+            'file' => ['required', 'file', 'mimes:pdf,csv', 'max:25600'],
+            'business_unit_id' => ['nullable', 'integer', 'exists:business_units,id'],
+            'branch' => ['nullable', 'string', 'max:100'],
+            'edited_content' => ['nullable', 'string'],
+        ]);
+
+        $businessUnit = isset($validated['business_unit_id'])
+            ? BusinessUnit::query()->findOrFail($validated['business_unit_id'])
+            : BusinessUnit::query()->firstOrFail();
+        $file = $request->file('file');
+        $storedPath = $file->storeAs(
+            'knowledge-ingestions',
+            Str::uuid()->toString().'.'.$file->getClientOriginalExtension(),
+            'local'
+        );
+
+        $document = StagedKnowledgeDocument::query()->create([
+            'business_unit_id' => $businessUnit->id,
+            'branch' => $validated['branch'] ?? null,
+            'original_name' => $file->getClientOriginalName(),
+            'mime_type' => $file->getClientMimeType() ?: $file->getMimeType(),
+            'file_size' => $file->getSize(),
+            'stored_path' => $storedPath,
+            'edited_content' => $validated['edited_content'] ?? null,
+            'status' => 'staged',
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'File saved to staging.',
+            'data' => [
+                'id' => $document->id,
+                'branch' => $document->branch,
+                'name' => $document->original_name,
+                'type' => str_contains($document->mime_type, 'csv') ? 'CSV' : 'PDF',
+                'size' => $document->file_size,
+                'status' => $document->status,
+            ],
+        ], 201);
+    }
+
+    public function approveStagedKnowledge(StagedKnowledgeDocument $stagedDocument): JsonResponse
+    {
+        abort_unless(session('user_role') === 'Administrator', 403);
+        abort_unless($stagedDocument->status === 'staged', 409, 'This file has already been processed.');
+
+        $stagedDocument->update(['status' => 'processing']);
+
+        ProcessPdfIngestion::dispatch(
+            businessUnitId: $stagedDocument->business_unit_id,
+            storageDisk: 'local',
+            storedPath: $stagedDocument->stored_path,
+            stagedDocumentId: $stagedDocument->id,
+            editedContent: $stagedDocument->edited_content,
+            mimeType: $stagedDocument->mime_type,
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'File approved and queued for processing.',
+            'data' => ['id' => $stagedDocument->id, 'status' => 'processing'],
+        ]);
+    }
+
+    public function discardStagedKnowledge(StagedKnowledgeDocument $stagedDocument): JsonResponse
+    {
+        abort_unless(session('user_role') === 'Administrator', 403);
+        abort_unless($stagedDocument->status === 'staged', 409, 'Only staged files can be discarded.');
+
+        \Illuminate\Support\Facades\Storage::disk('local')->delete($stagedDocument->stored_path);
+        $stagedDocument->delete();
+
+        return response()->json(['success' => true, 'message' => 'Staged file discarded.']);
+    }
+
     public function index(Request $request): View
     {
         $user = $request->user();

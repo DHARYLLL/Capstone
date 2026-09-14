@@ -267,6 +267,7 @@ class ChatbotController extends Controller
                 "2. For business-specific questions, answer from BUSINESS FACTS.\n" .
                 "3. If facts are missing, clearly say you do not have enough information.\n" .
                 "4. Keep responses concise and customer-friendly.\n\n" .
+                "5. Mirror the user's language/dialect and format responses clearly with bullet points where appropriate.\n\n" .
                 "BUSINESS FACTS:\n{$knowledgeBase}";
 
             $fullPrompt =

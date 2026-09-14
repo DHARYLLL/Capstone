@@ -107,6 +107,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/', protectRoute('admin.dashboard', 'Administrator'))->name('dashboard');
 
     Route::get('/knowledge-base', protectRoute('admin.knowledge-base', 'Administrator'))->name('knowledge-base');
+    Route::post('/knowledge-base/upload', [AdminController::class, 'uploadKnowledge'])
+        ->name('knowledge.upload');
+    Route::get('/knowledge-base/staged', [AdminController::class, 'stagedKnowledge'])
+        ->name('knowledge.staged');
+    Route::post('/knowledge-base/staged/{stagedDocument}/approve', [AdminController::class, 'approveStagedKnowledge'])
+        ->name('knowledge.approve');
+    Route::delete('/knowledge-base/staged/{stagedDocument}', [AdminController::class, 'discardStagedKnowledge'])
+        ->name('knowledge.discard');
     Route::post('/business-units/{businessUnit}/knowledge/upload-pdf', [AdminController::class, 'uploadPdf'])
         ->name('knowledge.upload-pdf');
 
