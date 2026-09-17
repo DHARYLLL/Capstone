@@ -17,6 +17,74 @@ use Illuminate\View\View;
 
 class AdminController extends Controller
 {
+    public function knowledgeBase(Request $request): View
+    {
+        abort_unless(session('user_role') === 'Administrator', 403);
+
+        $chunks = BusinessKnowledge::query()
+            ->with('businessUnit')
+            ->latest()
+            ->paginate(15);
+
+        $businessUnits = \App\Models\BusinessUnit::query()->orderBy('name')->get();
+
+        return view('admin.knowledge-base', compact('chunks', 'businessUnits'));
+    }
+
+    public function storeChunk(Request $request): JsonResponse
+    {
+        abort_unless(session('user_role') === 'Administrator', 403);
+
+        $validated = $request->validate([
+            'content'          => ['required', 'string'],
+            'business_unit_id' => ['required', 'integer', 'exists:business_units,id'],
+        ]);
+
+        $chunk = BusinessKnowledge::query()->create($validated);
+        $chunk->load('businessUnit');
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'id'            => $chunk->id,
+                'business_unit' => $chunk->businessUnit?->name ?? '—',
+                'content'       => $chunk->content,
+                'created_at'    => $chunk->created_at->format('M d, Y · H:i'),
+            ],
+        ], 201);
+    }
+
+    public function destroyChunk(BusinessKnowledge $knowledge): JsonResponse
+    {
+        abort_unless(session('user_role') === 'Administrator', 403);
+
+        $knowledge->delete();
+
+        return response()->json(['success' => true]);
+    }
+
+    public function updateChunk(Request $request, BusinessKnowledge $knowledge): JsonResponse
+    {
+        abort_unless(session('user_role') === 'Administrator', 403);
+
+        $validated = $request->validate([
+            'content' => ['required', 'string'],
+        ]);
+
+        $knowledge->update($validated);
+        $knowledge->load('businessUnit');
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'id'            => $knowledge->id,
+                'business_unit' => $knowledge->businessUnit?->name ?? '—',
+                'content'       => $knowledge->content,
+                'created_at'    => $knowledge->created_at->format('M d, Y · H:i'),
+            ],
+        ]);
+    }
+
     public function stagedKnowledge(): JsonResponse
     {
         abort_unless(session('user_role') === 'Administrator', 403);

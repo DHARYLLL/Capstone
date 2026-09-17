@@ -159,6 +159,93 @@
             </div>{{-- /left column --}}
 
         </section>
+
+        {{-- ── Indexed Chunks Table ─────────────────────────────────────────── --}}
+        <section class="rounded-[2rem] border border-[#e2e8f0] bg-white shadow-sm">
+            <div class="flex items-center justify-between gap-4 border-b border-[#e2e8f0] px-6 py-5 lg:px-8">
+                <div>
+                    <h2 class="text-lg font-bold text-gray-900">Indexed Chunks</h2>
+                    <p class="mt-0.5 text-xs text-gray-500">All knowledge entries currently active in the chatbot database.</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200">
+                        <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                        <span id="chunks-total-badge">{{ $chunks->total() }} total</span>
+                    </span>
+                    <button type="button" id="add-chunk-btn"
+                        class="inline-flex items-center gap-1.5 rounded-full border-0 bg-[#1e293b] px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-[#0f172a]">
+                        + Add Chunk
+                    </button>
+                </div>
+            </div>
+
+            <div class="w-full overflow-hidden">
+                <table class="w-full table-fixed text-sm">
+                    <colgroup>
+                        <col class="w-14">
+                        <col class="w-36">
+                        <col>{{-- content: takes remaining space --}}
+                        <col class="w-44">
+                        <col class="w-40">
+                    </colgroup>
+                    <thead>
+                        <tr class="bg-[#1e293b] text-left text-xs font-semibold uppercase tracking-[0.18em] text-white">
+                            <th class="px-4 py-3">#</th>
+                            <th class="px-4 py-3">Business Unit</th>
+                            <th class="px-4 py-3">Content Preview</th>
+                            <th class="px-4 py-3">Created At</th>
+                            <th class="px-4 py-3">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-[#e2e8f0]" id="chunks-tbody">
+                        @forelse ($chunks as $chunk)
+                            <tr class="transition-colors hover:bg-[#f8fafc]">
+                                <td class="px-4 py-4 font-mono text-xs text-gray-400">{{ $chunk->id }}</td>
+                                <td class="px-4 py-4">
+                                    <span class="inline-flex max-w-full items-center truncate rounded-full bg-[#f1f5f9] px-2.5 py-1 text-xs font-semibold text-gray-700">
+                                        {{ $chunk->businessUnit?->name ?? '—' }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <p class="truncate text-gray-700">{{ \Illuminate\Support\Str::limit($chunk->content, 120) }}</p>
+                                </td>
+                                <td class="px-4 py-4 text-gray-500">
+                                    {{ $chunk->created_at->format('M d, Y · H:i') }}
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center gap-2">
+                                        <button type="button"
+                                            class="btn-edit-chunk inline-flex shrink-0 items-center rounded-full border border-[#e2e8f0] bg-[#f8fafc] px-3 py-1 text-xs font-semibold text-gray-700 transition-colors hover:bg-[#e2e8f0]"
+                                            data-id="{{ $chunk->id }}"
+                                            data-content="{{ $chunk->content }}">
+                                            Edit
+                                        </button>
+                                        <button type="button"
+                                            class="btn-delete-chunk inline-flex shrink-0 items-center rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700 transition-colors hover:bg-rose-100"
+                                            data-id="{{ $chunk->id }}">
+                                            Delete
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="px-6 py-12 text-center text-sm text-gray-400">
+                                    No indexed chunks yet. Upload and approve a file to populate this table.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            @if ($chunks->hasPages())
+                <div class="border-t border-[#e2e8f0] px-6 py-4">
+                    {{ $chunks->links() }}
+                </div>
+            @endif
+        </section>
+
     </div>
 
     {{-- ════════════════════════════════════════════════════════════════════════
@@ -1094,5 +1181,351 @@
             checkStagedEmpty();
             loadStagedRows();
         });
+    </script>
+
+    {{-- ── Edit Chunk Modal ──────────────────────────────────────────────────── --}}
+    <div id="edit-chunk-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4" role="dialog" aria-modal="true">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="edit-chunk-backdrop"></div>
+        <div class="relative w-full max-w-lg overflow-hidden rounded-[2rem] bg-white shadow-2xl ring-1 ring-black/5">
+            <div class="flex items-center justify-between gap-4 border-b border-[#e2e8f0] bg-[#f8fafc] px-6 py-5">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.22em] text-gray-400">Knowledge Base</p>
+                    <h2 class="mt-1 text-xl font-black tracking-tight text-gray-900">Edit Knowledge Chunk</h2>
+                </div>
+                <button type="button" id="edit-chunk-modal-close"
+                    class="flex h-10 w-10 items-center justify-center rounded-full text-gray-400 transition hover:bg-white hover:text-gray-700"
+                    aria-label="Close">
+                    <svg viewBox="0 0 24 24" class="h-5 w-5 fill-current">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="space-y-4 px-6 py-6">
+                <input type="hidden" id="edit-chunk-id">
+                <div>
+                    <label for="edit-chunk-content" class="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Content</label>
+                    <textarea id="edit-chunk-content" rows="6"
+                        class="w-full resize-y rounded-2xl border border-[#e2e8f0] bg-[#f8fafc] px-4 py-3 font-mono text-sm leading-6 text-gray-700 focus:border-[#1e293b] focus:outline-none"
+                        placeholder="Edit chunk content..."></textarea>
+                </div>
+                <p id="edit-chunk-error" class="hidden text-sm font-medium text-rose-600"></p>
+            </div>
+
+            <div class="flex items-center justify-end gap-3 border-t border-[#e2e8f0] bg-white px-6 py-4">
+                <button type="button" id="edit-chunk-cancel"
+                    class="btn rounded-full border border-gray-300 bg-white px-5 text-sm font-semibold text-gray-600 hover:bg-gray-50">
+                    Cancel
+                </button>
+                <button type="button" id="edit-chunk-submit"
+                    class="btn rounded-full border-0 bg-[#1e293b] px-6 text-sm font-bold text-white hover:bg-[#0f172a]">
+                    Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+
+    {{-- ── Add Chunk Modal ──────────────────────────────────────────────────── --}}
+    <div id="add-chunk-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4" role="dialog" aria-modal="true">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="add-chunk-backdrop"></div>
+        <div class="relative w-full max-w-lg overflow-hidden rounded-[2rem] bg-white shadow-2xl ring-1 ring-black/5">
+            <div class="flex items-center justify-between gap-4 border-b border-[#e2e8f0] bg-[#f8fafc] px-6 py-5">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.22em] text-gray-400">Knowledge Base</p>
+                    <h2 class="mt-1 text-xl font-black tracking-tight text-gray-900">Add Knowledge Chunk</h2>
+                </div>
+                <button type="button" id="add-chunk-modal-close"
+                    class="flex h-10 w-10 items-center justify-center rounded-full text-gray-400 transition hover:bg-white hover:text-gray-700"
+                    aria-label="Close">
+                    <svg viewBox="0 0 24 24" class="h-5 w-5 fill-current">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="space-y-4 px-6 py-6">
+                <div>
+                    <label for="chunk-business-unit" class="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Business Unit</label>
+                    <select id="chunk-business-unit"
+                        class="w-full rounded-2xl border border-[#e2e8f0] bg-[#f8fafc] px-4 py-3 text-sm text-gray-700 focus:border-[#1e293b] focus:outline-none">
+                        @foreach($businessUnits as $unit)
+                            <option value="{{ $unit->id }}">{{ $unit->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label for="chunk-content" class="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Content</label>
+                    <textarea id="chunk-content" rows="6"
+                        class="w-full resize-y rounded-2xl border border-[#e2e8f0] bg-[#f8fafc] px-4 py-3 font-mono text-sm leading-6 text-gray-700 focus:border-[#1e293b] focus:outline-none"
+                        placeholder="Enter knowledge chunk content..."></textarea>
+                </div>
+                <p id="add-chunk-error" class="hidden text-sm font-medium text-rose-600"></p>
+            </div>
+
+            <div class="flex items-center justify-end gap-3 border-t border-[#e2e8f0] bg-white px-6 py-4">
+                <button type="button" id="add-chunk-cancel"
+                    class="btn rounded-full border border-gray-300 bg-white px-5 text-sm font-semibold text-gray-600 hover:bg-gray-50">
+                    Cancel
+                </button>
+                <button type="button" id="add-chunk-submit"
+                    class="btn rounded-full border-0 bg-[#1e293b] px-6 text-sm font-bold text-white hover:bg-[#0f172a]">
+                    Save Chunk
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const csrfToken          = @json(csrf_token());
+        const storeUrl           = @json(route('admin.knowledge.chunks.store'));
+        const destroyUrlTemplate = @json(route('admin.knowledge.chunks.destroy', ['knowledge' => '__ID__']));
+
+        const addBtn        = document.getElementById('add-chunk-btn');
+        const modal         = document.getElementById('add-chunk-modal');
+        const modalClose    = document.getElementById('add-chunk-modal-close');
+        const modalCancel   = document.getElementById('add-chunk-cancel');
+        const modalBackdrop = document.getElementById('add-chunk-backdrop');
+        const submitBtn     = document.getElementById('add-chunk-submit');
+        const contentField  = document.getElementById('chunk-content');
+        const buField       = document.getElementById('chunk-business-unit');
+        const errorMsg      = document.getElementById('add-chunk-error');
+        const tbody         = document.getElementById('chunks-tbody');
+        const totalBadge    = document.getElementById('chunks-total-badge');
+
+        function openAddModal() {
+            if (contentField) contentField.value = '';
+            if (errorMsg) errorMsg.classList.add('hidden');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.classList.add('overflow-hidden');
+        }
+
+        function closeAddModal() {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.classList.remove('overflow-hidden');
+        }
+
+        if (addBtn)        addBtn.addEventListener('click', openAddModal);
+        if (modalClose)    modalClose.addEventListener('click', closeAddModal);
+        if (modalCancel)   modalCancel.addEventListener('click', closeAddModal);
+        if (modalBackdrop) modalBackdrop.addEventListener('click', closeAddModal);
+
+        if (submitBtn) {
+            submitBtn.addEventListener('click', async () => {
+                const content = contentField ? contentField.value.trim() : '';
+                const buId    = buField ? buField.value : '';
+
+                if (!content) {
+                    errorMsg.textContent = 'Content is required.';
+                    errorMsg.classList.remove('hidden');
+                    return;
+                }
+                errorMsg.classList.add('hidden');
+                submitBtn.disabled = true;
+
+                try {
+                    const res = await fetch(storeUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                        body: JSON.stringify({ content, business_unit_id: buId }),
+                    });
+                    const payload = await res.json();
+                    if (!res.ok || !payload.success) throw new Error(payload.message || 'Could not save chunk.');
+
+                    const d  = payload.data;
+                    const tr = document.createElement('tr');
+                    tr.className    = 'transition-colors hover:bg-[#f8fafc]';
+                    tr.dataset.id   = d.id;
+                    tr.innerHTML = `
+                        <td class="px-6 py-4 font-mono text-xs text-gray-400">${escHtml(String(d.id))}</td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center rounded-full bg-[#f1f5f9] px-2.5 py-1 text-xs font-semibold text-gray-700">
+                                ${escHtml(d.business_unit)}
+                            </span>
+                        </td>
+                        <td class="max-w-xl px-6 py-4">
+                            <p class="truncate text-gray-700">${escHtml(d.content.length > 120 ? d.content.substring(0, 120) + '...' : d.content)}</p>
+                        </td>
+                        <td class="whitespace-nowrap px-6 py-4 text-gray-500">${escHtml(d.created_at)}</td>
+                        <td class="whitespace-nowrap px-6 py-4">
+                            <div class="flex items-center gap-2">
+                                <button type="button"
+                                    class="btn-edit-chunk inline-flex items-center rounded-full border border-[#e2e8f0] bg-[#f8fafc] px-3 py-1 text-xs font-semibold text-gray-700 transition-colors hover:bg-[#e2e8f0]"
+                                    data-id="${escHtml(String(d.id))}"
+                                    data-content="${escHtml(d.content)}">
+                                    Edit
+                                </button>
+                                <button type="button"
+                                    class="btn-delete-chunk inline-flex items-center rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700 transition-colors hover:bg-rose-100"
+                                    data-id="${escHtml(String(d.id))}">
+                                    Delete
+                                </button>
+                            </div>
+                        </td>`;
+
+                    if (tbody) {
+                        const emptyRow = tbody.querySelector('td[colspan]');
+                        if (emptyRow) emptyRow.closest('tr').remove();
+                        tbody.prepend(tr);
+                        bindDeleteBtn(tr.querySelector('.btn-delete-chunk'));
+                        bindEditBtn(tr.querySelector('.btn-edit-chunk'));
+                    }
+
+                    if (totalBadge) {
+                        const current = parseInt(totalBadge.textContent, 10) || 0;
+                        totalBadge.textContent = (current + 1) + ' total';
+                    }
+
+                    closeAddModal();
+                } catch (err) {
+                    errorMsg.textContent = err.message || 'An error occurred.';
+                    errorMsg.classList.remove('hidden');
+                } finally {
+                    submitBtn.disabled = false;
+                }
+            });
+        }
+
+        function bindDeleteBtn(btn) {
+            if (!btn) return;
+            btn.addEventListener('click', async () => {
+                const id = btn.dataset.id;
+                if (!confirm('Delete this chunk? This cannot be undone.')) return;
+                btn.disabled = true;
+
+                try {
+                    const url = destroyUrlTemplate.replace('__ID__', encodeURIComponent(id));
+                    const res = await fetch(url, {
+                        method: 'DELETE',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                    });
+                    const payload = await res.json();
+                    if (!res.ok || !payload.success) throw new Error(payload.message || 'Delete failed.');
+
+                    const row = btn.closest('tr');
+                    if (row) row.remove();
+
+                    if (totalBadge) {
+                        const current = parseInt(totalBadge.textContent, 10) || 1;
+                        totalBadge.textContent = Math.max(0, current - 1) + ' total';
+                    }
+                } catch (err) {
+                    btn.disabled = false;
+                    alert(err.message || 'Could not delete chunk.');
+                }
+            });
+        }
+
+        document.querySelectorAll('.btn-delete-chunk').forEach(btn => bindDeleteBtn(btn));
+
+        // ── Edit chunk ───────────────────────────────────────────────────────
+        const editModal         = document.getElementById('edit-chunk-modal');
+        const editModalClose    = document.getElementById('edit-chunk-modal-close');
+        const editModalCancel   = document.getElementById('edit-chunk-cancel');
+        const editModalBackdrop = document.getElementById('edit-chunk-backdrop');
+        const editSubmitBtn     = document.getElementById('edit-chunk-submit');
+        const editContentField  = document.getElementById('edit-chunk-content');
+        const editIdField       = document.getElementById('edit-chunk-id');
+        const editErrorMsg      = document.getElementById('edit-chunk-error');
+        const updateUrlTemplate = @json(route('admin.knowledge.chunks.update', ['knowledge' => '__ID__']));
+
+        function openEditModal(id, content) {
+            editIdField.value      = id;
+            editContentField.value = content;
+            editErrorMsg.classList.add('hidden');
+            editModal.classList.remove('hidden');
+            editModal.classList.add('flex');
+            document.body.classList.add('overflow-hidden');
+        }
+
+        function closeEditModal() {
+            editModal.classList.add('hidden');
+            editModal.classList.remove('flex');
+            document.body.classList.remove('overflow-hidden');
+        }
+
+        if (editModalClose)    editModalClose.addEventListener('click', closeEditModal);
+        if (editModalCancel)   editModalCancel.addEventListener('click', closeEditModal);
+        if (editModalBackdrop) editModalBackdrop.addEventListener('click', closeEditModal);
+
+        if (editSubmitBtn) {
+            editSubmitBtn.addEventListener('click', async () => {
+                const id      = editIdField.value;
+                const content = editContentField.value.trim();
+
+                if (!content) {
+                    editErrorMsg.textContent = 'Content is required.';
+                    editErrorMsg.classList.remove('hidden');
+                    return;
+                }
+                editErrorMsg.classList.add('hidden');
+                editSubmitBtn.disabled = true;
+
+                try {
+                    const url = updateUrlTemplate.replace('__ID__', encodeURIComponent(id));
+                    const res = await fetch(url, {
+                        method: 'PATCH',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                        body: JSON.stringify({ content }),
+                    });
+                    const payload = await res.json();
+                    if (!res.ok || !payload.success) throw new Error(payload.message || 'Could not save changes.');
+
+                    const d   = payload.data;
+                    const row = tbody ? tbody.querySelector(`tr[data-id="${id}"]`) : null;
+                    if (row) {
+                        const cells = row.querySelectorAll('td');
+                        // cells[2] = content preview
+                        if (cells[2]) {
+                            const p = cells[2].querySelector('p');
+                            if (p) p.textContent = d.content.length > 120 ? d.content.substring(0, 120) + '...' : d.content;
+                        }
+                        // update data-content on the edit button for future opens
+                        const editBtn = row.querySelector('.btn-edit-chunk');
+                        if (editBtn) editBtn.dataset.content = d.content;
+                    }
+
+                    closeEditModal();
+                } catch (err) {
+                    editErrorMsg.textContent = err.message || 'An error occurred.';
+                    editErrorMsg.classList.remove('hidden');
+                } finally {
+                    editSubmitBtn.disabled = false;
+                }
+            });
+        }
+
+        function bindEditBtn(btn) {
+            if (!btn) return;
+            btn.addEventListener('click', () => openEditModal(btn.dataset.id, btn.dataset.content));
+        }
+
+        document.querySelectorAll('.btn-edit-chunk').forEach(btn => bindEditBtn(btn));
+
+        function escHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+    });
     </script>
 @endsection

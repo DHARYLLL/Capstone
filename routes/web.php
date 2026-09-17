@@ -106,7 +106,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     Route::get('/', protectRoute('admin.dashboard', 'Administrator'))->name('dashboard');
 
-    Route::get('/knowledge-base', protectRoute('admin.knowledge-base', 'Administrator'))->name('knowledge-base');
+    Route::get('/knowledge-base', [AdminController::class, 'knowledgeBase'])->name('knowledge-base');
+    Route::post('/knowledge-base/chunks', [AdminController::class, 'storeChunk'])->name('knowledge.chunks.store');
+    Route::delete('/knowledge-base/chunks/{knowledge}', [AdminController::class, 'destroyChunk'])->name('knowledge.chunks.destroy');
+    Route::patch('/knowledge-base/chunks/{knowledge}', [AdminController::class, 'updateChunk'])->name('knowledge.chunks.update');
     Route::post('/knowledge-base/upload', [AdminController::class, 'uploadKnowledge'])
         ->name('knowledge.upload');
     Route::get('/knowledge-base/staged', [AdminController::class, 'stagedKnowledge'])
