@@ -11,14 +11,17 @@ class ChatFeedback extends Model
 {
     use HasFactory;
 
+    protected $table = 'bot_feedbacks';
+
     /**
      * The attributes that are mass assignable.
      *
      * @var list<string>
      */
     protected $fillable = [
-        'company_id',
-        'status',
+        'chat_message_id',
+        'rating',
+        'comment',
     ];
 
     /**

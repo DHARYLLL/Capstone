@@ -432,6 +432,7 @@
 
             wrapper.appendChild(avatarWrapper);
             wrapper.appendChild(bubble);
+
             messageContainer.appendChild(wrapper);
             scrollToBottom();
         }
@@ -616,8 +617,20 @@
                     : (senderType === 'agent' || senderType === 'operator'
                         ? 'chat-bubble bg-emerald-50 text-emerald-900 border border-emerald-200 shadow-sm text-sm leading-relaxed max-w-[85%]'
                         : 'chat-bubble bot bg-white text-gray-800 border border-gray-200/80 shadow-sm text-sm leading-relaxed max-w-[85%]'));
-            
-            bubble.innerHTML = message;
+
+            const isBotMessage = !isUser && senderType === 'bot' && messageId !== null;
+            bubble.innerHTML = `${message}${isBotMessage ? `
+                <div class="mt-2 flex items-center gap-2 text-xs text-gray-400" data-feedback-actions>
+                    <span>Was this helpful?</span>
+                    <button type="button" class="btn-feedback hover:text-emerald-600 transition" data-message-id="${messageId}" data-rating="like" aria-label="Helpful">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 012 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" /></svg>
+                    </button>
+                    <button type="button" class="btn-feedback hover:text-rose-600 transition" data-message-id="${messageId}" data-rating="dislike" aria-label="Unhelpful">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.737 3h4.018c.163 0 .326.02.485.06L17 4m-7 10v5a2 2 0 002 2h.095c.5 0 .905-.405.905-.905 0-.714-.211-1.412-.608-2.006L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5" /></svg>
+                    </button>
+                    <span class="hidden" data-feedback-status aria-live="polite"></span>
+                </div>
+            ` : ''}`;
 
             wrapper.appendChild(avatarWrapper);
             wrapper.appendChild(bubble);
@@ -626,6 +639,42 @@
             scrollToBottom();
             return wrapper;
         }
+
+        messageContainer.addEventListener('click', async (event) => {
+            const button = event.target.closest('.btn-feedback');
+            if (!button || !messageContainer.contains(button)) return;
+
+            const actions = button.closest('[data-feedback-actions]');
+            const buttons = [...actions.querySelectorAll('.btn-feedback')];
+            const status = actions.querySelector('[data-feedback-status]');
+            buttons.forEach((item) => { item.disabled = true; });
+
+            try {
+                const response = await fetch('{{ route('chat.feedback.store') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                    },
+                    body: JSON.stringify({
+                        chat_message_id: button.dataset.messageId,
+                        rating: button.dataset.rating,
+                    }),
+                });
+
+                if (!response.ok) throw new Error('Feedback request failed');
+
+                button.classList.add(button.dataset.rating === 'like' ? 'text-emerald-600' : 'text-rose-600');
+                status.textContent = 'Thanks for your feedback!';
+                status.classList.remove('hidden');
+            } catch (error) {
+                buttons.forEach((item) => { item.disabled = false; });
+                status.textContent = 'Unable to record feedback.';
+                status.classList.remove('hidden');
+                console.error('Feedback error:', error);
+            }
+        });
 
         // Handle quick action suggestion buttons
         function handleSuggestion(suggestionText) {

@@ -258,6 +258,14 @@ private function batchEmbedChunks(array $chunks): array
         $response = Http::baseUrl($baseUrl)
             ->acceptJson()
             ->timeout(15)
+            ->retry(
+                [200, 400, 800],
+                when: static function ($exception): bool {
+                    return $exception instanceof \Illuminate\Http\Client\ConnectionException
+                        || ($exception instanceof \Illuminate\Http\Client\RequestException
+                            && in_array($exception->response->status(), [429, 500, 503], true));
+                },
+            )
             ->withQueryParameters(['key' => $apiKey])
             ->post('models/gemini-embedding-001:embedContent', [ // 👈 Updated model name
                 'model' => 'models/gemini-embedding-001',       // 👈 Updated model name

@@ -7,12 +7,14 @@ use App\Models\ChatMessage;
 use App\Models\ChatSession;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\View\View;
 use Gemini\Laravel\Facades\Gemini;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
+use Throwable;
 
 class ChatbotController extends Controller
 {
@@ -171,6 +173,7 @@ class ChatbotController extends Controller
             'chat_session_id' => $session->id,
             'sender_type' => 'customer',
             'message_text' => $promptText,
+            'intent' => $this->classifyIntent($promptText),
         ]);
 
         if ($session->status === 'human_active') {
@@ -275,7 +278,11 @@ class ChatbotController extends Controller
                 "CONVERSATION HISTORY:\n{$conversationContext}\n" .
                 "USER QUESTION:\n{$promptText}";
 
-            $response = Gemini::generativeModel('gemini-3.6-flash')->generateContent($fullPrompt);
+            $response = retry(
+                [200, 400, 800],
+                fn () => Gemini::generativeModel('gemini-3.6-flash')->generateContent($fullPrompt),
+                when: fn (Throwable $exception): bool => $this->shouldRetryGemini($exception),
+            );
             $rawResponse = trim((string) $response->text());
 
             if ($rawResponse === '') {
@@ -309,10 +316,10 @@ class ChatbotController extends Controller
             return response()->json([
                 'status' => 'bot_active',
                 'message' => $promptText,
-                'response' => 'Sorry, an error occurred while generating a response.',
+                'response' => 'Our assistant is receiving high traffic right now. Please try your request again in a moment.',
                 'session_id' => $session->id,
                 'customer_message_id' => $customerMessage->id,
-            ], 500);
+            ]);
         }
     }
 
@@ -428,8 +435,12 @@ class ChatbotController extends Controller
         $systemInstructions .= $knowledgeText;
 
         try {
-            $response = Gemini::generativeModel('gemini-3.6-flash')
-                ->generateContent($systemInstructions . "\n\nUSER QUESTION:\n" . $prompt);
+            $response = retry(
+                [200, 400, 800],
+                fn () => Gemini::generativeModel('gemini-3.6-flash')
+                    ->generateContent($systemInstructions . "\n\nUSER QUESTION:\n" . $prompt),
+                when: fn (Throwable $exception): bool => $this->shouldRetryGemini($exception),
+            );
 
             $rawResponse = trim((string) $response->text());
             
@@ -456,6 +467,25 @@ class ChatbotController extends Controller
         $session->save();
     }
 
+    private function classifyIntent(string $prompt): string
+    {
+        $normalized = mb_strtolower($prompt);
+
+        if (preg_match('/\b(warranty|guarantee|covered|coverage)\b/u', $normalized)) {
+            return 'Warranty';
+        }
+
+        if (preg_match('/\b(price|pricing|cost|quote|quotation|estimate|rate|fee|budget|affordable)\b/u', $normalized)) {
+            return 'Pricing & Quotes';
+        }
+
+        if (preg_match('/\b(schedule|scheduling|book|booking|appointment|inspection|visit|available|availability)\b/u', $normalized)) {
+            return 'Scheduling';
+        }
+
+        return 'General Inquiry';
+    }
+
     private function containsHandoffTrigger(string $message): bool
     {
         $normalized = trim($message);
@@ -475,8 +505,12 @@ class ChatbotController extends Controller
 
             $classificationPrompt .= "\n\n" . $normalized;
 
-            $response = Gemini::generativeModel('gemini-3.6-flash')
-                ->generateContent($classificationPrompt);
+            $response = retry(
+                [200, 400, 800],
+                fn () => Gemini::generativeModel('gemini-3.6-flash')
+                    ->generateContent($classificationPrompt),
+                when: fn (Throwable $exception): bool => $this->shouldRetryGemini($exception),
+            );
 
             $rawResponse = trim((string) $response->text());
             $json = $this->parseJsonObject($rawResponse);
@@ -662,14 +696,18 @@ class ChatbotController extends Controller
     private function embedUserPrompt(string $prompt): ?string
     {
         try {
-            $response = app(\Gemini\Contracts\ClientContract::class)
-                ->embeddingModel('gemini-embedding-001')
-                ->embedContent(
-                    $prompt,
-                    \Gemini\Enums\TaskType::RETRIEVAL_QUERY,
-                    null,
-                    768
-                );
+            $response = retry(
+                [200, 400, 800],
+                fn () => app(\Gemini\Contracts\ClientContract::class)
+                    ->embeddingModel('gemini-embedding-001')
+                    ->embedContent(
+                        $prompt,
+                        \Gemini\Enums\TaskType::RETRIEVAL_QUERY,
+                        null,
+                        768
+                    ),
+                when: fn (Throwable $exception): bool => $this->shouldRetryGemini($exception),
+            );
 
             $values = $response->embedding->values ?? null;
 
@@ -690,6 +728,21 @@ class ChatbotController extends Controller
 
             return null;
         }
+    }
+
+    private function shouldRetryGemini(Throwable $exception): bool
+    {
+        if ($exception instanceof ConnectionException
+            || $exception instanceof \GuzzleHttp\Exception\ConnectException) {
+            return true;
+        }
+
+        $response = method_exists($exception, 'getResponse')
+            ? $exception->getResponse()
+            : null;
+        $status = $response?->getStatusCode();
+
+        return in_array($status, [429, 500, 503], true);
     }
 
 //     private function embedUserPrompt(string $prompt): ?string

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class ChatMessage extends Model
 {
@@ -21,6 +21,7 @@ class ChatMessage extends Model
         'chat_session_id',
         'sender_type',
         'message_text',
+        'intent',
     ];
 
     /**
@@ -36,10 +37,10 @@ class ChatMessage extends Model
     /**
      * Get the knowledge entries for the business unit.
      *
-     * @return HasMany<ChatFeedback, $this>
+     * @return HasOne<ChatFeedback, $this>
      */
-    public function chatFeedback(): HasMany
+    public function chatFeedback(): HasOne
     {
-        return $this->hasMany(ChatFeedback::class);
+        return $this->hasOne(ChatFeedback::class);
     }
 }

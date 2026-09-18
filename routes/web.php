@@ -8,6 +8,8 @@ use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\OperatorChatController;
 use App\Http\Controllers\StaffChatController;
+use App\Http\Controllers\ChatFeedbackController;
+use App\Http\Controllers\AnalyticsController;
 //gi add ni gar -- end--
 
 // ── Public: redirects to login page ──
@@ -118,7 +120,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('/business-units/{businessUnit}/knowledge/upload-pdf', [AdminController::class, 'uploadPdf'])
         ->name('knowledge.upload-pdf');
 
-    Route::get('/analytics', protectRoute('admin.analytics', 'Administrator'))->name('analytics');
+    Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics');
 
     Route::get('/chat', protectRoute('admin.chat', 'Administrator'))->name('chat');
 
@@ -188,3 +190,6 @@ Route::controller(ChatbotController::class)->group(function (): void {
     // 5. Cancel handoff endpoint
     Route::post('/api/chatbot/cancel-handoff', [ChatbotController::class, 'cancelHandoff'])->name('chatbot.cancel-handoff');
 });
+
+Route::post('/chat/feedback', [ChatFeedbackController::class, 'store'])
+    ->name('chat.feedback.store');

@@ -148,7 +148,14 @@ class CsvIngestionService
         $response = Http::baseUrl($this->geminiBaseUrl())
             ->acceptJson()
             ->timeout((int) config('gemini.request_timeout', 30))
-            ->retry(2, 1000)
+            ->retry(
+                [200, 400, 800],
+                when: static function ($exception): bool {
+                    return $exception instanceof \Illuminate\Http\Client\ConnectionException
+                        || ($exception instanceof \Illuminate\Http\Client\RequestException
+                            && in_array($exception->response->status(), [429, 500, 503], true));
+                },
+            )
             ->withQueryParameters(['key' => (string) config('gemini.api_key')])
             ->post('models/text-embedding-004:batchEmbedContents', [
                 'requests' => array_map(
