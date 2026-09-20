@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('page_title', 'Knowledge Base Upload')
 @section('breadcrumbs', 'Admin / Knowledge Base')
@@ -22,7 +22,7 @@
                 <div>
                     <h1 class="text-3xl font-black tracking-tight text-gray-900">Knowledge Base Upload</h1>
                     <p class="mt-2 max-w-3xl text-sm leading-6 text-gray-500">
-                        Upload PDFs and CSVs, review staged files, and approve knowledge entries for chatbot use.
+                        Upload PDFs and CSVs, verify extracted content, and train the chatbot in one flow.
                     </p>
                 </div>
             </div>
@@ -58,24 +58,13 @@
                     </div>
                 </div>
 
-                {{-- ── Status KPI cards (4 cards) ──────────────────────────── --}}
+                {{-- ── Status KPI cards ──────────────────────────── --}}
                 <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                    {{-- Staged --}}
-                    <div class="card bg-base-100 shadow-sm">
-                        <div class="card-body p-5">
-                            <div class="flex items-center gap-2">
-                                <span class="h-2 w-2 rounded-full bg-amber-400"></span>
-                                <div class="text-sm text-gray-500">Staged</div>
-                            </div>
-                            <div class="mt-2 text-3xl font-black text-amber-600" id="kpi-staged">3</div>
-                            <p class="mt-2 text-sm text-gray-500">Awaiting review</p>
-                        </div>
-                    </div>
                     {{-- Queued --}}
                     <div class="card bg-base-100 shadow-sm">
                         <div class="card-body p-5">
                             <div class="text-sm text-gray-500">Queued</div>
-                            <div class="mt-2 text-3xl font-black text-gray-900" id="kpi-queued">4</div>
+                            <div class="mt-2 text-3xl font-black text-gray-900" id="kpi-queued">0</div>
                             <p class="mt-2 text-sm text-gray-500">Waiting for processing</p>
                         </div>
                     </div>
@@ -83,7 +72,7 @@
                     <div class="card bg-base-100 shadow-sm">
                         <div class="card-body p-5">
                             <div class="text-sm text-gray-500">Processing</div>
-                            <div class="mt-2 text-3xl font-black text-gray-900" id="kpi-processing">2</div>
+                            <div class="mt-2 text-3xl font-black text-gray-900" id="kpi-processing">0</div>
                             <p class="mt-2 text-sm text-gray-500">Indexing and validation</p>
                         </div>
                     </div>
@@ -91,68 +80,30 @@
                     <div class="card bg-base-100 shadow-sm">
                         <div class="card-body p-5">
                             <div class="text-sm text-gray-500">Indexed</div>
-                            <div class="mt-2 text-3xl font-black text-gray-900" id="kpi-indexed">18</div>
+                            <div class="mt-2 text-3xl font-black text-gray-900" id="kpi-indexed">{{ $chunks->total() }}</div>
                             <p class="mt-2 text-sm text-gray-500">Ready for assistant responses</p>
+                        </div>
+                    </div>
+                    {{-- Total uploads --}}
+                    <div class="card bg-base-100 shadow-sm">
+                        <div class="card-body p-5">
+                            <div class="text-sm text-gray-500">Total uploads</div>
+                            <div class="mt-2 text-3xl font-black text-gray-900" id="kpi-total">{{ $chunks->total() }}</div>
+                            <p class="mt-2 text-sm text-gray-500">Knowledge chunks stored</p>
                         </div>
                     </div>
                 </div>
 
-                {{-- ── Processing Queue ─────────────────────────────────────── --}}
+                {{-- ── Processing Queue (read-only status monitor) ──────────── --}}
                 <div class="card bg-base-100 shadow-sm" id="staged-files-panel">
                     <div class="card-body p-6">
-                        <div class="flex items-center justify-between gap-3">
-                            <div>
-                                <h2 class="text-lg font-bold text-gray-900">Processing queue</h2>
-                                <p class="mt-0.5 text-xs text-gray-500">Approved files move here while they are trained and indexed.</p>
-                            </div>
+                        <div>
+                            <h2 class="text-lg font-bold text-gray-900">Processing queue</h2>
+                            <p class="mt-0.5 text-xs text-gray-500">Files appear here while they are being trained and indexed.</p>
                         </div>
                         <div class="mt-4 space-y-3" id="processing-queue-container">
-
-                            {{-- Queue item: uploading --}}
-                            <div class="rounded-2xl bg-[#ffffff] p-4">
-                                <div class="flex items-center justify-between gap-4">
-                                    <div>
-                                        <div class="font-semibold text-gray-800">Villa Carmelita policies.pdf</div>
-                                        <div class="text-sm text-gray-500">PDF · 12 pages · Uploading</div>
-                                    </div>
-                                    <span
-                                        class="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700 ring-1 ring-amber-200">62%</span>
-                                </div>
-                                <div class="mt-3 h-2 rounded-full bg-gray-200">
-                                    <div class="h-2 w-[62%] rounded-full bg-[#1e293b]"></div>
-                                </div>
-                            </div>
-                            {{-- Queue item: validated / ready --}}
-                            <div class="rounded-2xl bg-[#ffffff] p-4">
-                                <div class="flex items-center justify-between gap-4">
-                                    <div>
-                                        <div class="font-semibold text-gray-800">Restaurant menu.csv</div>
-                                        <div class="text-sm text-gray-500">CSV · 42 rows · Validated</div>
-                                    </div>
-                                    <span
-                                        class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200">
-                                        <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
-                                        Ready
-                                    </span>
-                                </div>
-                                <p class="mt-2 text-xs text-emerald-600">Columns mapped successfully · 2 duplicate rows
-                                    skipped</p>
-                            </div>
-                            {{-- Queue item: staged badge example --}}
-                            <div class="rounded-2xl bg-[#ffffff] p-4 queue-staged-example">
-                                <div class="flex items-center justify-between gap-4">
-                                    <div>
-                                        <div class="font-semibold text-gray-800">Pool rates summer.pdf</div>
-                                        <div class="text-sm text-gray-500">PDF · 5 pages · Pending approval</div>
-                                    </div>
-                                    <span
-                                        class="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700 ring-1 ring-amber-200">
-                                        <span class="h-1.5 w-1.5 rounded-full bg-amber-400"></span>
-                                        Staged
-                                    </span>
-                                </div>
-                            </div>
-                        </div>{{-- /processing-queue-container --}}
+                            <p class="text-sm text-gray-400" id="queue-empty-msg">No files in the queue right now.</p>
+                        </div>
                     </div>
                 </div>
 
@@ -184,7 +135,7 @@
                     <colgroup>
                         <col class="w-14">
                         <col class="w-36">
-                        <col>{{-- content: takes remaining space --}}
+                        <col>
                         <col class="w-44">
                         <col class="w-40">
                     </colgroup>
@@ -249,7 +200,10 @@
     </div>
 
     {{-- ════════════════════════════════════════════════════════════════════════
-    UPLOAD WIZARD MODAL — 4-Phase Workflow
+    UPLOAD WIZARD MODAL — 3-Step Workflow
+    Step 1: Upload & Detect  (drop / pick file, preview chunks)
+    Step 2: Verify Content   (edit extracted text, then Approve & Train)
+    Step 3: Training / Done  (processing animation → success)
     ════════════════════════════════════════════════════════════════════════ --}}
     <div id="kb-upload-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4" role="dialog"
         aria-modal="true" aria-labelledby="modal-title">
@@ -257,6 +211,8 @@
         <div id="kb-modal-backdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
 
         <div class="relative flex h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-[2rem] bg-white shadow-2xl ring-1 ring-black/5">
+
+            {{-- Modal header --}}
             <div class="flex items-start justify-between gap-4 border-b border-[#e2e8f0] bg-[#f8fafc] px-6 py-5 sm:px-8">
                 <div class="min-w-0">
                     <p class="text-xs font-semibold uppercase tracking-[0.22em] text-gray-400">Knowledge Base Upload</p>
@@ -278,15 +234,16 @@
                 </button>
             </div>
 
+            {{-- 3-step pill nav --}}
             <div class="border-b border-[#e2e8f0] px-6 py-4 sm:px-8">
-                <div class="grid gap-3 sm:grid-cols-4">
+                <div class="grid gap-3 sm:grid-cols-3">
                     <div id="phase-pill-1" class="rounded-2xl border border-[#1e293b] bg-[#1e293b] px-4 py-3 text-sm font-semibold text-white">1. Upload &amp; Detect</div>
-                    <div id="phase-pill-2" class="rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-500">2. Staging Review</div>
-                    <div id="phase-pill-3" class="rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-500">3. Processing</div>
-                    <div id="phase-pill-4" class="rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-500">4. Success &amp; Sandbox</div>
+                    <div id="phase-pill-2" class="rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-500">2. Verify Content</div>
+                    <div id="phase-pill-3" class="rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-500">3. Training</div>
                 </div>
             </div>
 
+            {{-- Step 1: Upload & Detect --}}
             <div id="modal-step-review" class="hide-scrollbar flex-1 min-h-0 grid gap-6 overflow-y-auto px-6 py-6 sm:px-8 lg:grid-cols-[1fr_1.2fr]">
                 <div class="space-y-5">
                     <div class="rounded-[1.75rem] border border-[#e2e8f0] bg-white p-5 shadow-sm">
@@ -312,7 +269,7 @@
                         <div class="flex items-center justify-between gap-3">
                             <div>
                                 <p class="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Upload Feedback</p>
-                                <h3 class="mt-1 text-base font-bold text-gray-900">Browser-side check and backend parse</h3>
+                                <h3 class="mt-1 text-base font-bold text-gray-900">Browser-side check</h3>
                             </div>
                             <span id="modal-size-badge" class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200">
                                 <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
@@ -344,102 +301,111 @@
                 </div>
             </div>
 
-            <div id="modal-step-confirm" class="hide-scrollbar hidden flex-1 min-h-0 overflow-y-auto border-t border-[#e2e8f0] px-6 py-6 sm:px-8">
-                <div class="grid gap-6 lg:grid-cols-[1fr_1.1fr]">
+            {{-- Step 2: Verify Content --}}
+            <div id="modal-step-verify" class="hide-scrollbar hidden flex-1 min-h-0 overflow-y-auto border-t border-[#e2e8f0] px-6 py-6 sm:px-8">
+                <div class="space-y-5">
                     <div class="rounded-[1.75rem] border border-[#e2e8f0] bg-[#f8fafc] p-5 shadow-sm">
-                        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Processing / Embedding State</p>
-                        <h3 class="mt-1 text-xl font-black tracking-tight text-gray-900">Background ingestion is running</h3>
-                        <div class="mt-4 space-y-3 text-sm text-gray-700">
-                            <div class="flex items-center gap-3 rounded-2xl bg-white p-4 ring-1 ring-[#e2e8f0]" id="processing-step-1">
-                                <span class="h-3 w-3 rounded-full bg-emerald-500"></span>
-                                Securing Data Boundaries...
-                            </div>
-                            <div class="flex items-center gap-3 rounded-2xl bg-white p-4 ring-1 ring-[#e2e8f0]" id="processing-step-2">
-                                <span class="h-3 w-3 rounded-full bg-amber-400"></span>
-                                Generating Mathematical Context...
-                            </div>
-                            <div class="flex items-center gap-3 rounded-2xl bg-white p-4 ring-1 ring-[#e2e8f0]" id="processing-step-3">
-                                <span class="h-3 w-3 rounded-full bg-gray-300"></span>
-                                Updating Chatbot Knowledge...
-                            </div>
-                        </div>
-                        <div class="mt-5 rounded-2xl bg-blue-50 p-4 text-sm text-blue-800 ring-1 ring-blue-200">
-                            Your file is being indexed and prepared for the chatbot database.
-                        </div>
+                        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Verify extracted content</p>
+                        <h3 class="mt-1 text-base font-bold text-gray-900">Check and fix anything before training</h3>
+                        <p class="mt-2 text-sm leading-6 text-gray-600">
+                            Review the text the AI will learn from. Edit, remove bad OCR, or rewrite sections. When you're satisfied, click <strong>Approve &amp; Train</strong>.
+                        </p>
+
+                        <label for="confirm-edit-box" class="mt-4 block text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Extracted content</label>
+                        <textarea id="confirm-edit-box" rows="16"
+                            class="mt-2 w-full rounded-2xl border border-[#e2e8f0] bg-white p-4 font-mono text-sm leading-6 text-gray-700 focus:border-[#1e293b] focus:outline-none resize-y"
+                            placeholder="Edit parsed content here..."></textarea>
+                        <p class="mt-2 text-xs text-gray-500">Changes made here are saved with the file and used for AI training.</p>
                     </div>
 
-                    <div class="rounded-[1.75rem] border border-[#e2e8f0] bg-white p-5 shadow-sm">
-                        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Edit extracted content</p>
-                        <h3 class="mt-1 text-base font-bold text-gray-900">Fix anything that looks wrong before training</h3>
-                        <p class="mt-2 text-sm leading-6 text-gray-600">This is the last chance to correct the parsed text before it is queued for indexing and vectorization.</p>
-
-                        <label for="confirm-edit-box" class="mt-4 block text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Corrected content</label>
-                        <textarea id="confirm-edit-box" rows="14"
-                            class="mt-2 w-full rounded-2xl border border-[#e2e8f0] bg-[#f8fafc] p-4 font-mono text-sm leading-6 text-gray-700 focus:border-[#1e293b] focus:outline-none resize-y"
-                            placeholder="Edit parsed content here..."></textarea>
-                        <p class="mt-2 text-xs text-gray-500">You can remove bad OCR, fix wording, or rewrite chunks before confirming.</p>
-
-                        <div class="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-[#e2e8f0] pt-4">
-                            <button type="button" id="wizard-back-2"
+                    <div class="flex flex-wrap items-center justify-between gap-3 border-t border-[#e2e8f0] pt-4">
+                        <button type="button" id="wizard-back-2"
+                            class="btn rounded-full border border-gray-300 bg-white px-5 text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-gray-800">
+                            ← Back
+                        </button>
+                        <div class="flex flex-wrap items-center gap-3">
+                            <button type="button" id="kb-modal-cancel-2"
                                 class="btn rounded-full border border-gray-300 bg-white px-5 text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-gray-800">
-                                ← Back to Review
+                                Cancel
                             </button>
-                            <div class="flex flex-wrap items-center gap-3">
-                                <button type="button" id="kb-modal-cancel-2"
-                                    class="btn rounded-full border border-gray-300 bg-white px-5 text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-gray-800">
-                                    Cancel / Re-upload
-                                </button>
-                                <button type="button" id="kb-modal-confirm"
-                                    class="btn rounded-full border-0 bg-[#1e293b] px-6 text-sm font-bold text-white hover:bg-[#0f172a]">
-                                    Approve &amp; Train AI
-                                </button>
-                            </div>
+                            <button type="button" id="kb-modal-confirm"
+                                class="btn rounded-full border-0 bg-[#1e293b] px-6 text-sm font-bold text-white hover:bg-[#0f172a]">
+                                Approve &amp; Train AI
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div id="modal-step-success" class="hidden flex-1 min-h-0 overflow-y-auto border-t border-[#e2e8f0] px-6 py-6 sm:px-8">
+            {{-- Step 3: Training / Success --}}
+            <div id="modal-step-training" class="hidden flex-1 min-h-0 overflow-y-auto border-t border-[#e2e8f0] px-6 py-6 sm:px-8">
                 <div class="space-y-6">
-                    <div class="rounded-[1.75rem] border border-emerald-200 bg-emerald-50 p-6 shadow-sm">
-                        <div class="flex items-center gap-4">
-                            <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-600 text-2xl text-white">✓</div>
-                            <div>
-                                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">Upload Successful</p>
-                                <h3 class="mt-1 text-2xl font-black tracking-tight text-emerald-950">The file is now active in the knowledge pipeline</h3>
-                                <p class="mt-1 text-sm text-emerald-800">The chatbot database has been updated for this business unit.</p>
+
+                    {{-- Training in progress (shown while fetches run) --}}
+                    <div id="training-progress-panel" class="rounded-[1.75rem] border border-[#e2e8f0] bg-[#f8fafc] p-6 shadow-sm">
+                        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Training in progress</p>
+                        <h3 class="mt-1 text-xl font-black tracking-tight text-gray-900">Background ingestion is running</h3>
+                        <div class="mt-5 space-y-3 text-sm text-gray-700">
+                            <div class="flex items-center gap-3 rounded-2xl bg-white p-4 ring-1 ring-[#e2e8f0]" id="processing-step-1">
+                                <span class="h-3 w-3 animate-spin rounded-full border-2 border-gray-300 border-t-[#1e293b]"></span>
+                                Uploading &amp; staging file...
                             </div>
+                            <div class="flex items-center gap-3 rounded-2xl bg-white p-4 ring-1 ring-[#e2e8f0]" id="processing-step-2">
+                                <span class="h-3 w-3 rounded-full bg-gray-300"></span>
+                                Generating embeddings...
+                            </div>
+                            <div class="flex items-center gap-3 rounded-2xl bg-white p-4 ring-1 ring-[#e2e8f0]" id="processing-step-3">
+                                <span class="h-3 w-3 rounded-full bg-gray-300"></span>
+                                Updating chatbot knowledge...
+                            </div>
+                        </div>
+                        <div class="mt-5 rounded-2xl bg-blue-50 p-4 text-sm text-blue-800 ring-1 ring-blue-200">
+                            Your file is being indexed in the background. This may take a moment.
                         </div>
                     </div>
 
-                    <div class="space-y-6">
-                        <div class="rounded-[1.75rem] border border-[#e2e8f0] bg-white p-5 shadow-sm">
-                            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Testing Sandbox</p>
-                            <h3 class="mt-1 text-base font-bold text-gray-900">Try a question before you leave</h3>
-                            <div class="mt-4 rounded-2xl bg-[#f8fafc] p-4 text-sm text-gray-600">
-                                Test the new data: Try asking the AI a question about the file you just uploaded.
-                            </div>
-                            <div class="mt-4 rounded-2xl border border-dashed border-[#e2e8f0] bg-white p-4 text-sm text-gray-500">
-                                Chat preview widget goes here.
+                    {{-- Success (shown after both fetches succeed) --}}
+                    <div id="training-success-panel" class="hidden space-y-5">
+                        <div class="rounded-[1.75rem] border border-emerald-200 bg-emerald-50 p-6 shadow-sm">
+                            <div class="flex items-center gap-4">
+                                <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-600 text-2xl text-white">✓</div>
+                                <div>
+                                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">Queued for Training</p>
+                                    <h3 class="mt-1 text-2xl font-black tracking-tight text-emerald-950">File approved and sent to the AI pipeline</h3>
+                                    <p class="mt-1 text-sm text-emerald-800">The background worker is now generating embeddings and updating the chatbot knowledge base.</p>
+                                </div>
                             </div>
                         </div>
 
                         <div class="flex flex-wrap items-center gap-3">
                             <button type="button" id="kb-success-close" class="btn w-full rounded-full border border-gray-300 bg-white px-5 text-sm font-semibold text-gray-600 hover:bg-gray-50 sm:w-auto">Close</button>
-                            <button type="button" id="kb-success-open-review" class="btn w-full rounded-full border-0 bg-[#1e293b] px-5 text-sm font-bold text-white hover:bg-[#3a2f2e] sm:w-auto">Review Another File</button>
+                            <button type="button" id="kb-success-open-review" class="btn w-full rounded-full border-0 bg-[#1e293b] px-5 text-sm font-bold text-white hover:bg-[#0f172a] sm:w-auto">Upload Another File</button>
                         </div>
                     </div>
+
+                    {{-- Error panel (shown if either fetch fails) --}}
+                    <div id="training-error-panel" class="hidden rounded-[1.75rem] border border-rose-200 bg-rose-50 p-5 shadow-sm">
+                        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-rose-500">Training Failed</p>
+                        <p class="mt-2 text-sm font-medium text-rose-800" id="training-error-message">An unexpected error occurred.</p>
+                        <button type="button" id="training-retry-btn"
+                            class="btn mt-4 rounded-full border border-rose-300 bg-white px-5 text-sm font-semibold text-rose-700 hover:bg-rose-50">
+                            ← Go back and retry
+                        </button>
+                    </div>
+
                 </div>
             </div>
 
-            <div class="shrink-0 border-t border-[#e2e8f0] bg-white px-6 py-4 sm:px-8">
-                <div class="flex flex-col-reverse gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between" id="modal-review-actions">
+            {{-- Step 1 footer --}}
+            <div class="shrink-0 border-t border-[#e2e8f0] bg-white px-6 py-4 sm:px-8" id="modal-review-actions">
+                <div class="flex flex-col-reverse gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
                     <button type="button" id="kb-modal-cancel"
-                        class="btn w-full rounded-full border border-gray-300 bg-white px-5 text-sm font-semibold text-gray-600 hover:bg-gray-50 sm:w-auto">Cancel / Re-upload</button>
+                        class="btn w-full rounded-full border border-gray-300 bg-white px-5 text-sm font-semibold text-gray-600 hover:bg-gray-50 sm:w-auto">Cancel</button>
                     <button type="button" id="wizard-next-1"
-                        class="btn w-full rounded-full border-0 bg-[#1e293b] px-6 text-sm font-bold text-white hover:bg-[#3a2f2e] sm:w-auto">Continue to Review →</button>
+                        class="btn w-full rounded-full border-0 bg-[#1e293b] px-6 text-sm font-bold text-white hover:bg-[#0f172a] sm:w-auto">Continue to Verify →</button>
                 </div>
             </div>
+
         </div>{{-- /modal card --}}
     </div>{{-- /modal --}}
 
@@ -455,113 +421,93 @@
                 </svg>
             </div>
             <div>
-                <p class="text-sm font-bold text-gray-900" id="toast-title">File sent to staging</p>
-                <p id="toast-file-name" class="mt-0.5 text-xs text-gray-500">Your file is awaiting review.</p>
+                <p class="text-sm font-bold text-gray-900" id="toast-title">File queued for training</p>
+                <p id="toast-file-name" class="mt-0.5 text-xs text-gray-500">Your file is being processed.</p>
             </div>
             <button type="button" id="kb-toast-close" class="ml-auto text-gray-400 hover:text-gray-600">
                 <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current">
-                    <path
-                        d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+                    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
                 </svg>
             </button>
         </div>
     </div>
 
+    {{-- ════════════════════════════════════════════════════════════════════════
+    UPLOAD WIZARD SCRIPT
+    ════════════════════════════════════════════════════════════════════════ --}}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const fileInput = document.getElementById('kb-file-input');
-            const dropZone = document.getElementById('kb-drop-zone');
-            const modal = document.getElementById('kb-upload-modal');
-            const backdrop = document.getElementById('kb-modal-backdrop');
-            const modalClose = document.getElementById('kb-modal-close');
-            const modalCancel = document.getElementById('kb-modal-cancel');
-            const modalCancel2 = document.getElementById('kb-modal-cancel-2');
-            const modalConfirm = document.getElementById('kb-modal-confirm');
-            const wizardNext1 = document.getElementById('wizard-next-1');
-            const wizardBack2 = document.getElementById('wizard-back-2');
-            const modalTitle = document.getElementById('modal-title');
-            const modalStatus = document.getElementById('modal-file-status');
-            const modalFileName = document.getElementById('modal-file-name');
-            const modalFileSummary = document.getElementById('modal-file-summary');
-            const modalSizeBadge = document.getElementById('modal-size-badge');
-            const modalTypeError = document.getElementById('modal-type-error');
-            const modalPreviewChunks = document.getElementById('modal-preview-chunks');
-            const modalStepReview = document.getElementById('modal-step-review');
-            const modalStepConfirm = document.getElementById('modal-step-confirm');
-            const modalStepSuccess = document.getElementById('modal-step-success');
-            const modalReviewActions = document.getElementById('modal-review-actions');
-            const branchSelect = document.getElementById('modal-branch');
-            const branchError = document.getElementById('modal-branch-error');
-            const processingBanner = document.getElementById('kb-processing-banner');
-            const processingBannerText = document.getElementById('kb-processing-banner-text');
-            const uploadProgressBar = document.getElementById('upload-progress-bar');
-            const uploadProgressText = document.getElementById('upload-progress-text');
+            // ── DOM refs ──────────────────────────────────────────────────────
+            const fileInput             = document.getElementById('kb-file-input');
+            const dropZone              = document.getElementById('kb-drop-zone');
+            const modal                 = document.getElementById('kb-upload-modal');
+            const backdrop              = document.getElementById('kb-modal-backdrop');
+            const modalClose            = document.getElementById('kb-modal-close');
+            const modalCancel           = document.getElementById('kb-modal-cancel');
+            const modalCancel2          = document.getElementById('kb-modal-cancel-2');
+            const modalConfirm          = document.getElementById('kb-modal-confirm');
+            const wizardNext1           = document.getElementById('wizard-next-1');
+            const wizardBack2           = document.getElementById('wizard-back-2');
+            const trainingRetryBtn      = document.getElementById('training-retry-btn');
+            const modalTitle            = document.getElementById('modal-title');
+            const modalStatus           = document.getElementById('modal-file-status');
+            const modalFileName         = document.getElementById('modal-file-name');
+            const modalFileSummary      = document.getElementById('modal-file-summary');
+            const modalSizeBadge        = document.getElementById('modal-size-badge');
+            const modalTypeError        = document.getElementById('modal-type-error');
+            const modalPreviewChunks    = document.getElementById('modal-preview-chunks');
+            const modalStepReview       = document.getElementById('modal-step-review');
+            const modalStepVerify       = document.getElementById('modal-step-verify');
+            const modalStepTraining     = document.getElementById('modal-step-training');
+            const modalReviewActions    = document.getElementById('modal-review-actions');
+            const uploadProgressBar     = document.getElementById('upload-progress-bar');
+            const uploadProgressText    = document.getElementById('upload-progress-text');
             const uploadProgressMessage = document.getElementById('upload-progress-message');
-            const phasePill1 = document.getElementById('phase-pill-1');
-            const phasePill2 = document.getElementById('phase-pill-2');
-            const phasePill3 = document.getElementById('phase-pill-3');
-            const phasePill4 = document.getElementById('phase-pill-4');
-            const successToast = document.getElementById('kb-success-toast');
-            const toastTitle = document.getElementById('toast-title');
-            const toastFileName = document.getElementById('toast-file-name');
-            const toastClose = document.getElementById('kb-toast-close');
-            const successClose = document.getElementById('kb-success-close');
-            const successOpenReview = document.getElementById('kb-success-open-review');
+            const phasePill1            = document.getElementById('phase-pill-1');
+            const phasePill2            = document.getElementById('phase-pill-2');
+            const phasePill3            = document.getElementById('phase-pill-3');
+            const confirmEditBox        = document.getElementById('confirm-edit-box');
+            const trainingProgressPanel = document.getElementById('training-progress-panel');
+            const trainingSuccessPanel  = document.getElementById('training-success-panel');
+            const trainingErrorPanel    = document.getElementById('training-error-panel');
+            const trainingErrorMessage  = document.getElementById('training-error-message');
+            const successToast          = document.getElementById('kb-success-toast');
+            const toastTitle            = document.getElementById('toast-title');
+            const toastFileName         = document.getElementById('toast-file-name');
+            const toastClose            = document.getElementById('kb-toast-close');
+            const successClose          = document.getElementById('kb-success-close');
+            const successOpenReview     = document.getElementById('kb-success-open-review');
+            const queueCont             = document.getElementById('processing-queue-container');
+            const queueEmptyMsg         = document.getElementById('queue-empty-msg');
+            const kpiQueued             = document.getElementById('kpi-queued');
+            const processingBanner      = document.getElementById('kb-processing-banner');
+            const processingBannerText  = document.getElementById('kb-processing-banner-text');
+            const processingStep1       = document.getElementById('processing-step-1');
+            const processingStep2       = document.getElementById('processing-step-2');
+            const processingStep3       = document.getElementById('processing-step-3');
 
-            const kpiStaged = document.getElementById('kpi-staged');
-            const kpiQueued = document.getElementById('kpi-queued');
-            const stagedBadge = document.getElementById('staged-count-badge');
-            const stagedEmpty = document.getElementById('staged-empty-state');
-            const stagedRows = document.getElementById('staged-rows-container');
-            const queueCont = document.getElementById('processing-queue-container');
-
-            const reviewEmpty = document.getElementById('review-empty');
-            const reviewDetail = document.getElementById('review-detail');
-            const reviewName = document.getElementById('review-name');
-            const reviewType = document.getElementById('review-type');
-            const reviewSize = document.getElementById('review-size');
-            const reviewBranch = document.getElementById('review-branch');
-            const reviewTopics = document.getElementById('review-topics');
-            const reviewDupWrap = document.getElementById('review-duplicate-wrap');
-            const reviewNoDupWrap = document.getElementById('review-no-duplicate-wrap');
-            const reviewApproveBtn = document.getElementById('review-approve-btn');
-            const reviewDiscardBtn = document.getElementById('review-discard-btn');
-            const confirmFileName = document.getElementById('confirm-file-name');
-            const confirmFileMeta = document.getElementById('confirm-file-meta');
-            const confirmBranch = document.getElementById('confirm-branch');
-            const confirmChunks = document.getElementById('confirm-chunks');
-            const confirmEditBox = document.getElementById('confirm-edit-box');
-            const managerBranchLabel = null;
-            const csrfToken = @json(csrf_token());
-            const uploadUrl = @json(route('admin.knowledge.upload'));
-            const stagedUrl = @json(route('admin.knowledge.staged'));
+            const csrfToken          = @json(csrf_token());
+            const uploadUrl          = @json(route('admin.knowledge.upload'));
             const approveUrlTemplate = @json(route('admin.knowledge.approve', ['stagedDocument' => '__ID__']));
-            const discardUrlTemplate = @json(route('admin.knowledge.discard', ['stagedDocument' => '__ID__']));
 
-            let currentFile = null;
-            let currentParsedText = '';
-            let currentEditedText = '';
+            let currentFile              = null;
+            let currentParsedText        = '';
             let currentPreviewChunkCount = 0;
-            let selectedStagedId = null;
-            let stagedCount = document.querySelectorAll('.staged-row').length;
-            const maxFileSize = 25 * 1024 * 1024;
+            const maxFileSize            = 25 * 1024 * 1024;
 
-            const branchLabels = {
-                dariv: 'DARIV Waterproofing',
-                hydroguard: 'HydroGuard Solutions',
-                drymax: 'DryMax Sealants'
-            };
-
+            // ── Step management ───────────────────────────────────────────────
+            // Steps: 1 = Upload & Detect, 2 = Verify Content, 3 = Training
             function setModalStep(step) {
-                if (modalStepReview) modalStepReview.classList.toggle('hidden', step !== 1);
-                if (modalStepConfirm) modalStepConfirm.classList.toggle('hidden', step !== 2 && step !== 3);
-                if (modalStepSuccess) modalStepSuccess.classList.toggle('hidden', step !== 4);
+                if (modalStepReview)    modalStepReview.classList.toggle('hidden', step !== 1);
+                if (modalStepVerify)    modalStepVerify.classList.toggle('hidden', step !== 2);
+                if (modalStepTraining)  modalStepTraining.classList.toggle('hidden', step !== 3);
                 if (modalReviewActions) modalReviewActions.classList.toggle('hidden', step !== 1);
 
-                const pills = [phasePill1, phasePill2, phasePill3, phasePill4];
+                const pills = [phasePill1, phasePill2, phasePill3];
                 pills.forEach((pill, index) => {
                     if (!pill) return;
-                    const isActive = step === index + 1;
+                    const isActive   = step === index + 1;
                     const isComplete = step > index + 1;
                     pill.className = isActive
                         ? 'rounded-2xl border border-[#1e293b] bg-[#1e293b] px-4 py-3 text-sm font-semibold text-white'
@@ -570,36 +516,18 @@
                             : 'rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-500';
                 });
 
-                    if (step === 2 || step === 3) populateConfirmSummary();
-            }
-
-            function populateConfirmSummary() {
-                if (!currentFile) return;
-
-                const fileType = currentFile.name.toLowerCase().endsWith('.csv') || currentFile.type === 'text/csv' ? 'CSV' : 'PDF';
-                const branchValue = branchSelect ? branchSelect.value : '';
-
-                if (confirmFileName) confirmFileName.textContent = currentFile.name;
-                if (confirmFileMeta) confirmFileMeta.textContent = `${fileType} · ${formatBytes(currentFile.size)}`;
-                if (confirmBranch) confirmBranch.textContent = branchSelect && branchSelect.tagName === 'SELECT'
-                    ? (branchLabels[branchValue] || '—')
-                    : (managerBranchLabel || 'Selected business unit');
-                if (confirmChunks) confirmChunks.textContent = `${currentPreviewChunkCount} chunk${currentPreviewChunkCount === 1 ? '' : 's'} prepared for training`;
-                if (confirmEditBox) {
-                    confirmEditBox.value = currentEditedText || currentParsedText || '';
+                if (step === 2 && confirmEditBox) {
+                    confirmEditBox.value = currentParsedText || '';
                 }
             }
 
+            // ── Drop zone / file input ────────────────────────────────────────
             const openFilePicker = () => fileInput.click();
 
             dropZone.addEventListener('click', openFilePicker);
             dropZone.addEventListener('keydown', event => {
-                if (event.key === 'Enter' || event.key === ' ') {
-                    event.preventDefault();
-                    openFilePicker();
-                }
+                if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openFilePicker(); }
             });
-
             dropZone.addEventListener('dragover', event => {
                 event.preventDefault();
                 dropZone.classList.add('border-[#1e293b]', 'bg-[#F4EEE4]');
@@ -609,33 +537,27 @@
                 event.preventDefault();
                 dropZone.classList.remove('border-[#1e293b]', 'bg-[#F4EEE4]');
                 const file = event.dataTransfer.files[0];
-                if (file) {
-                    handleFile(file);
-                }
+                if (file) handleFile(file);
             });
-
             fileInput.addEventListener('change', () => {
-                if (fileInput.files.length) {
-                    handleFile(fileInput.files[0]);
-                }
+                if (fileInput.files.length) handleFile(fileInput.files[0]);
             });
 
+            // ── File handling ─────────────────────────────────────────────────
             function handleFile(file) {
-                currentFile = file;
+                currentFile       = file;
                 currentParsedText = '';
-                currentEditedText = '';
-                const isCsv = file.type === 'text/csv' || file.name.toLowerCase().endsWith('.csv');
-                const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+                const isCsv         = file.type === 'text/csv' || file.name.toLowerCase().endsWith('.csv');
+                const isPdf         = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
                 const isAllowedType = isCsv || isPdf;
                 const isWithinLimit = file.size <= maxFileSize;
 
-                if (modalTitle) modalTitle.textContent = file.name;
-                if (modalFileName) modalFileName.textContent = file.name;
+                if (modalTitle)       modalTitle.textContent = file.name;
+                if (modalFileName)    modalFileName.textContent = file.name;
                 if (modalFileSummary) modalFileSummary.textContent = `${formatBytes(file.size)} · ${isCsv ? 'CSV' : 'PDF'}`;
-
-                if (uploadProgressText) uploadProgressText.textContent = '10%';
+                if (uploadProgressText)    uploadProgressText.textContent = '10%';
                 if (uploadProgressMessage) uploadProgressMessage.textContent = 'Checking file type and size...';
-                if (uploadProgressBar) uploadProgressBar.style.width = '10%';
+                if (uploadProgressBar)     uploadProgressBar.style.width = '10%';
 
                 if (modalSizeBadge) {
                     modalSizeBadge.className = isWithinLimit
@@ -645,7 +567,6 @@
                         ? '<span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span> Within 25 MB'
                         : '<span class="h-1.5 w-1.5 rounded-full bg-rose-500"></span> Exceeds 25 MB limit';
                 }
-
                 if (modalTypeError) modalTypeError.classList.toggle('hidden', isAllowedType);
                 if (modalStatus) {
                     modalStatus.className = isAllowedType && isWithinLimit
@@ -655,21 +576,14 @@
                         ? '<span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span> Parsed Successfully'
                         : '<span class="h-1.5 w-1.5 rounded-full bg-rose-500"></span> Needs attention';
                 }
-
                 if (wizardNext1) {
                     wizardNext1.disabled = !isAllowedType || !isWithinLimit;
                     wizardNext1.classList.toggle('opacity-50', wizardNext1.disabled);
                     wizardNext1.classList.toggle('cursor-not-allowed', wizardNext1.disabled);
                 }
 
-                if (branchSelect && branchSelect.tagName === 'SELECT') {
-                    branchSelect.value = '';
-                }
-                if (branchError) branchError.classList.add('hidden');
-
                 if (!isAllowedType || !isWithinLimit) {
                     renderPreviewChunks(file, 'No parsed text was returned by the file parser.');
-                    setConfirmEnabled(false);
                     openModal();
                     return;
                 }
@@ -679,55 +593,78 @@
                     if (!event.lengthComputable) return;
                     const progress = Math.min(95, Math.max(35, Math.round((event.loaded / event.total) * 60) + 35));
                     if (uploadProgressText) uploadProgressText.textContent = `${progress}%`;
-                    if (uploadProgressBar) uploadProgressBar.style.width = `${progress}%`;
+                    if (uploadProgressBar)  uploadProgressBar.style.width = `${progress}%`;
                     if (uploadProgressMessage) uploadProgressMessage.textContent = isCsv
                         ? 'Reading CSV rows in the browser...'
-                        : 'Reading PDF bytes and preparing document chunks...';
+                        : 'Extracting PDF text...';
                 };
-                reader.onload = event => {
-                    const parsedText = isCsv
-                        ? (typeof event.target.result === 'string' ? event.target.result : '')
-                        : buildPdfPreview(file, event.target.result);
-                    renderPreviewChunks(file, parsedText);
-                    if (uploadProgressText) uploadProgressText.textContent = '100%';
-                    if (uploadProgressMessage) uploadProgressMessage.textContent = 'File parsed and ready for staging review.';
-                    if (uploadProgressBar) uploadProgressBar.style.width = '100%';
-                    setConfirmEnabled(true);
-                    openModal();
-                };
-                reader.onerror = () => {
-                    renderPreviewChunks(file, 'Could not read file for preview.');
-                    if (uploadProgressText) uploadProgressText.textContent = '100%';
-                    if (uploadProgressMessage) uploadProgressMessage.textContent = 'File parsed with warnings. Please review the staging screen.';
-                    if (uploadProgressBar) uploadProgressBar.style.width = '100%';
-                    setConfirmEnabled(true);
-                    openModal();
-                };
-
                 if (isCsv) {
+                    reader.onload = event => {
+                        const parsedText = typeof event.target.result === 'string' ? event.target.result : '';
+                        renderPreviewChunks(file, parsedText);
+                        if (uploadProgressText)    uploadProgressText.textContent = '100%';
+                        if (uploadProgressMessage) uploadProgressMessage.textContent = 'File parsed — ready to verify.';
+                        if (uploadProgressBar)     uploadProgressBar.style.width = '100%';
+                        openModal();
+                    };
+                    reader.onerror = () => {
+                        renderPreviewChunks(file, 'Could not read file for preview.');
+                        if (uploadProgressText)    uploadProgressText.textContent = '100%';
+                        if (uploadProgressMessage) uploadProgressMessage.textContent = 'File parsed with warnings. Please review.';
+                        if (uploadProgressBar)     uploadProgressBar.style.width = '100%';
+                        openModal();
+                    };
                     reader.readAsText(file);
                     return;
                 }
 
-                reader.readAsArrayBuffer(file);
-            }
+                // PDF: use PDF.js to extract real text client-side
+                reader.onload = async event => {
+                    try {
+                        if (uploadProgressText)    uploadProgressText.textContent = '50%';
+                        if (uploadProgressBar)     uploadProgressBar.style.width = '50%';
+                        if (uploadProgressMessage) uploadProgressMessage.textContent = 'Extracting text from PDF pages...';
 
-            function buildPdfPreview(file, buffer) {
-                const bytes = buffer instanceof ArrayBuffer ? buffer.byteLength : 0;
-                const chunkSize = 1024 * 1024;
-                const chunkCount = Math.max(1, Math.min(8, Math.ceil(bytes / chunkSize)));
-                return Array.from({ length: chunkCount }, (_, index) => {
-                    const start = index * chunkSize;
-                    const end = Math.min(bytes, start + chunkSize);
-                    return `PDF CHUNK ${index + 1}\n${file.name}\nByte range: ${start.toLocaleString()}-${Math.max(start, end - 1).toLocaleString()}\nText extraction will continue during server-side ingestion.`;
-                }).join('\n\n');
+                        const pdfjsLib = window['pdfjs-dist/build/pdf'];
+                        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+                        const typedArray = new Uint8Array(event.target.result);
+                        const pdf        = await pdfjsLib.getDocument({ data: typedArray }).promise;
+                        const pageTexts  = [];
+
+                        for (let i = 1; i <= pdf.numPages; i++) {
+                            const page    = await pdf.getPage(i);
+                            const content = await page.getTextContent();
+                            const text    = content.items.map(item => item.str).join(' ');
+                            if (text.trim()) pageTexts.push(text.trim());
+                        }
+
+                        const parsedText = pageTexts.join('\n\n');
+                        renderPreviewChunks(file, parsedText || 'No readable text found in this PDF.');
+                        if (uploadProgressText)    uploadProgressText.textContent = '100%';
+                        if (uploadProgressMessage) uploadProgressMessage.textContent = `Extracted text from ${pdf.numPages} page${pdf.numPages === 1 ? '' : 's'} — ready to verify.`;
+                        if (uploadProgressBar)     uploadProgressBar.style.width = '100%';
+                    } catch (err) {
+                        renderPreviewChunks(file, 'Could not extract text from this PDF. The file may be scanned or encrypted.');
+                        if (uploadProgressText)    uploadProgressText.textContent = '100%';
+                        if (uploadProgressMessage) uploadProgressMessage.textContent = 'PDF text extraction failed. You can still approve and train.';
+                        if (uploadProgressBar)     uploadProgressBar.style.width = '100%';
+                    }
+                    openModal();
+                };
+                reader.onerror = () => {
+                    renderPreviewChunks(file, 'Could not read file for preview.');
+                    if (uploadProgressText)    uploadProgressText.textContent = '100%';
+                    if (uploadProgressMessage) uploadProgressMessage.textContent = 'File parsed with warnings. Please review.';
+                    if (uploadProgressBar)     uploadProgressBar.style.width = '100%';
+                    openModal();
+                };
+                reader.readAsArrayBuffer(file);
             }
 
             function renderPreviewChunks(file, parsedText) {
                 if (!modalPreviewChunks) return;
-
                 currentParsedText = String(parsedText || '');
-
                 const chunks = buildChunks(file, parsedText);
                 currentPreviewChunkCount = chunks.length;
                 modalPreviewChunks.innerHTML = chunks.map((chunk, index) => `
@@ -743,38 +680,22 @@
 
             function buildChunks(file, parsedText) {
                 const cleaned = String(parsedText || '').replace(/\r\n/g, '\n').trim();
-                const isCsv = file.type === 'text/csv' || file.name.toLowerCase().endsWith('.csv');
-
-                if (!cleaned) {
-                    return ['No parsed text was returned by the file parser.'];
-                }
-
+                const isCsv   = file.type === 'text/csv' || file.name.toLowerCase().endsWith('.csv');
+                if (!cleaned) return ['No parsed text was returned by the file parser.'];
                 if (isCsv) {
-                    const rows = cleaned.split('\n').map(row => row.trim()).filter(Boolean);
+                    const rows   = cleaned.split('\n').map(r => r.trim()).filter(Boolean);
                     const header = rows.shift() || 'CSV content';
                     const chunks = [`CSV Header\n${header}`];
-                    rows.slice(0, 8).forEach((row, index) => {
-                        chunks.push(`Row ${index + 1}\n${row}`);
-                    });
+                    rows.slice(0, 8).forEach((row, i) => chunks.push(`Row ${i + 1}\n${row}`));
                     return chunks;
                 }
-
-                const paragraphs = cleaned.split(/\n{2,}/).map(part => part.trim()).filter(Boolean);
-                if (paragraphs.length > 1) {
-                    return paragraphs.slice(0, 8);
-                }
-
+                const paragraphs = cleaned.split(/\n{2,}/).map(p => p.trim()).filter(Boolean);
+                if (paragraphs.length > 1) return paragraphs.slice(0, 8);
                 const sentences = cleaned.match(/[^.!?\n]+[.!?]?/g) || [cleaned];
-                return sentences.map(sentence => sentence.trim()).filter(Boolean).slice(0, 8);
+                return sentences.map(s => s.trim()).filter(Boolean).slice(0, 8);
             }
 
-            function setConfirmEnabled(enabled) {
-                if (!modalConfirm) return;
-                modalConfirm.disabled = !enabled;
-                modalConfirm.classList.toggle('opacity-50', !enabled);
-                modalConfirm.classList.toggle('cursor-not-allowed', !enabled);
-            }
-
+            // ── Modal open / close ────────────────────────────────────────────
             function openModal() {
                 modal.classList.remove('hidden');
                 modal.classList.add('flex');
@@ -786,384 +707,207 @@
                 modal.classList.add('hidden');
                 modal.classList.remove('flex');
                 document.body.classList.remove('overflow-hidden');
-                fileInput.value = '';
-                currentFile = null;
-                currentParsedText = '';
-                currentEditedText = '';
-                currentPreviewChunkCount = 0;
-                if (uploadProgressText) uploadProgressText.textContent = '0%';
+                fileInput.value              = '';
+                currentFile                  = null;
+                currentParsedText            = '';
+                currentPreviewChunkCount     = 0;
+                if (uploadProgressText)    uploadProgressText.textContent = '0%';
                 if (uploadProgressMessage) uploadProgressMessage.textContent = 'Waiting for file parsing to begin.';
-                if (uploadProgressBar) uploadProgressBar.style.width = '0%';
-                if (modalPreviewChunks) modalPreviewChunks.innerHTML = '';
-                if (modalFileName) modalFileName.textContent = '—';
-                if (modalFileSummary) modalFileSummary.textContent = '—';
-                if (modalTitle) modalTitle.textContent = '—';
-                if (modalTypeError) modalTypeError.classList.add('hidden');
+                if (uploadProgressBar)     uploadProgressBar.style.width = '0%';
+                if (modalPreviewChunks)    modalPreviewChunks.innerHTML = '';
+                if (modalFileName)         modalFileName.textContent = '—';
+                if (modalFileSummary)      modalFileSummary.textContent = '—';
+                if (modalTitle)            modalTitle.textContent = '—';
+                if (modalTypeError)        modalTypeError.classList.add('hidden');
+                if (confirmEditBox)        confirmEditBox.value = '';
                 if (modalSizeBadge) {
                     modalSizeBadge.className = 'inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200';
                     modalSizeBadge.innerHTML = '<span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span> Within 25 MB';
                 }
-                if (confirmEditBox) confirmEditBox.value = '';
                 if (modalStatus) {
                     modalStatus.className = 'inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200';
                     modalStatus.innerHTML = '<span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span> Parsed Successfully';
                 }
+                resetTrainingUI();
                 setModalStep(1);
-                setConfirmEnabled(false);
             }
 
-            if (modalClose) modalClose.addEventListener('click', closeModal);
-            if (modalCancel) modalCancel.addEventListener('click', closeModal);
-            if (modalCancel2) modalCancel2.addEventListener('click', closeModal);
-            if (wizardBack2) wizardBack2.addEventListener('click', () => setModalStep(1));
-            if (wizardNext1) wizardNext1.addEventListener('click', () => {
-                // Skip division validation check
+            function resetTrainingUI() {
+                if (trainingProgressPanel) trainingProgressPanel.classList.remove('hidden');
+                if (trainingSuccessPanel)  trainingSuccessPanel.classList.add('hidden');
+                if (trainingErrorPanel)    trainingErrorPanel.classList.add('hidden');
+                setStepIndicator(processingStep1, 'pending');
+                setStepIndicator(processingStep2, 'pending');
+                setStepIndicator(processingStep3, 'pending');
+            }
 
-                if (branchError) branchError.classList.add('hidden');
-                populateConfirmSummary();
+            function setStepIndicator(el, state) {
+                if (!el) return;
+                const dot = el.querySelector('span');
+                if (!dot) return;
+                if (state === 'active') {
+                    dot.className = 'h-3 w-3 animate-spin rounded-full border-2 border-gray-300 border-t-[#1e293b]';
+                } else if (state === 'done') {
+                    dot.className = 'h-3 w-3 rounded-full bg-emerald-500';
+                } else {
+                    dot.className = 'h-3 w-3 rounded-full bg-gray-300';
+                }
+            }
+
+            // ── Button bindings ───────────────────────────────────────────────
+            if (modalClose)        modalClose.addEventListener('click', closeModal);
+            if (modalCancel)       modalCancel.addEventListener('click', closeModal);
+            if (modalCancel2)      modalCancel2.addEventListener('click', closeModal);
+            if (backdrop)          backdrop.addEventListener('click', closeModal);
+            if (toastClose)        toastClose.addEventListener('click', () => successToast.classList.add('hidden'));
+            if (successClose)      successClose.addEventListener('click', closeModal);
+            if (successOpenReview) successOpenReview.addEventListener('click', closeModal);
+            if (trainingRetryBtn)  trainingRetryBtn.addEventListener('click', () => setModalStep(2));
+
+            if (wizardBack2) wizardBack2.addEventListener('click', () => setModalStep(1));
+
+            if (wizardNext1) wizardNext1.addEventListener('click', () => {
                 setModalStep(2);
             });
-            if (backdrop) backdrop.addEventListener('click', closeModal);
-            if (toastClose) toastClose.addEventListener('click', () => successToast.classList.add('hidden'));
-            if (successClose) successClose.addEventListener('click', closeModal);
-            if (successOpenReview) successOpenReview.addEventListener('click', () => setModalStep(1));
 
-            function showProcessingBanner(fileName) {
-                if (!processingBanner || !processingBannerText) return;
-                processingBannerText.textContent = `Training AI bot for ${fileName} and vectorizing parsed chunks...`;
-                processingBanner.classList.remove('hidden');
-                processingBanner.classList.add('flex');
-                window.setTimeout(() => {
-                    processingBanner.classList.add('hidden');
-                    processingBanner.classList.remove('flex');
-                }, 2600);
+            // ── Core: Approve & Train (upload → auto-approve, chained) ────────
+            if (modalConfirm) {
+                modalConfirm.addEventListener('click', async () => {
+                    if (!currentFile) return;
+
+                    const fileName      = currentFile.name;
+                    const fileType      = currentFile.name.toLowerCase().endsWith('.csv') || currentFile.type === 'text/csv' ? 'CSV' : 'PDF';
+                    const fileSize      = formatBytes(currentFile.size);
+                    const editedText    = confirmEditBox ? confirmEditBox.value.trim() : '';
+                    const editedContent = editedText && editedText !== currentParsedText ? editedText : '';
+
+                    modalConfirm.disabled = true;
+                    setModalStep(3);
+                    resetTrainingUI();
+
+                    // Step 1 indicator: uploading
+                    setStepIndicator(processingStep1, 'active');
+
+                    // ── Fetch 1: upload file to staging ──────────────────────
+                    let stagedId = null;
+                    try {
+                        const formData = new FormData();
+                        formData.append('file', currentFile);
+                        formData.append('edited_content', editedContent);
+
+                        const uploadRes = await fetch(uploadUrl, {
+                            method: 'POST',
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken,
+                                'X-Requested-With': 'XMLHttpRequest',
+                            },
+                            body: formData,
+                        });
+                        const uploadPayload = await uploadRes.json();
+                        if (!uploadRes.ok || !uploadPayload.success) {
+                            throw new Error(uploadPayload.message || 'The server could not save this file.');
+                        }
+                        stagedId = uploadPayload.data.id;
+                    } catch (err) {
+                        showTrainingError(err.message || 'Upload failed. Please try again.');
+                        modalConfirm.disabled = false;
+                        return;
+                    }
+
+                    setStepIndicator(processingStep1, 'done');
+                    setStepIndicator(processingStep2, 'active');
+
+                    // ── Fetch 2: approve → dispatch background job ────────────
+                    try {
+                        const approveUrl = approveUrlTemplate.replace('__ID__', encodeURIComponent(stagedId));
+                        const approveRes = await fetch(approveUrl, {
+                            method: 'POST',
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken,
+                                'X-Requested-With': 'XMLHttpRequest',
+                            },
+                        });
+                        const approvePayload = await approveRes.json();
+                        if (!approveRes.ok || !approvePayload.success) {
+                            throw new Error(approvePayload.message || 'Approval failed. The file was staged but not queued.');
+                        }
+                    } catch (err) {
+                        showTrainingError(err.message || 'Approval failed. Please try again.');
+                        modalConfirm.disabled = false;
+                        return;
+                    }
+
+                    setStepIndicator(processingStep2, 'done');
+                    setStepIndicator(processingStep3, 'active');
+
+                    // Brief pause so the user sees step 3 animate
+                    await new Promise(resolve => setTimeout(resolve, 600));
+                    setStepIndicator(processingStep3, 'done');
+
+                    // ── Show success ──────────────────────────────────────────
+                    if (trainingProgressPanel) trainingProgressPanel.classList.add('hidden');
+                    if (trainingSuccessPanel)  trainingSuccessPanel.classList.remove('hidden');
+
+                    // Add item to the queue panel (status monitor)
+                    addQueueItem(fileName, fileType, fileSize);
+
+                    // Update KPI
+                    if (kpiQueued) kpiQueued.textContent = String(parseInt(kpiQueued.textContent || '0', 10) + 1);
+
+                    // Show processing banner
+                    if (processingBanner && processingBannerText) {
+                        processingBannerText.textContent = `Training AI bot for "${fileName}" — vectorizing in the background...`;
+                        processingBanner.classList.remove('hidden');
+                        processingBanner.classList.add('flex');
+                        setTimeout(() => {
+                            processingBanner.classList.add('hidden');
+                            processingBanner.classList.remove('flex');
+                        }, 4000);
+                    }
+
+                    // Toast
+                    if (toastTitle)    toastTitle.textContent = 'File queued for training';
+                    if (toastFileName) toastFileName.textContent = `"${fileName}" is being indexed in the background.`;
+                    if (successToast) {
+                        successToast.classList.remove('hidden');
+                        setTimeout(() => successToast.classList.add('hidden'), 5000);
+                    }
+
+                    modalConfirm.disabled = false;
+                });
             }
 
-            function addProcessingQueueItem(name, type, size, branchVal) {
-                if (!queueCont) return;
+            function showTrainingError(message) {
+                if (trainingProgressPanel) trainingProgressPanel.classList.add('hidden');
+                if (trainingErrorPanel)    trainingErrorPanel.classList.remove('hidden');
+                if (trainingErrorMessage)  trainingErrorMessage.textContent = message;
+            }
 
+            function addQueueItem(name, type, size) {
+                if (!queueCont) return;
+                const emptyMsg = document.getElementById('queue-empty-msg');
+                if (emptyMsg) emptyMsg.remove();
                 const item = document.createElement('div');
                 item.className = 'rounded-2xl border border-blue-100 bg-white p-4 shadow-sm';
                 item.innerHTML = `
                     <div class="flex items-center justify-between gap-4">
                         <div class="min-w-0">
-                            <div class="font-semibold text-gray-800 truncate">${escHtml(name)}</div>
-                            <div class="text-sm text-gray-500">${escHtml(type)} · ${escHtml(size)} · ${escHtml(branchLabels[branchVal] || 'Selected business unit')}</div>
+                            <div class="truncate font-semibold text-gray-800">${escHtml(name)}</div>
+                            <div class="text-sm text-gray-500">${escHtml(type)} · ${escHtml(size)} · Queued for training</div>
                         </div>
                         <span class="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 ring-1 ring-blue-200">
                             <span class="h-2 w-2 animate-spin rounded-full border-2 border-blue-300 border-t-blue-700"></span>
                             Vectorizing
                         </span>
                     </div>`;
-
                 queueCont.prepend(item);
-                kpiQueued.textContent = String(parseInt(kpiQueued.textContent || '0', 10) + 1);
             }
 
-            function showModalError(message) {
-                if (modalStatus) {
-                    modalStatus.className = 'inline-flex items-center gap-1.5 rounded-full bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700 ring-1 ring-rose-200';
-                    modalStatus.innerHTML = '<span class="h-1.5 w-1.5 rounded-full bg-rose-500"></span> Upload failed';
-                }
-                if (uploadProgressMessage) uploadProgressMessage.textContent = message;
-            }
-
-            function createStagedRow(data, branchVal) {
-                const container = stagedRows || queueCont;
-                if (!container) return null;
-
-                const row = document.createElement('div');
-                row.className = 'staged-row rounded-2xl bg-[#ffffff] p-4 border border-amber-100';
-                row.dataset.id = data.id;
-                row.dataset.name = data.name;
-                row.dataset.type = data.type;
-                row.dataset.size = formatBytes(data.size);
-                row.dataset.branch = data.branch || branchLabels[branchVal] || 'Selected business unit';
-                row.dataset.topics = 'Pending server-side extraction';
-                row.dataset.duplicate = 'false';
-                row.innerHTML = `
-                    <div class="flex items-center justify-between gap-4">
-                        <div class="min-w-0">
-                            <div class="font-semibold text-gray-800 truncate">${escHtml(data.name)}</div>
-                            <div class="text-sm text-gray-500">${escHtml(data.type)} · ${escHtml(formatBytes(data.size))} · Pending approval</div>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <button type="button" class="btn-approve-queue rounded-full bg-[#1e293b] px-3 py-1 text-xs font-semibold text-white">Approve</button>
-                            <button type="button" class="btn-discard rounded-full border border-gray-300 bg-white px-3 py-1 text-xs font-semibold text-gray-600">Discard</button>
-                        </div>
-                    </div>`;
-                container.prepend(row);
-                bindRowEvents(row);
-                return row;
-            }
-
-            async function loadStagedRows() {
-                try {
-                    const response = await fetch(stagedUrl, {
-                        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
-                    });
-                    const payload = await response.json();
-                    if (!response.ok || !payload.success) return;
-
-                    payload.data.forEach(data => {
-                        if (!document.querySelector(`.staged-row[data-id="${data.id}"]`)) {
-                            createStagedRow(data, data.branch);
-                        }
-                    });
-                    stagedCount = payload.data.length;
-                    if (kpiStaged) kpiStaged.textContent = String(stagedCount);
-                    updateStagedCount(stagedCount);
-                } catch (error) {
-                    // The upload workflow remains available if the initial staged list cannot load.
-                }
-            }
-
-            if (modalConfirm) {
-                modalConfirm.addEventListener('click', async () => {
-                    if (!currentFile) return;
-
-                    // Skip division validation check
-
-                    if (branchError) branchError.classList.add('hidden');
-
-                    const fileName = currentFile.name;
-                    const fileType = currentFile.name.toLowerCase().endsWith('.csv') || currentFile.type === 'text/csv' ? 'CSV' : 'PDF';
-                    const fileSize = formatBytes(currentFile.size);
-                    const branchVal = branchSelect ? branchSelect.value : '';
-                    const correctedText = confirmEditBox ? confirmEditBox.value.trim() : '';
-                    const editedContent = correctedText && correctedText !== currentParsedText ? correctedText : '';
-
-                    modalConfirm.disabled = true;
-
-                    currentEditedText = editedContent;
-
-                    setModalStep(3);
-                    if (uploadProgressText) uploadProgressText.textContent = '35%';
-                    if (uploadProgressMessage) uploadProgressMessage.textContent = 'Saving the staged document...';
-                    if (modalStatus) modalStatus.innerHTML = '<span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span> Saving';
-
-                    const formData = new FormData();
-                    formData.append('file', currentFile);
-                    formData.append('branch', branchVal);
-                    formData.append('edited_content', currentEditedText);
-
-                    try {
-                        const response = await fetch(uploadUrl, {
-                            method: 'POST',
-                            headers: {
-                                'Accept': 'application/json',
-                                'X-CSRF-TOKEN': csrfToken,
-                                'X-Requested-With': 'XMLHttpRequest'
-                            },
-                            body: formData
-                        });
-                        const payload = await response.json();
-                        if (!response.ok || !payload.success) {
-                            throw new Error(payload.message || 'The server could not save this file.');
-                        }
-
-                        createStagedRow(payload.data, branchVal);
-                        stagedCount += 1;
-                        if (kpiStaged) kpiStaged.textContent = String(stagedCount);
-                        updateStagedCount(stagedCount);
-                        showProcessingBanner(fileName);
-                        setModalStep(4);
-                        modalConfirm.disabled = false;
-                        if (toastTitle) toastTitle.textContent = 'File sent to staging';
-                        toastFileName.textContent = `"${fileName}" is awaiting approval.`;
-                        successToast.classList.remove('hidden');
-                        window.setTimeout(() => successToast.classList.add('hidden'), 5000);
-                    } catch (error) {
-                        modalConfirm.disabled = false;
-                        setModalStep(2);
-                        showModalError(error.message || 'The upload failed. Please try again.');
-                    }
-                });
-            }
-
-            const updateStagedCount = count => {
-                if (stagedBadge) {
-                    stagedBadge.textContent = count + ' awaiting review';
-                    if (count === 0) stagedBadge.textContent = '0 awaiting review';
-                }
-            };
-
-            const checkStagedEmpty = () => {
-                if (!stagedRows || !stagedEmpty) return;
-                const hasRows = stagedRows.querySelectorAll('.staged-row').length > 0;
-                stagedEmpty.classList.toggle('hidden', hasRows);
-            };
-
-            function bindRowEvents(row) {
-                row.addEventListener('click', event => {
-                    if (event.target.closest('.btn-approve-queue') || event.target.closest('.btn-discard') || event.target.closest('.toggle-preview')) return;
-                    selectStagedRow(row);
-                });
-
-                const approveBtn = row.querySelector('.btn-approve-queue');
-                if (approveBtn) {
-                    approveBtn.addEventListener('click', event => {
-                        event.stopPropagation();
-                        approveRow(row.dataset.id);
-                    });
-                }
-
-                const discardBtn = row.querySelector('.btn-discard');
-                if (discardBtn) {
-                    discardBtn.addEventListener('click', event => {
-                        event.stopPropagation();
-                        discardRow(row.dataset.id);
-                    });
-                }
-
-                const toggleBtn = row.querySelector('.toggle-preview');
-                if (toggleBtn) {
-                    toggleBtn.addEventListener('click', event => {
-                        event.stopPropagation();
-                        const content = row.querySelector('.preview-content');
-                        const isHidden = content.classList.contains('hidden');
-                        content.classList.toggle('hidden', !isHidden);
-                        const svg = toggleBtn.querySelector('svg');
-                        if (svg) svg.style.transform = isHidden ? 'rotate(180deg)' : '';
-                        toggleBtn.childNodes[toggleBtn.childNodes.length - 1].textContent = isHidden ? ' Hide content preview' : ' Show content preview';
-                    });
-                }
-            }
-
-            document.querySelectorAll('.staged-row').forEach(row => bindRowEvents(row));
-
-            function selectStagedRow(row) {
-                selectedStagedId = row.dataset.id;
-                document.querySelectorAll('.staged-row').forEach(candidate => candidate.classList.remove('ring-2', 'ring-[#1e293b]'));
-                row.classList.add('ring-2', 'ring-[#1e293b]');
-
-                if (reviewName) reviewName.textContent = row.dataset.name || '—';
-                if (reviewType) reviewType.textContent = row.dataset.type || '—';
-                if (reviewSize) reviewSize.textContent = row.dataset.size || '—';
-                if (reviewBranch) reviewBranch.textContent = row.dataset.branch || '—';
-                if (reviewTopics) reviewTopics.textContent = row.dataset.topics || '—';
-
-                const isDuplicate = row.dataset.duplicate === 'true';
-                if (reviewDupWrap) reviewDupWrap.classList.toggle('hidden', !isDuplicate);
-                if (reviewNoDupWrap) reviewNoDupWrap.classList.toggle('hidden', isDuplicate);
-
-                if (reviewEmpty) reviewEmpty.classList.add('hidden');
-                if (reviewDetail) reviewDetail.classList.remove('hidden');
-                const reviewNote = document.getElementById('review-note');
-                if (reviewNote) reviewNote.value = '';
-            }
-
-            async function approveRow(id) {
-                const row = document.querySelector(`.staged-row[data-id="${id}"]`);
-                if (!row) return;
-
-                const name = row.dataset.name;
-                const type = row.dataset.type;
-                const size = row.dataset.size;
-
-                const approveBtn = row.querySelector('.btn-approve-queue');
-                if (approveBtn) approveBtn.disabled = true;
-
-                try {
-                    const response = await fetch(approveUrlTemplate.replace('__ID__', encodeURIComponent(id)), {
-                        method: 'POST',
-                        headers: {
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': csrfToken,
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    });
-                    const payload = await response.json();
-                    if (!response.ok || !payload.success) throw new Error(payload.message || 'Approval failed.');
-
-                    row.remove();
-                    stagedCount = Math.max(0, stagedCount - 1);
-                    if (kpiStaged) kpiStaged.textContent = String(stagedCount);
-                    updateStagedCount(stagedCount);
-                    checkStagedEmpty();
-
-                    if (selectedStagedId === id) {
-                        selectedStagedId = null;
-                        if (reviewEmpty) reviewEmpty.classList.remove('hidden');
-                        if (reviewDetail) reviewDetail.classList.add('hidden');
-                    }
-
-                    const queueItem = document.createElement('div');
-                    queueItem.className = 'rounded-2xl bg-[#ffffff] p-4 border border-emerald-100';
-                    queueItem.dataset.id = id;
-                    queueItem.innerHTML = `
-                    <div class="flex items-center justify-between gap-4">
-                        <div>
-                            <div class="font-semibold text-gray-800">${escHtml(name)}</div>
-                            <div class="text-sm text-gray-500">${escHtml(type)} · ${escHtml(size)} · Approved</div>
-                        </div>
-                        <span class="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700 ring-1 ring-blue-200">
-                            <span class="h-1.5 w-1.5 rounded-full bg-blue-500"></span>
-                            Queued
-                        </span>
-                    </div>`;
-                    if (queueCont) queueCont.appendChild(queueItem);
-                    if (kpiQueued) kpiQueued.textContent = String(parseInt(kpiQueued.textContent || '0', 10) + 1);
-
-                    if (toastTitle) toastTitle.textContent = 'File approved';
-                    toastFileName.textContent = `"${name}" has been approved and queued for indexing.`;
-                    successToast.classList.remove('hidden');
-                    window.setTimeout(() => successToast.classList.add('hidden'), 5000);
-                } catch (error) {
-                    if (approveBtn) approveBtn.disabled = false;
-                    if (toastTitle) toastTitle.textContent = 'Approval failed';
-                    toastFileName.textContent = error.message || 'The file could not be approved.';
-                    successToast.classList.remove('hidden');
-                }
-            }
-
-            async function discardRow(id) {
-                const row = document.querySelector(`.staged-row[data-id="${id}"]`);
-                if (!row) return;
-                const discardBtn = row.querySelector('.btn-discard');
-                if (discardBtn) discardBtn.disabled = true;
-
-                try {
-                    const response = await fetch(discardUrlTemplate.replace('__ID__', encodeURIComponent(id)), {
-                        method: 'DELETE',
-                        headers: {
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': csrfToken,
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    });
-                    const payload = await response.json();
-                    if (!response.ok || !payload.success) throw new Error(payload.message || 'Discard failed.');
-
-                    const name = row.dataset.name || 'The file';
-                    row.remove();
-                    stagedCount = Math.max(0, stagedCount - 1);
-                    if (kpiStaged) kpiStaged.textContent = String(stagedCount);
-                    updateStagedCount(stagedCount);
-                    checkStagedEmpty();
-                    if (selectedStagedId === id) {
-                        selectedStagedId = null;
-                        if (reviewEmpty) reviewEmpty.classList.remove('hidden');
-                        if (reviewDetail) reviewDetail.classList.add('hidden');
-                    }
-
-                    if (toastTitle) toastTitle.textContent = 'File discarded';
-                    if (toastFileName) toastFileName.textContent = `"${name}" was removed from staging.`;
-                    successToast.classList.remove('hidden');
-                    window.setTimeout(() => successToast.classList.add('hidden'), 5000);
-                } catch (error) {
-                    if (discardBtn) discardBtn.disabled = false;
-                    if (toastTitle) toastTitle.textContent = 'Discard failed';
-                    toastFileName.textContent = error.message || 'The file could not be discarded.';
-                    successToast.classList.remove('hidden');
-                }
-            }
-
-            if (reviewApproveBtn) reviewApproveBtn.addEventListener('click', () => { if (selectedStagedId) approveRow(selectedStagedId); });
-            if (reviewDiscardBtn) reviewDiscardBtn.addEventListener('click', () => { if (selectedStagedId) discardRow(selectedStagedId); });
-
+            // ── Helpers ───────────────────────────────────────────────────────
             function formatBytes(bytes) {
-                if (bytes < 1024) return bytes + ' B';
+                if (bytes < 1024)    return bytes + ' B';
                 if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
                 return (bytes / 1048576).toFixed(2) + ' MB';
             }
@@ -1176,10 +920,6 @@
                     .replace(/"/g, '&quot;')
                     .replace(/'/g, '&#39;');
             }
-
-            updateStagedCount(stagedCount);
-            checkStagedEmpty();
-            loadStagedRows();
         });
     </script>
 
@@ -1200,7 +940,6 @@
                     </svg>
                 </button>
             </div>
-
             <div class="space-y-4 px-6 py-6">
                 <input type="hidden" id="edit-chunk-id">
                 <div>
@@ -1211,7 +950,6 @@
                 </div>
                 <p id="edit-chunk-error" class="hidden text-sm font-medium text-rose-600"></p>
             </div>
-
             <div class="flex items-center justify-end gap-3 border-t border-[#e2e8f0] bg-white px-6 py-4">
                 <button type="button" id="edit-chunk-cancel"
                     class="btn rounded-full border border-gray-300 bg-white px-5 text-sm font-semibold text-gray-600 hover:bg-gray-50">
@@ -1242,7 +980,6 @@
                     </svg>
                 </button>
             </div>
-
             <div class="space-y-4 px-6 py-6">
                 <div>
                     <label for="chunk-business-unit" class="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Business Unit</label>
@@ -1261,7 +998,6 @@
                 </div>
                 <p id="add-chunk-error" class="hidden text-sm font-medium text-rose-600"></p>
             </div>
-
             <div class="flex items-center justify-end gap-3 border-t border-[#e2e8f0] bg-white px-6 py-4">
                 <button type="button" id="add-chunk-cancel"
                     class="btn rounded-full border border-gray-300 bg-white px-5 text-sm font-semibold text-gray-600 hover:bg-gray-50">
@@ -1316,7 +1052,6 @@
             submitBtn.addEventListener('click', async () => {
                 const content = contentField ? contentField.value.trim() : '';
                 const buId    = buField ? buField.value : '';
-
                 if (!content) {
                     errorMsg.textContent = 'Content is required.';
                     errorMsg.classList.remove('hidden');
@@ -1324,7 +1059,6 @@
                 }
                 errorMsg.classList.add('hidden');
                 submitBtn.disabled = true;
-
                 try {
                     const res = await fetch(storeUrl, {
                         method: 'POST',
@@ -1338,38 +1072,36 @@
                     });
                     const payload = await res.json();
                     if (!res.ok || !payload.success) throw new Error(payload.message || 'Could not save chunk.');
-
                     const d  = payload.data;
                     const tr = document.createElement('tr');
-                    tr.className    = 'transition-colors hover:bg-[#f8fafc]';
-                    tr.dataset.id   = d.id;
+                    tr.className  = 'transition-colors hover:bg-[#f8fafc]';
+                    tr.dataset.id = d.id;
                     tr.innerHTML = `
-                        <td class="px-6 py-4 font-mono text-xs text-gray-400">${escHtml(String(d.id))}</td>
-                        <td class="px-6 py-4">
-                            <span class="inline-flex items-center rounded-full bg-[#f1f5f9] px-2.5 py-1 text-xs font-semibold text-gray-700">
+                        <td class="px-4 py-4 font-mono text-xs text-gray-400">${escHtml(String(d.id))}</td>
+                        <td class="px-4 py-4">
+                            <span class="inline-flex max-w-full items-center truncate rounded-full bg-[#f1f5f9] px-2.5 py-1 text-xs font-semibold text-gray-700">
                                 ${escHtml(d.business_unit)}
                             </span>
                         </td>
-                        <td class="max-w-xl px-6 py-4">
+                        <td class="px-4 py-4">
                             <p class="truncate text-gray-700">${escHtml(d.content.length > 120 ? d.content.substring(0, 120) + '...' : d.content)}</p>
                         </td>
-                        <td class="whitespace-nowrap px-6 py-4 text-gray-500">${escHtml(d.created_at)}</td>
-                        <td class="whitespace-nowrap px-6 py-4">
+                        <td class="px-4 py-4 text-gray-500">${escHtml(d.created_at)}</td>
+                        <td class="px-4 py-4">
                             <div class="flex items-center gap-2">
                                 <button type="button"
-                                    class="btn-edit-chunk inline-flex items-center rounded-full border border-[#e2e8f0] bg-[#f8fafc] px-3 py-1 text-xs font-semibold text-gray-700 transition-colors hover:bg-[#e2e8f0]"
+                                    class="btn-edit-chunk inline-flex shrink-0 items-center rounded-full border border-[#e2e8f0] bg-[#f8fafc] px-3 py-1 text-xs font-semibold text-gray-700 transition-colors hover:bg-[#e2e8f0]"
                                     data-id="${escHtml(String(d.id))}"
                                     data-content="${escHtml(d.content)}">
                                     Edit
                                 </button>
                                 <button type="button"
-                                    class="btn-delete-chunk inline-flex items-center rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700 transition-colors hover:bg-rose-100"
+                                    class="btn-delete-chunk inline-flex shrink-0 items-center rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700 transition-colors hover:bg-rose-100"
                                     data-id="${escHtml(String(d.id))}">
                                     Delete
                                 </button>
                             </div>
                         </td>`;
-
                     if (tbody) {
                         const emptyRow = tbody.querySelector('td[colspan]');
                         if (emptyRow) emptyRow.closest('tr').remove();
@@ -1377,12 +1109,10 @@
                         bindDeleteBtn(tr.querySelector('.btn-delete-chunk'));
                         bindEditBtn(tr.querySelector('.btn-edit-chunk'));
                     }
-
                     if (totalBadge) {
                         const current = parseInt(totalBadge.textContent, 10) || 0;
                         totalBadge.textContent = (current + 1) + ' total';
                     }
-
                     closeAddModal();
                 } catch (err) {
                     errorMsg.textContent = err.message || 'An error occurred.';
@@ -1399,7 +1129,6 @@
                 const id = btn.dataset.id;
                 if (!confirm('Delete this chunk? This cannot be undone.')) return;
                 btn.disabled = true;
-
                 try {
                     const url = destroyUrlTemplate.replace('__ID__', encodeURIComponent(id));
                     const res = await fetch(url, {
@@ -1412,10 +1141,8 @@
                     });
                     const payload = await res.json();
                     if (!res.ok || !payload.success) throw new Error(payload.message || 'Delete failed.');
-
                     const row = btn.closest('tr');
                     if (row) row.remove();
-
                     if (totalBadge) {
                         const current = parseInt(totalBadge.textContent, 10) || 1;
                         totalBadge.textContent = Math.max(0, current - 1) + ' total';
@@ -1429,7 +1156,7 @@
 
         document.querySelectorAll('.btn-delete-chunk').forEach(btn => bindDeleteBtn(btn));
 
-        // ── Edit chunk ───────────────────────────────────────────────────────
+        // ── Edit chunk ────────────────────────────────────────────────────────
         const editModal         = document.getElementById('edit-chunk-modal');
         const editModalClose    = document.getElementById('edit-chunk-modal-close');
         const editModalCancel   = document.getElementById('edit-chunk-cancel');
@@ -1463,7 +1190,6 @@
             editSubmitBtn.addEventListener('click', async () => {
                 const id      = editIdField.value;
                 const content = editContentField.value.trim();
-
                 if (!content) {
                     editErrorMsg.textContent = 'Content is required.';
                     editErrorMsg.classList.remove('hidden');
@@ -1471,7 +1197,6 @@
                 }
                 editErrorMsg.classList.add('hidden');
                 editSubmitBtn.disabled = true;
-
                 try {
                     const url = updateUrlTemplate.replace('__ID__', encodeURIComponent(id));
                     const res = await fetch(url, {
@@ -1486,21 +1211,17 @@
                     });
                     const payload = await res.json();
                     if (!res.ok || !payload.success) throw new Error(payload.message || 'Could not save changes.');
-
                     const d   = payload.data;
                     const row = tbody ? tbody.querySelector(`tr[data-id="${id}"]`) : null;
                     if (row) {
                         const cells = row.querySelectorAll('td');
-                        // cells[2] = content preview
                         if (cells[2]) {
                             const p = cells[2].querySelector('p');
                             if (p) p.textContent = d.content.length > 120 ? d.content.substring(0, 120) + '...' : d.content;
                         }
-                        // update data-content on the edit button for future opens
                         const editBtn = row.querySelector('.btn-edit-chunk');
                         if (editBtn) editBtn.dataset.content = d.content;
                     }
-
                     closeEditModal();
                 } catch (err) {
                     editErrorMsg.textContent = err.message || 'An error occurred.';
