@@ -10,6 +10,8 @@ use App\Http\Controllers\OperatorChatController;
 use App\Http\Controllers\StaffChatController;
 use App\Http\Controllers\ChatFeedbackController;
 use App\Http\Controllers\AnalyticsController;
+use App\Http\Controllers\StaffController;
+use App\Http\Controllers\ActivityLogController;
 //gi add ni gar -- end--
 
 // ── Public: redirects to login page ──
@@ -74,10 +76,7 @@ Route::controller(AuthController::class)->group(function (): void {
 
 
 
-Route::get('/logout', function () {
-    session()->forget(['user_name', 'user_email', 'user_role', 'user_avatar']);
-    return redirect()->route('login');
-})->name('logout');
+Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
 
 // Helper function to protect routes in a single-company console
@@ -127,9 +126,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     Route::get('/chat', protectRoute('admin.chat', 'Administrator'))->name('chat');
 
-    Route::get('/staff', protectRoute('admin.staff', 'Administrator'))->name('staff');
+    Route::get('/staff', [StaffController::class, 'index'])->name('staff');
+    Route::post('/staff', [StaffController::class, 'store'])->name('staff.store');
+    Route::patch('/staff/{id}', [StaffController::class, 'update'])->name('staff.update');
+    Route::delete('/staff/{id}', [StaffController::class, 'destroy'])->name('staff.destroy');
+    Route::post('/staff/{id}/restore', [StaffController::class, 'restore'])->name('staff.restore');
 
-    Route::get('/logs', protectRoute('admin.logs', 'Administrator'))->name('logs');
+    Route::get('/logs', [ActivityLogController::class, 'index'])->name('logs');
 
     Route::get('/settings', protectRoute('admin.settings', 'Administrator'))->name('settings');
 

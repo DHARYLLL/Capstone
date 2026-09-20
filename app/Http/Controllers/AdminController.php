@@ -6,12 +6,14 @@ use App\Jobs\ProcessPdfIngestion;
 use App\Models\BusinessKnowledge;
 use App\Models\BusinessUnit;
 use App\Models\Company;
+use App\Models\ActivityLog;
 use App\Models\StagedKnowledgeDocument;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -42,6 +44,7 @@ class AdminController extends Controller
 
         $chunk = BusinessKnowledge::query()->create($validated);
         $chunk->load('businessUnit');
+        ActivityLog::record(Auth::id(), 'Indexed', 'Done', null, $chunk->businessUnit->name);
 
         return response()->json([
             'success' => true,
@@ -59,6 +62,7 @@ class AdminController extends Controller
         abort_unless(session('user_role') === 'Administrator', 403);
 
         $knowledge->delete();
+        ActivityLog::record(Auth::id(), 'Deleted', 'Done');
 
         return response()->json(['success' => true]);
     }
@@ -137,6 +141,15 @@ class AdminController extends Controller
             'status' => 'staged',
         ]);
 
+        ActivityLog::record(Auth::id(), 'Uploaded', 'Done', $document->original_name, $businessUnit->name);
+        ActivityLog::record(
+            Auth::id(),
+            'Staged',
+            'Pending',
+            $document->original_name,
+            $businessUnit->name,
+        );
+
         return response()->json([
             'success' => true,
             'message' => 'File saved to staging.',
@@ -158,6 +171,14 @@ class AdminController extends Controller
 
         $stagedDocument->update(['status' => 'processing']);
 
+        ActivityLog::record(
+            Auth::id(),
+            'Approved',
+            'Done',
+            $stagedDocument->original_name,
+            $stagedDocument->businessUnit->name,
+        );
+
         ProcessPdfIngestion::dispatch(
             businessUnitId: $stagedDocument->business_unit_id,
             storageDisk: 'local',
@@ -165,6 +186,9 @@ class AdminController extends Controller
             stagedDocumentId: $stagedDocument->id,
             editedContent: $stagedDocument->edited_content,
             mimeType: $stagedDocument->mime_type,
+            fileName: $stagedDocument->original_name,
+            division: $stagedDocument->businessUnit->name,
+            userId: Auth::id(),
         );
 
         return response()->json([
@@ -180,6 +204,13 @@ class AdminController extends Controller
         abort_unless($stagedDocument->status === 'staged', 409, 'Only staged files can be discarded.');
 
         \Illuminate\Support\Facades\Storage::disk('local')->delete($stagedDocument->stored_path);
+        ActivityLog::record(
+            Auth::id(),
+            'Rejected',
+            'Failed',
+            $stagedDocument->original_name,
+            $stagedDocument->businessUnit->name,
+        );
         $stagedDocument->delete();
 
         return response()->json(['success' => true, 'message' => 'Staged file discarded.']);
@@ -274,11 +305,16 @@ class AdminController extends Controller
             'local'
         );
 
+        ActivityLog::record(Auth::id(), 'Uploaded', 'Done', $uploadedFile->getClientOriginalName(), $businessUnit->name);
+
         // Persist the upload immediately, then continue indexing in the queue so the response stays fast.
         ProcessPdfIngestion::dispatch(
             businessUnitId: $businessUnit->id,
             storageDisk: 'local',
             storedPath: $storedPath,
+            fileName: $uploadedFile->getClientOriginalName(),
+            division: $businessUnit->name,
+            userId: Auth::id(),
         )->afterResponse();
 
         return $this->redirectToAdmin(

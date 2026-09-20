@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
-@section('page_title', 'Knowledge Base Logs')
-@section('breadcrumbs', 'Admin / Ingestion Logs')
+@section('page_title', 'Activity Logs')
+@section('breadcrumbs', 'Admin / Activity Logs')
 
 @section('content')
 <div class="space-y-8">
@@ -10,7 +10,7 @@
     <section class="rounded-[2rem] border border-[#e2e8f0] bg-white p-6 shadow-sm lg:p-8">
         <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-                <h1 class="text-3xl font-black tracking-tight text-gray-900">Knowledge Base Logs</h1>
+                    <h1 class="text-3xl font-black tracking-tight text-gray-900">Activity Logs</h1>
                 <p class="mt-2 max-w-3xl text-sm leading-6 text-gray-500">
                     A record of all upload events, processing steps, indexing outcomes, and approval actions for the waterproofing company.
                 </p>
@@ -21,10 +21,10 @@
     {{-- Stats strip --}}
     <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         @foreach ([
-            ['label' => 'Total uploads',    'value' => '47', 'sub' => 'All time'],
-            ['label' => 'Indexed today',    'value' => '3',  'sub' => 'Last 24 h'],
-            ['label' => 'Failed / Rejected','value' => '2',  'sub' => 'Needs review'],
-            ['label' => 'Pending approval', 'value' => '5',  'sub' => 'Staged files'],
+            ['label' => 'Total uploads',    'value' => $totalUploads,  'sub' => 'All time'],
+            ['label' => 'Indexed today',    'value' => $indexedToday,  'sub' => 'Last 24 h'],
+            ['label' => 'Failed / Rejected','value' => $failedCount,   'sub' => 'Needs review'],
+            ['label' => 'Pending approval', 'value' => $pendingCount,  'sub' => 'Staged files'],
         ] as $stat)
         <div class="card bg-base-100 shadow-sm">
             <div class="card-body p-5">
@@ -45,11 +45,11 @@
                     <p class="mt-1 text-sm text-gray-500">All events are recorded automatically on upload, review, and indexing.</p>
                 </div>
                 <div class="flex flex-wrap gap-2">
-                    @foreach (['All', 'Indexed', 'Staged', 'Failed', 'Deleted'] as $filter)
-                    <button type="button"
-                        class="btn btn-sm rounded-full {{ $filter === 'All' ? 'border-0 bg-[#1e293b] text-white' : 'btn-outline border-gray-300 text-gray-600' }}">
-                        {{ $filter }}
-                    </button>
+                    @foreach (['All' => null, 'Indexed' => 'indexed', 'Staged' => 'staged', 'Failed' => 'failed', 'Deleted' => 'deleted'] as $label => $filterKey)
+                    <a href="{{ route('admin.logs', $filterKey ? ['filter' => $filterKey] : []) }}"
+                        class="btn btn-sm rounded-full {{ $filter === $filterKey || ($filterKey === null && $filter === '') ? 'border-0 bg-[#1e293b] text-white' : 'btn-outline border-gray-300 text-gray-600' }}">
+                        {{ $label }}
+                    </a>
                     @endforeach
                 </div>
             </div>
@@ -67,35 +67,23 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @php
-                            $logRows = [
-                                ['time' => 'Today 11:42 AM', 'file' => 'dariv-services.csv',           'unit' => 'DARIV',      'event' => 'Indexed',         'status' => 'success', 'user' => 'Admin'],
-                                ['time' => 'Today 10:15 AM', 'file' => 'drymax-epoxy-guide.pdf',      'unit' => 'DryMax',     'event' => 'Approved',        'status' => 'success', 'user' => 'Staff'],
-                                ['time' => 'Today 09:03 AM', 'file' => 'hydroguard-crystalline.pdf',  'unit' => 'HydroGuard', 'event' => 'Staged',          'status' => 'pending', 'user' => 'Staff'],
-                                ['time' => 'Yesterday 4:50 PM','file' => 'gutters-acrylic-spec.pdf',  'unit' => 'DARIV',      'event' => 'Upload failed',   'status' => 'error',   'user' => 'Admin'],
-                                ['time' => 'Yesterday 2:11 PM','file' => 'interior-shower-leak.csv',   'unit' => 'DryMax',     'event' => 'Indexed',         'status' => 'success', 'user' => 'Admin'],
-                                ['time' => 'Yesterday 1:00 PM','file' => 'polyurethane-safety.pdf',    'unit' => 'DARIV',      'event' => 'Rejected',        'status' => 'error',   'user' => 'Staff'],
-                                ['time' => '2 days ago 3:30 PM','file' => 'residential-rates.csv',     'unit' => 'DARIV',      'event' => 'Indexed',         'status' => 'success', 'user' => 'Admin'],
-                                ['time' => '2 days ago 9:10 AM','file' => 'commercial-trench.csv',     'unit' => 'HydroGuard', 'event' => 'Indexed',         'status' => 'success', 'user' => 'Admin'],
-                            ];
-                        @endphp
-                        @foreach ($logRows as $row)
+                        @forelse ($logs as $log)
                         <tr>
-                            <td class="whitespace-nowrap text-gray-400">{{ $row['time'] }}</td>
+                            <td class="whitespace-nowrap text-gray-400">{{ $log->created_at->isToday() ? 'Today '.$log->created_at->format('g:i A') : $log->created_at->diffForHumans() }}</td>
                             <td>
                                 <div class="flex items-center gap-2">
                                     <svg viewBox="0 0 24 24" class="h-4 w-4 shrink-0 fill-gray-400"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/></svg>
-                                    <span class="font-medium text-gray-800">{{ $row['file'] }}</span>
+                                    <span class="font-medium text-gray-800">{{ $log->file_name ?? '—' }}</span>
                                 </div>
                             </td>
-                            <td class="text-gray-600">{{ $row['unit'] }}</td>
-                            <td class="text-gray-700">{{ $row['event'] }}</td>
+                            <td class="text-gray-600">{{ $log->division }}</td>
+                            <td class="text-gray-700">{{ $log->event }}</td>
                             <td>
-                                @if ($row['status'] === 'success')
+                                @if ($log->status === 'Done')
                                     <span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200">
                                         <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span> Done
                                     </span>
-                                @elseif ($row['status'] === 'pending')
+                                @elseif ($log->status === 'Pending')
                                     <span class="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700 ring-1 ring-amber-200">
                                         <span class="h-1.5 w-1.5 rounded-full bg-amber-400"></span> Pending
                                     </span>
@@ -105,22 +93,18 @@
                                     </span>
                                 @endif
                             </td>
-                            <td class="text-gray-500">{{ $row['user'] }}</td>
+                            <td class="text-gray-500">{{ $log->user?->name ?? 'System' }}</td>
                         </tr>
-                        @endforeach
+                        @empty
+                        <tr><td colspan="6" class="py-8 text-center text-sm text-gray-400">No activity logs found.</td></tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
 
             <div class="mt-4 flex flex-col gap-3 border-t border-gray-100 pt-4 sm:flex-row sm:items-center sm:justify-between">
-                <p class="text-xs text-gray-500">Showing <strong>8</strong> of <strong>47</strong> entries</p>
-                <div class="join">
-                    <button class="join-item btn btn-xs btn-outline border-gray-300 text-gray-600" disabled>«</button>
-                    <button class="join-item btn btn-xs btn-active border-0 bg-[#1e293b] text-white">1</button>
-                    <button class="join-item btn btn-xs btn-outline border-gray-300 text-gray-600">2</button>
-                    <button class="join-item btn btn-xs btn-outline border-gray-300 text-gray-600">3</button>
-                    <button class="join-item btn btn-xs btn-outline border-gray-300 text-gray-600">»</button>
-                </div>
+                <p class="text-xs text-gray-500">Showing <strong>{{ $logs->count() }}</strong> of <strong>{{ $logs->total() }}</strong> entries</p>
+                {{ $logs->appends(request()->query())->links() }}
             </div>
         </div>
     </section>

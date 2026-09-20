@@ -6,13 +6,15 @@ namespace App\Models;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, SoftDeletes;
 
     public const ROLE_ADMIN = 'Administrator';
 
@@ -31,6 +33,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'last_seen_at',
     ];
 
     /**
@@ -53,6 +56,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'last_seen_at' => 'datetime',
         ];
     }
 
@@ -64,6 +68,33 @@ class User extends Authenticatable
     public function businessUnit(): BelongsTo
     {
         return $this->belongsTo(BusinessUnit::class);
+    }
+
+    public function chatSessions(): HasMany
+    {
+        return $this->hasMany(ChatSession::class, 'assigned_user_id');
+    }
+
+    public function activityLogs(): HasMany
+    {
+        return $this->hasMany(ActivityLog::class);
+    }
+
+    public function currentStatus(): string
+    {
+        if ($this->trashed()) {
+            return 'Terminated';
+        }
+
+        if (! $this->last_seen_at || $this->last_seen_at->lt(now()->subMinutes(5))) {
+            return 'Offline';
+        }
+
+        $hasActiveChat = $this->relationLoaded('chatSessions')
+            ? $this->chatSessions->contains(fn (ChatSession $session): bool => in_array($session->status, ['handed_off', 'human_active'], true))
+            : $this->chatSessions()->whereIn('status', ['handed_off', 'human_active'])->exists();
+
+        return $hasActiveChat ? 'Active' : 'Online';
     }
 
     public function hasRole(string $role): bool

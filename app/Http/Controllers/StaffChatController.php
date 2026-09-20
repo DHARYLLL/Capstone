@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ChatMessage;
 use App\Models\ChatSession;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,11 +14,13 @@ class StaffChatController extends Controller
 {
     public function index(): View
     {
+        $this->touchLastSeen();
         return view('staff.chat');
     }
 
     public function sessions(): JsonResponse
     {
+        $this->touchLastSeen();
         $sessions = ChatSession::query()
             ->with(['assignedUser:id,name', 'businessUnit:id,name'])
             ->where('company_id', Auth::user()->company_id)
@@ -30,6 +33,7 @@ class StaffChatController extends Controller
 
     public function messages(ChatSession $session): JsonResponse
     {
+        $this->touchLastSeen();
         $this->ensureCompanySession($session);
 
         return response()->json([
@@ -39,6 +43,7 @@ class StaffChatController extends Controller
 
     public function sendMessage(Request $request, ChatSession $session): JsonResponse
     {
+        $this->touchLastSeen();
         $this->ensureCompanySession($session);
         abort_unless($session->status === 'human_active' && $session->assigned_user_id === Auth::id(), 403);
 
@@ -56,6 +61,7 @@ class StaffChatController extends Controller
 
     public function claimSession(ChatSession $session): JsonResponse
     {
+        $this->touchLastSeen();
         $this->ensureCompanySession($session);
         abort_unless(in_array($session->status, ['pending', 'human_active'], true), 422);
 
@@ -69,6 +75,7 @@ class StaffChatController extends Controller
 
     public function resolveSession(ChatSession $session): JsonResponse
     {
+        $this->touchLastSeen();
         $this->ensureCompanySession($session);
         abort_unless($session->assigned_user_id === Auth::id(), 403);
 
@@ -82,5 +89,14 @@ class StaffChatController extends Controller
     private function ensureCompanySession(ChatSession $session): void
     {
         abort_unless($session->company_id === Auth::user()->company_id, 404);
+    }
+
+    private function touchLastSeen(): void
+    {
+        $user = Auth::user();
+
+        if ($user instanceof User) {
+            $user->update(['last_seen_at' => now()]);
+        }
     }
 }

@@ -36,24 +36,49 @@
                                 </tr>
                             </thead>
                             <tbody id="team-table-body">
-                                <tr class="border-b border-gray-100 hover:bg-slate-50/50 transition">
-                                    <td class="py-3.5 px-4 font-bold text-gray-900 text-sm">Mae S.</td>
-                                    <td class="py-3.5 px-4 text-gray-500 font-mono text-xs">mae.s@dariv.com</td>
-                                    <td class="py-3.5 px-4 text-gray-700 text-sm">Staff</td>
-                                    <td class="py-3.5 px-4"><span class="badge badge-success badge-outline rounded-full text-[10px] font-bold">Online</span></td>
-                                </tr>
-                                <tr class="border-b border-gray-100 hover:bg-slate-50/50 transition">
-                                    <td class="py-3.5 px-4 font-bold text-gray-900 text-sm">Jon P.</td>
-                                    <td class="py-3.5 px-4 text-gray-500 font-mono text-xs">jon.p@dariv.com</td>
-                                    <td class="py-3.5 px-4 text-gray-700 text-sm">Staff</td>
-                                    <td class="py-3.5 px-4"><span class="badge badge-outline rounded-full text-[10px] font-bold">Away</span></td>
-                                </tr>
-                                <tr class="border-b border-gray-100 hover:bg-slate-50/50 transition">
-                                    <td class="py-3.5 px-4 font-bold text-gray-900 text-sm">Rina T.</td>
-                                    <td class="py-3.5 px-4 text-gray-500 font-mono text-xs">rina.t@dariv.com</td>
-                                    <td class="py-3.5 px-4 text-gray-700 text-sm">Administrator</td>
-                                    <td class="py-3.5 px-4"><span class="badge badge-success badge-outline rounded-full text-[10px] font-bold">Online</span></td>
-                                </tr>
+                                @forelse ($staffMembers as $staffMember)
+                                    @php
+                                        $staff = $staffMember['user'];
+                                        $status = $staffMember['status'];
+                                        $statusClasses = match ($status) {
+                                            'Active' => 'badge badge-info badge-outline rounded-full text-[10px] font-bold',
+                                            'Online' => 'badge badge-success badge-outline rounded-full text-[10px] font-bold',
+                                            'Terminated' => 'badge badge-error badge-outline rounded-full text-[10px] font-bold',
+                                            default => 'badge badge-outline rounded-full text-[10px] font-bold',
+                                        };
+                                    @endphp
+                                    <tr class="border-b border-gray-100 hover:bg-slate-50/50 transition">
+                                        <td class="py-3.5 px-4 font-bold text-gray-900 text-sm">{{ $staff->name }}</td>
+                                        <td class="py-3.5 px-4 text-gray-500 font-mono text-xs">{{ $staff->email }}</td>
+                                        <td class="py-3.5 px-4 text-gray-700 text-sm">{{ $staff->role }}</td>
+                                        <td class="py-3.5 px-4">
+                                            <span class="{{ $statusClasses }}">{{ $status }}</span>
+                                            <details class="inline-block ml-2 align-middle">
+                                                <summary class="btn btn-ghost btn-xs text-gray-500 cursor-pointer">Actions</summary>
+                                                <div class="absolute z-10 mt-1 w-32 rounded-xl border border-gray-100 bg-white p-1 shadow-lg">
+                                                    <button type="button" class="btn btn-ghost btn-xs w-full justify-start" data-edit-staff
+                                                        data-id="{{ $staff->id }}" data-name="{{ $staff->name }}" data-email="{{ $staff->email }}" data-role="{{ $staff->role }}">Edit</button>
+                                                    @if ($status === 'Terminated')
+                                                        <form method="POST" action="{{ route('admin.staff.restore', $staff->id) }}">
+                                                            @csrf
+                                                            <button type="submit" class="btn btn-ghost btn-xs w-full justify-start">Restore</button>
+                                                        </form>
+                                                    @else
+                                                        <form method="POST" action="{{ route('admin.staff.destroy', $staff->id) }}" onsubmit="return confirm('Terminate this staff member?');">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="btn btn-ghost btn-xs w-full justify-start text-error">Terminate</button>
+                                                        </form>
+                                                    @endif
+                                                </div>
+                                            </details>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr class="border-b border-gray-100 hover:bg-slate-50/50 transition">
+                                        <td colspan="4" class="py-3.5 px-4 text-gray-500 text-sm">No staff members found.</td>
+                                    </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>
@@ -68,36 +93,61 @@
             <h3 class="text-2xl font-black text-gray-900 tracking-tight font-sans">Add Staff Member</h3>
             <p class="text-xs text-gray-400 mt-1 mb-6">Create a new user account mapped to the business database structure.</p>
             
-            <form id="add-staff-form" class="space-y-4" method="dialog">
+            <form id="add-staff-form" class="space-y-4" method="POST" action="{{ route('admin.staff.store') }}">
+                @csrf
+                <input type="hidden" name="form_context" value="add_staff">
+                @if ($errors->any())
+                    <div class="text-xs text-red-500 mt-1 block">Please correct the errors below.</div>
+                @endif
                 <!-- Name -->
                 <div>
                     <label for="staff-name" class="block text-xs font-bold text-gray-500 mb-1.5 uppercase tracking-wide">Full Name</label>
-                    <input type="text" id="staff-name" required placeholder="e.g. Maria D." 
+                    <input type="text" id="staff-name" name="name" value="{{ old('name') }}" required placeholder="e.g. Maria D." 
                         class="input input-bordered w-full rounded-2xl border-gray-200 bg-white text-sm text-gray-800 focus:border-indigo-500 focus:outline-none">
+                    @error('name')
+                        <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <!-- Email -->
                 <div>
                     <label for="staff-email" class="block text-xs font-bold text-gray-500 mb-1.5 uppercase tracking-wide">Email Address</label>
-                    <input type="email" id="staff-email" required placeholder="e.g. maria.d@dariv.com" 
+                    <input type="email" id="staff-email" name="email" value="{{ old('email') }}" required placeholder="e.g. maria.d@dariv.com" 
                         class="input input-bordered w-full rounded-2xl border-gray-200 bg-white text-sm text-gray-800 focus:border-indigo-500 focus:outline-none">
+                    @error('email')
+                        <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <!-- Password -->
                 <div>
                     <label for="staff-password" class="block text-xs font-bold text-gray-500 mb-1.5 uppercase tracking-wide">Account Password</label>
-                    <input type="password" id="staff-password" required placeholder="••••••••" 
+                    <input type="password" id="staff-password" name="password" required placeholder="********" 
+                        class="input input-bordered w-full rounded-2xl border-gray-200 bg-white text-sm text-gray-800 focus:border-indigo-500 focus:outline-none">
+                    @error('password')
+                        <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <!-- Confirm Password -->
+                <div>
+                    <label for="staff-password-confirmation" class="block text-xs font-bold text-gray-500 mb-1.5 uppercase tracking-wide">Confirm Password</label>
+                    <input type="password" id="staff-password-confirmation" name="password_confirmation" required placeholder="********"
                         class="input input-bordered w-full rounded-2xl border-gray-200 bg-white text-sm text-gray-800 focus:border-indigo-500 focus:outline-none">
                 </div>
 
                 <!-- Role Selection -->
                 <div>
                     <label for="staff-role" class="block text-xs font-bold text-gray-500 mb-1.5 uppercase tracking-wide">Role</label>
-                    <select id="staff-role" required class="select select-bordered w-full rounded-2xl border-gray-200 bg-white text-sm text-gray-800 focus:border-indigo-500 focus:outline-none">
-                        <option value="" disabled selected>Select Role...</option>
-                        <option value="Administrator">Administrator</option>
-                        <option value="Staff">Staff</option>
+                    <select id="staff-role" name="role" required class="select select-bordered w-full rounded-2xl border-gray-200 bg-white text-sm text-gray-800 focus:border-indigo-500 focus:outline-none">
+                        <option value="" disabled @selected(! old('role'))>Select Role...</option>
+                        <option value="Administrator" @selected(old('role') === 'Administrator')>Administrator</option>
+                        <option value="Staff" @selected(old('role') === 'Staff')>Staff</option>
+                        <option value="Lead Operator" @selected(old('role') === 'Lead Operator')>Lead Operator</option>
                     </select>
+                    @error('role')
+                        <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <!-- Form Action Buttons -->
@@ -115,31 +165,62 @@
         </div>
     </dialog>
 
-    <!-- Client-Side Addition Simulation script -->
+    <dialog id="edit_staff_modal" class="modal bg-slate-900/60 backdrop-blur-sm">
+        <div class="modal-box bg-white max-w-md rounded-[2rem] p-8 border border-gray-100 shadow-2xl relative">
+            <h3 class="text-2xl font-black text-gray-900 tracking-tight font-sans">Edit Staff Member</h3>
+            <p class="text-xs text-gray-400 mt-1 mb-6">Update account details and access permissions.</p>
+
+            <form id="edit-staff-form" class="space-y-4" method="POST">
+                @csrf
+                @method('PATCH')
+                <div>
+                    <label for="edit-staff-name" class="block text-xs font-bold text-gray-500 mb-1.5 uppercase tracking-wide">Full Name</label>
+                    <input type="text" id="edit-staff-name" name="name" required class="input input-bordered w-full rounded-2xl border-gray-200 bg-white text-sm text-gray-800 focus:border-indigo-500 focus:outline-none">
+                </div>
+                <div>
+                    <label for="edit-staff-email" class="block text-xs font-bold text-gray-500 mb-1.5 uppercase tracking-wide">Email Address</label>
+                    <input type="email" id="edit-staff-email" name="email" required class="input input-bordered w-full rounded-2xl border-gray-200 bg-white text-sm text-gray-800 focus:border-indigo-500 focus:outline-none">
+                </div>
+                <div>
+                    <label for="edit-staff-password" class="block text-xs font-bold text-gray-500 mb-1.5 uppercase tracking-wide">New Password</label>
+                    <input type="password" id="edit-staff-password" name="password" placeholder="Leave blank to keep current password" class="input input-bordered w-full rounded-2xl border-gray-200 bg-white text-sm text-gray-800 focus:border-indigo-500 focus:outline-none">
+                </div>
+                <div>
+                    <label for="edit-staff-role" class="block text-xs font-bold text-gray-500 mb-1.5 uppercase tracking-wide">Role</label>
+                    <select id="edit-staff-role" name="role" required class="select select-bordered w-full rounded-2xl border-gray-200 bg-white text-sm text-gray-800 focus:border-indigo-500 focus:outline-none">
+                        <option value="Administrator">Administrator</option>
+                        <option value="Staff">Staff</option>
+                        <option value="Lead Operator">Lead Operator</option>
+                        <option value="agent">agent</option>
+                    </select>
+                </div>
+                <div class="flex items-center justify-end gap-3 pt-6 border-t border-gray-100">
+                    <button type="button" onclick="document.getElementById('edit_staff_modal').close()" class="btn rounded-2xl border border-gray-200 bg-white hover:bg-slate-50 text-gray-700 font-bold px-5 py-3 h-auto">Cancel</button>
+                    <button type="submit" class="btn rounded-2xl border-0 bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-3 h-auto">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </dialog>
+
     <script>
-        document.getElementById('add-staff-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const name = document.getElementById('staff-name').value;
-            const email = document.getElementById('staff-email').value;
-            const role = document.getElementById('staff-role').value;
-
-            // Formulate new table row
-            const newRow = document.createElement('tr');
-            newRow.className = 'border-b border-gray-100 hover:bg-slate-50/50 transition';
-            newRow.innerHTML = `
-                <td class="py-3.5 px-4 font-bold text-gray-900 text-sm">${name}</td>
-                <td class="py-3.5 px-4 text-gray-500 font-mono text-xs">${email}</td>
-                <td class="py-3.5 px-4 text-gray-700 text-sm">${role}</td>
-                <td class="py-3.5 px-4"><span class="badge badge-success badge-outline rounded-full text-[10px] font-bold">Online</span></td>
-            `;
-
-            // Append to table body
-            document.getElementById('team-table-body').appendChild(newRow);
-
-            // Reset Form and close modal
-            document.getElementById('add-staff-form').reset();
-            document.getElementById('add_staff_modal').close();
+        document.querySelectorAll('[data-edit-staff]').forEach((button) => {
+            button.addEventListener('click', () => {
+                const form = document.getElementById('edit-staff-form');
+                form.action = `/admin/staff/${button.dataset.id}`;
+                document.getElementById('edit-staff-name').value = button.dataset.name;
+                document.getElementById('edit-staff-email').value = button.dataset.email;
+                document.getElementById('edit-staff-role').value = button.dataset.role;
+                document.getElementById('edit-staff-password').value = '';
+                document.getElementById('edit_staff_modal').showModal();
+            });
         });
     </script>
+
+    @if ($errors->any() && old('form_context') === 'add_staff')
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                document.getElementById('add_staff_modal').showModal();
+            });
+        </script>
+    @endif
 @endsection

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\BusinessUnit;
 use App\Models\Company;
+use App\Models\ActivityLog;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -81,6 +82,10 @@ class AuthController extends Controller
 
         $request->session()->regenerate();
         $user = Auth::user();
+        if ($user instanceof User) {
+            $user->update(['last_seen_at' => now()]);
+            ActivityLog::record($user->id, 'Logged in', 'Done', null, 'DARIV', 'auth');
+        }
 
         // MAP ROLE TO WHAT protectRoute() EXPECTS IN web.php
         $roleName = match ($user->role) {
@@ -164,6 +169,10 @@ class AuthController extends Controller
 
     public function logout(Request $request): RedirectResponse
     {
+        if ($userId = Auth::id()) {
+            ActivityLog::record($userId, 'Logged out', 'Done', null, 'DARIV', 'auth');
+        }
+
         Auth::logout();
 
         $request->session()->invalidate();

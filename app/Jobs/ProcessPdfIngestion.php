@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\BusinessKnowledge;
 use App\Models\BusinessUnit;
+use App\Models\ActivityLog;
 use App\Models\StagedKnowledgeDocument;
 use App\Services\TextChunker;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -34,6 +35,9 @@ class ProcessPdfIngestion implements ShouldQueue
         public ?int $stagedDocumentId = null,
         public ?string $editedContent = null,
         public ?string $mimeType = null,
+        public ?string $fileName = null,
+        public string $division = 'DARIV',
+        public ?int $userId = null,
     ) {
         $this->onQueue('imports');
     }
@@ -54,6 +58,7 @@ class ProcessPdfIngestion implements ShouldQueue
                 'stored_path' => $this->storedPath,
             ]);
             $stagedDocument?->update(['status' => 'failed']);
+            $this->recordFailure();
 
             return;
         }
@@ -79,6 +84,7 @@ class ProcessPdfIngestion implements ShouldQueue
                 'stored_path' => $this->storedPath,
             ]);
             $stagedDocument?->update(['status' => 'failed']);
+            $this->recordFailure();
 
             return;
         }
@@ -92,6 +98,7 @@ class ProcessPdfIngestion implements ShouldQueue
                 'stored_path' => $this->storedPath,
             ]);
             $stagedDocument?->update(['status' => 'failed']);
+            $this->recordFailure();
 
             return;
         }
@@ -124,6 +131,7 @@ class ProcessPdfIngestion implements ShouldQueue
                 'stored_path' => $this->storedPath,
             ]);
             $stagedDocument?->update(['status' => 'failed']);
+            $this->recordFailure();
 
             return;
         }
@@ -139,6 +147,7 @@ class ProcessPdfIngestion implements ShouldQueue
 
         Storage::disk($this->storageDisk)->delete($this->storedPath);
         $stagedDocument?->update(['status' => 'indexed']);
+        ActivityLog::record($this->userId, 'Indexed', 'Done', $this->fileName, $this->division);
     }
 
     public function failed(\Throwable $exception): void
@@ -146,6 +155,12 @@ class ProcessPdfIngestion implements ShouldQueue
         StagedKnowledgeDocument::query()
             ->whereKey($this->stagedDocumentId)
             ->update(['status' => 'failed']);
+        $this->recordFailure();
+    }
+
+    private function recordFailure(): void
+    {
+        ActivityLog::record($this->userId, 'Upload failed', 'Failed', $this->fileName, $this->division);
     }
 
     /**
