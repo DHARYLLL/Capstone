@@ -12,6 +12,7 @@ use App\Http\Controllers\ChatFeedbackController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\DashboardController;
 //gi add ni gar -- end--
 
 // ── Public: redirects to login page ──
@@ -105,7 +106,7 @@ if (!function_exists('protectRoute')) {
 // ── Admin panel (Protected Single-Company Console) ──────────────────────────────────────────────
 Route::prefix('admin')->name('admin.')->group(function () {
 
-    Route::get('/', protectRoute('admin.dashboard', 'Administrator'))->name('dashboard');
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/knowledge-base', [AdminController::class, 'knowledgeBase'])->name('knowledge-base');
     Route::post('/knowledge-base/chunks', [AdminController::class, 'storeChunk'])->name('knowledge.chunks.store');

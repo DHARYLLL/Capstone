@@ -11,13 +11,6 @@
         $tenantType = 'Residential & Roof Sealing';
         $tenantStatus = 'Live';
 
-        $kpis = [
-            ['label' => 'Answered queries', 'value' => '1,284', 'delta' => '+18%'],
-            ['label' => 'Unanswered queries', 'value' => '34', 'delta' => '-6%'],
-            ['label' => 'Human-routed queries', 'value' => '126', 'delta' => '+11%'],
-            ['label' => 'Knowledge files', 'value' => '18', 'delta' => '+3'],
-        ];
-
         $modules = [
             ['title' => 'Knowledge Base Upload', 'desc' => 'Drop PDFs and CSVs, inspect ingestion results, and approve data.', 'href' => route('admin.knowledge-base')],
             ['title' => 'Reporting & Analytics', 'desc' => 'Review answered, unanswered, and human-routed query volume.', 'href' => route('admin.analytics')],
@@ -26,10 +19,6 @@
             ['title' => 'Staff & Roles', 'desc' => 'Manage operators, shifts, permissions, and routing rules.', 'href' => route('admin.staff')],
         ];
 
-        $activity = [
-            ['label' => 'Knowledge base indexed', 'meta' => '18 minutes ago · 4 files processed'],
-            ['label' => 'Human handoff accepted', 'meta' => '42 minutes ago · Operator: Mae'],
-        ];
     @endphp
 
     <div class="space-y-8">
@@ -59,7 +48,7 @@
                     <div class="card-body p-6 flex flex-row items-center justify-between gap-4">
                         <div class="text-left space-y-1">
                             <span class="text-xs font-semibold uppercase tracking-wider text-gray-400 block">{{ $kpi['label'] }}</span>
-                            <span class="text-xs text-emerald-600 font-bold block">{{ $kpi['delta'] }} vs last period</span>
+                            <span class="text-xs font-bold block {{ $kpi['deltaClass'] }}">{{ $kpi['delta'] }} vs last period</span>
                         </div>
                         <div class="text-right text-3xl font-black text-gray-800 tracking-tight shrink-0">
                             {{ $kpi['value'] }}
@@ -106,12 +95,20 @@
                     <p class="mt-1 text-sm text-gray-500">Latest portal updates and tenant actions.</p>
 
                     <div class="mt-5 space-y-3">
-                        @foreach ($activity as $item)
+                        @forelse ($recentActivities as $activity)
                             <div class="rounded-2xl bg-[#f8fafc] p-4">
-                                <div class="font-semibold text-gray-800">{{ $item['label'] }}</div>
-                                <p class="mt-1 text-sm text-gray-500">{{ $item['meta'] }}</p>
+                                <div class="font-semibold text-gray-800">{{ $activity->event }}</div>
+                                <p class="mt-1 text-sm text-gray-500">
+                                    {{ $activity->created_at->diffForHumans() }} ·
+                                    {{ $activity->file_name ? 'File: '.$activity->file_name : 'Operator: '.($activity->user?->name ?? 'System') }}
+                                </p>
                             </div>
-                        @endforeach
+                        @empty
+                            <div class="rounded-2xl bg-[#f8fafc] p-4">
+                                <div class="font-semibold text-gray-800">No recent activity</div>
+                                <p class="mt-1 text-sm text-gray-500">Activity will appear here as portal actions are recorded.</p>
+                            </div>
+                        @endforelse
                     </div>
                 </div>
             </div>
