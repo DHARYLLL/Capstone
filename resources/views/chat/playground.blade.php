@@ -48,6 +48,7 @@
     </div>
 
     <!-- Injected widget -->
-    <script src="{{ config('app.url') }}/js/chat-widget.js" data-company-key="{{ $companyKey }}"></script>
+    {{-- <script src="{{ config('app.url') }}/js/chat-widget.js" data-company-key="{{ $companyKey }}"></script> --}}
+    <script src="/js/chat-widget.js" data-company-key="{{ $companyKey }}" async></script>
 </body>
 </html>
