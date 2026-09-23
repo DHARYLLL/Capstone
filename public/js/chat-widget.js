@@ -188,7 +188,9 @@
 
 (function () {
     const scriptEl = document.currentScript || Array.from(document.querySelectorAll('script[src*="chat-widget.js"]')).at(-1);
-    const businessName = scriptEl?.getAttribute('data-business') || 'dariv';
+    const companyKey = scriptEl?.getAttribute('data-company-key')
+        || scriptEl?.getAttribute('data-business')
+        || '';
     const storageKey = 'capstone_chat_user_id';
 
     let localUserId = localStorage.getItem(storageKey);
@@ -201,7 +203,8 @@
         try {
             if (scriptEl && scriptEl.src) {
                 const url = new URL(scriptEl.src);
-                return `${url.protocol}//${url.host}`;
+                url.pathname = url.pathname.replace(/\/js\/chat-widget\.js\/?$/, '');
+                return url.toString().replace(/\/$/, '');
             }
         } catch (error) {
             console.warn('Chat widget URL fallback triggered:', error);
@@ -277,7 +280,7 @@
         }
 
         if (!iframeLoaded) {
-            iframe.src = `${baseUrl}/chat/widget?business=${encodeURIComponent(businessName)}&user_id=${encodeURIComponent(localUserId)}`;
+            iframe.src = `${baseUrl}/chat/widget?api_key=${encodeURIComponent(companyKey)}&user_id=${encodeURIComponent(localUserId)}`;
             iframeLoaded = true;
         }
 

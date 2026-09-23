@@ -8,6 +8,7 @@ use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Models\Company;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class AdminUserSeeder extends Seeder
 {
@@ -16,6 +17,11 @@ class AdminUserSeeder extends Seeder
      */
     public function run(): void
     {
+        Company::whereNull('api_key')->each(function (Company $company): void {
+            $company->api_key = 'pk_live_' . Str::random(24);
+            $company->save();
+        });
+
         Company::create([
             'name' => 'Dariv',
         ]);

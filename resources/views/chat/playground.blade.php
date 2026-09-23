@@ -14,17 +14,11 @@
     </style>
 </head>
 @php
-    $slug = request('business', 'dariv');
-    if ($slug === 'dariv') {
-        $unitName = 'DARIV Waterproofing';
-        $bgGradient = 'from-sky-500 to-indigo-600';
-    } elseif ($slug === 'hydroguard') {
-        $unitName = 'HydroGuard Solutions';
-        $bgGradient = 'from-teal-500 to-emerald-600';
-    } else {
-        $unitName = 'DryMax Sealants';
-        $bgGradient = 'from-violet-500 to-fuchsia-600';
-    }
+    $company = \App\Models\Company::where('api_key', request('api_key'))->first()
+        ?? \App\Models\Company::first();
+    $companyKey = $company?->api_key ?? request('api_key', '');
+    $unitName = $company?->name ?? 'Company';
+    $bgGradient = 'from-sky-500 to-indigo-600';
 @endphp
 <body class="bg-white text-gray-800 antialiased min-h-screen flex flex-col justify-between overflow-x-hidden">
     <div>
@@ -54,6 +48,6 @@
     </div>
 
     <!-- Injected widget -->
-    <script src="{{ asset('js/chat-widget.js') }}" data-business="{{ $slug }}"></script>
+    <script src="{{ config('app.url') }}/js/chat-widget.js" data-company-key="{{ $companyKey }}"></script>
 </body>
 </html>
