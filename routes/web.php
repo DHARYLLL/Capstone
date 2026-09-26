@@ -13,6 +13,7 @@ use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\AdminChatController;
 //gi add ni gar -- end--
 
 // ── Public: redirects to login page ──
@@ -125,7 +126,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics');
 
-    Route::get('/chat', protectRoute('admin.chat', 'Administrator'))->name('chat');
+    Route::controller(AdminChatController::class)->group(function (): void {
+        Route::get('/chat', 'index')->name('chat');
+        Route::get('/chat/sessions', 'sessions')->name('chat.sessions');
+        Route::get('/chat/{session}/messages', 'messages')->name('chat.messages');
+        Route::post('/chat/{session}/claim', 'claim')->name('chat.claim');
+        Route::post('/chat/{session}/reply', 'reply')->name('chat.reply');
+        Route::post('/chat/{session}/resolve', 'resolve')->name('chat.resolve');
+    });
 
     Route::get('/staff', [StaffController::class, 'index'])->name('staff');
     Route::post('/staff', [StaffController::class, 'store'])->name('staff.store');

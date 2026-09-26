@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class ChatSession extends Model
 {
@@ -24,6 +25,7 @@ class ChatSession extends Model
         'user_identifier',
         'status',
         'handed_off_at',
+        'assigned_user_id',
     ];
 
     protected $casts = [
@@ -48,5 +50,10 @@ class ChatSession extends Model
     public function chatMessages(): HasMany
     {
         return $this->hasMany(ChatMessage::class);
+    }
+
+    public function lastMessage(): HasOne
+    {
+        return $this->hasOne(ChatMessage::class)->latestOfMany();
     }
 }

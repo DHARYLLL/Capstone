@@ -187,111 +187,126 @@
 
 
 (function () {
-    const scriptEl = document.currentScript || Array.from(document.querySelectorAll('script[src*="chat-widget.js"]')).at(-1);
-    const businessName = scriptEl?.getAttribute('data-business') || 'dariv';
-    const storageKey = 'capstone_chat_user_id';
+    function initWidget() {
+        if (document.getElementById('capstone-chat-widget-root')) return;
 
-    let localUserId = localStorage.getItem(storageKey);
-    if (!localUserId) {
-        localUserId = 'guest_' + Math.random().toString(36).slice(2, 10) + '_' + Date.now();
-        localStorage.setItem(storageKey, localUserId);
-    }
+        const scriptEl = document.currentScript || Array.from(document.querySelectorAll('script[src*="chat-widget.js"]')).at(-1);
+        const companyKey = scriptEl?.getAttribute('data-company-key')
+            || scriptEl?.getAttribute('data-business')
+            || '';
+        const storageKey = 'capstone_chat_user_id';
 
-    const baseUrl = (() => {
-        try {
-            if (scriptEl && scriptEl.src) {
-                const url = new URL(scriptEl.src);
-                return `${url.protocol}//${url.host}`;
+        let localUserId = localStorage.getItem(storageKey);
+        if (!localUserId) {
+            localUserId = 'guest_' + Math.random().toString(36).slice(2, 10) + '_' + Date.now();
+            localStorage.setItem(storageKey, localUserId);
+        }
+
+        const baseUrl = (() => {
+            try {
+                if (scriptEl && scriptEl.src) {
+                    const url = new URL(scriptEl.src);
+                    url.pathname = url.pathname.replace(/\/js\/chat-widget\.js\/?$/, '');
+                    return url.origin; // Always returns protocol + domain without trailing slash
+                }
+            } catch (error) {
+                console.warn('Chat widget URL fallback triggered:', error);
             }
-        } catch (error) {
-            console.warn('Chat widget URL fallback triggered:', error);
+
+            return window.location.origin;
+        })();
+
+        const widgetRoot = document.createElement('div');
+        widgetRoot.id = 'capstone-chat-widget-root';
+        widgetRoot.style.position = 'fixed';
+        widgetRoot.style.right = '20px';
+        widgetRoot.style.bottom = '20px';
+        widgetRoot.style.zIndex = '2147483647';
+        widgetRoot.style.fontFamily = 'Inter, Arial, sans-serif';
+
+        const iframeWrapper = document.createElement('div');
+        iframeWrapper.style.position = 'absolute';
+        iframeWrapper.style.right = '0';
+        iframeWrapper.style.bottom = '68px';
+        iframeWrapper.style.width = '380px';
+        iframeWrapper.style.height = '560px';
+        iframeWrapper.style.maxHeight = '75vh';
+        iframeWrapper.style.borderRadius = '22px';
+        iframeWrapper.style.overflow = 'hidden';
+        iframeWrapper.style.boxShadow = '0 24px 80px rgba(15, 23, 42, 0.22)';
+        iframeWrapper.style.background = '#fff';
+        iframeWrapper.style.border = '1px solid rgba(148, 163, 184, 0.3)';
+        iframeWrapper.style.transform = 'translateY(12px) scale(0.98)';
+        iframeWrapper.style.opacity = '0';
+        iframeWrapper.style.pointerEvents = 'none';
+        iframeWrapper.style.transition = 'all 0.22s ease';
+        iframeWrapper.style.display = 'none';
+
+        const iframe = document.createElement('iframe');
+        iframe.title = 'Capstone customer chat';
+        iframe.style.width = '100%';
+        iframe.style.height = '100%';
+        iframe.style.border = '0';
+        iframe.style.display = 'block';
+        iframe.allow = 'clipboard-write';
+        iframeWrapper.appendChild(iframe);
+
+        const launcher = document.createElement('button');
+        launcher.type = 'button';
+        launcher.textContent = '💬';
+        launcher.style.width = '60px';
+        launcher.style.height = '60px';
+        launcher.style.border = '0';
+        launcher.style.borderRadius = '50%';
+        launcher.style.background = 'linear-gradient(135deg, #7c3aed, #4f46e5)';
+        launcher.style.color = '#fff';
+        launcher.style.fontSize = '26px';
+        launcher.style.cursor = 'pointer';
+        launcher.style.boxShadow = '0 14px 26px rgba(79, 70, 229, 0.35)';
+        launcher.style.transition = 'transform 0.15s ease';
+
+        widgetRoot.appendChild(iframeWrapper);
+        widgetRoot.appendChild(launcher);
+        document.body.appendChild(widgetRoot);
+
+        let iframeLoaded = false;
+
+        function toggleWidget() {
+            const isVisible = iframeWrapper.style.display === 'block';
+
+            if (isVisible) {
+                iframeWrapper.style.display = 'none';
+                iframeWrapper.style.opacity = '0';
+                iframeWrapper.style.pointerEvents = 'none';
+                iframeWrapper.style.transform = 'translateY(12px) scale(0.98)';
+                launcher.style.transform = 'scale(1)';
+                return;
+            }
+
+            if (!iframeLoaded) {
+                iframe.src = `${baseUrl}/chat/widget?api_key=${encodeURIComponent(companyKey)}&user_id=${encodeURIComponent(localUserId)}`;
+                iframeLoaded = true;
+            }
+
+            iframeWrapper.style.display = 'block';
+            iframeWrapper.style.opacity = '1';
+            iframeWrapper.style.pointerEvents = 'auto';
+            iframeWrapper.style.transform = 'translateY(0) scale(1)';
+            launcher.style.transform = 'scale(1.04)';
         }
 
-        return window.location.origin;
-    })();
-
-    const widgetRoot = document.createElement('div');
-    widgetRoot.style.position = 'fixed';
-    widgetRoot.style.right = '20px';
-    widgetRoot.style.bottom = '20px';
-    widgetRoot.style.zIndex = '2147483647';
-    widgetRoot.style.fontFamily = 'Inter, Arial, sans-serif';
-
-    const iframeWrapper = document.createElement('div');
-    iframeWrapper.style.position = 'absolute';
-    iframeWrapper.style.right = '0';
-    iframeWrapper.style.bottom = '68px';
-    iframeWrapper.style.width = '380px';
-    iframeWrapper.style.height = '560px';
-    iframeWrapper.style.maxHeight = '75vh';
-    iframeWrapper.style.borderRadius = '22px';
-    iframeWrapper.style.overflow = 'hidden';
-    iframeWrapper.style.boxShadow = '0 24px 80px rgba(15, 23, 42, 0.22)';
-    iframeWrapper.style.background = '#fff';
-    iframeWrapper.style.border = '1px solid rgba(148, 163, 184, 0.3)';
-    iframeWrapper.style.transform = 'translateY(12px) scale(0.98)';
-    iframeWrapper.style.opacity = '0';
-    iframeWrapper.style.pointerEvents = 'none';
-    iframeWrapper.style.transition = 'all 0.22s ease';
-    iframeWrapper.style.display = 'none';
-
-    const iframe = document.createElement('iframe');
-    iframe.title = 'Capstone customer chat';
-    iframe.style.width = '100%';
-    iframe.style.height = '100%';
-    iframe.style.border = '0';
-    iframe.style.display = 'block';
-    iframe.allow = 'clipboard-write';
-    iframeWrapper.appendChild(iframe);
-
-    const launcher = document.createElement('button');
-    launcher.type = 'button';
-    launcher.textContent = '💬';
-    launcher.style.width = '60px';
-    launcher.style.height = '60px';
-    launcher.style.border = '0';
-    launcher.style.borderRadius = '50%';
-    launcher.style.background = 'linear-gradient(135deg, #7c3aed, #4f46e5)';
-    launcher.style.color = '#fff';
-    launcher.style.fontSize = '26px';
-    launcher.style.cursor = 'pointer';
-    launcher.style.boxShadow = '0 14px 26px rgba(79, 70, 229, 0.35)';
-    launcher.style.transition = 'transform 0.15s ease';
-
-    widgetRoot.appendChild(iframeWrapper);
-    widgetRoot.appendChild(launcher);
-    document.body.appendChild(widgetRoot);
-
-    let iframeLoaded = false;
-
-    function toggleWidget() {
-        const isVisible = iframeWrapper.style.display === 'block';
-
-        if (isVisible) {
-            iframeWrapper.style.display = 'none';
-            iframeWrapper.style.opacity = '0';
-            iframeWrapper.style.pointerEvents = 'none';
-            iframeWrapper.style.transform = 'translateY(12px) scale(0.98)';
-            launcher.style.transform = 'scale(1)';
-            return;
-        }
-
-        if (!iframeLoaded) {
-            iframe.src = `${baseUrl}/chat/widget?business=${encodeURIComponent(businessName)}&user_id=${encodeURIComponent(localUserId)}`;
-            iframeLoaded = true;
-        }
-
-        iframeWrapper.style.display = 'block';
-        iframeWrapper.style.opacity = '1';
-        iframeWrapper.style.pointerEvents = 'auto';
-        iframeWrapper.style.transform = 'translateY(0) scale(1)';
-        launcher.style.transform = 'scale(1.04)';
+        launcher.addEventListener('click', toggleWidget);
+        window.addEventListener('message', function (event) {
+            if (event.data && event.data.action === 'toggleChat') {
+                toggleWidget();
+            }
+        });
     }
 
-    launcher.addEventListener('click', toggleWidget);
-    window.addEventListener('message', function (event) {
-        if (event.data && event.data.action === 'toggleChat') {
-            toggleWidget();
-        }
-    });
+    // Safely mount once document body is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initWidget);
+    } else {
+        initWidget();
+    }
 })();

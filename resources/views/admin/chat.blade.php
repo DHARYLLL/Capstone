@@ -13,8 +13,8 @@
                     <p class="mt-2 max-w-3xl text-sm leading-6 text-gray-500">Operate a split-screen console for active queues, conversation timelines, and live handoff actions.</p>
                 </div>
                 <div class="flex gap-2">
-                    <span id="header-waiting-badge" class="badge badge-warning badge-outline font-bold px-3 py-2.5 text-xs rounded-full">2 Waiting</span>
-                    <span id="header-active-badge" class="badge badge-info badge-outline font-bold px-3 py-2.5 text-xs rounded-full">1 Active</span>
+                    <span id="header-waiting-badge" class="badge badge-warning badge-outline font-bold px-3 py-2.5 text-xs rounded-full">{{ $waitingCount }} Waiting</span>
+                    <span id="header-active-badge" class="badge badge-info badge-outline font-bold px-3 py-2.5 text-xs rounded-full">{{ $activeCount }} Active</span>
                 </div>
             </div>
         </section>
@@ -26,7 +26,7 @@
             <div class="card bg-base-100 shadow-sm border border-gray-100 rounded-3xl h-[650px] overflow-hidden flex flex-col">
                 <div class="p-5 border-b border-gray-100 flex items-center justify-between bg-slate-50/30">
                     <h2 class="text-xs font-bold text-gray-900 uppercase tracking-wider">Active Queue</h2>
-                    <span id="queue-count" class="badge bg-slate-100 border-0 text-gray-700 font-bold px-2 py-1.5 text-[10px]">3 chats</span>
+                    <span id="queue-count" class="badge bg-slate-100 border-0 text-gray-700 font-bold px-2 py-1.5 text-[10px]">{{ $sessions->count() }} chats</span>
                 </div>
                 <div class="flex-1 overflow-y-auto p-4 space-y-3" id="queue-list">
                     <!-- Queue items populated via JS -->
@@ -109,238 +109,197 @@
         </section>
     </div>
 
-    <!-- Client-side Interactive Session State Simulation -->
     <script>
-        // Initial dataset representing databases
-        const chats = {
-            'maria-d': {
-                name: 'Maria D.',
-                meta: 'Roof leak repair quote',
-                status: 'waiting',
-                claimed: false,
-                messages: [
-                    { sender: 'client', text: 'How much does it cost to waterproof a residential roof deck?', time: '10:14 AM' },
-                    { sender: 'bot', text: 'Our DARIV residential waterproofing rates start at PHP 450 per sqm. Curing takes 3-5 days. All works include a 5-year warranty!', time: '10:14 AM' },
-                    { sender: 'client', text: 'Can I speak to an operator to get a site visit scheduled?', time: '10:15 AM' },
-                    { sender: 'system', text: 'Handoff triggered. Conversation routed to waiting operator queue.', time: '10:15 AM' }
-                ]
-            },
-            'john-p': {
-                name: 'John P.',
-                meta: 'Downpayment invoice questions',
-                status: 'waiting',
-                claimed: false,
-                messages: [
-                    { sender: 'client', text: 'I received the quote but where do I pay the 30% downpayment?', time: '09:40 AM' },
-                    { sender: 'bot', text: 'Hello! I can transfer you to our manager to send downpayment invoices or links. Please type "Talk to human" or wait a moment.', time: '09:41 AM' },
-                    { sender: 'client', text: 'Talk to human please.', time: '09:41 AM' },
-                    { sender: 'system', text: 'Handoff triggered. Routed reason: Downpayment/billing inquiry.', time: '09:41 AM' }
-                ]
-            },
-            'aya-r': {
-                name: 'Aya R.',
-                meta: 'Balcony sealing warranty',
-                status: 'active',
-                claimed: true,
-                messages: [
-                    { sender: 'client', text: 'Is balcony sealing also covered by the 5-year warranty?', time: '09:02 AM' },
-                    { sender: 'bot', text: 'Yes! We provide a full 5-year warranty on all our roof and balcony waterproofing services against any leakage.', time: '09:03 AM' },
-                    { sender: 'system', text: 'Operator Mae S. claimed this chat session.', time: '09:05 AM' },
-                    { sender: 'operator', text: 'Hello Aya! Yes, balcony sealing is fully covered. Would you like us to inspect the balcony size first?', time: '09:06 AM' }
-                ]
-            }
+        const chatRoutes = {
+            sessions: @json(route('admin.chat.sessions')),
+            messages: @json(route('admin.chat.messages', ['session' => '__SESSION__'])),
+            claim: @json(route('admin.chat.claim', ['session' => '__SESSION__'])),
+            reply: @json(route('admin.chat.reply', ['session' => '__SESSION__'])),
+            resolve: @json(route('admin.chat.resolve', ['session' => '__SESSION__']))
         };
-
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}';
         let activeId = null;
+        let activeSession = null;
 
-        // Render queue listings on page load
-        function renderQueue() {
+        function sessionUrl(template, id) {
+            return template.replace('__SESSION__', id);
+        }
+
+        async function requestJson(url, options = {}) {
+            const response = await fetch(url, {
+                ...options,
+                headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken, ...(options.headers || {}) }
+            });
+            if (!response.ok) throw new Error('Chat request failed.');
+            return response.json();
+        }
+
+        function textElement(tag, className, text) {
+            const element = document.createElement(tag);
+            element.className = className;
+            element.textContent = text;
+            return element;
+        }
+
+        function renderQueue(sessions = []) {
             const list = document.getElementById('queue-list');
             list.innerHTML = '';
-            
-            let count = 0;
-            let waitingCount = 0;
-            let activeCount = 0;
-
-            for (const [id, chat] of Object.entries(chats)) {
-                count++;
-                if (chat.status === 'waiting') waitingCount++;
-                if (chat.status === 'active') activeCount++;
-
-                const isActive = (id === activeId);
-                const badgeColor = chat.status === 'waiting' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700';
-                
+            sessions.forEach(session => {
                 const item = document.createElement('div');
-                item.onclick = () => selectChat(id);
-                item.className = `p-4 rounded-2xl border transition cursor-pointer text-left ${isActive ? 'bg-indigo-50/50 border-indigo-200 shadow-sm ring-1 ring-indigo-150' : 'bg-white border-gray-100 hover:bg-slate-50'}`;
-                item.innerHTML = `
-                    <div class="flex justify-between items-start">
-                        <span class="font-bold text-gray-900 text-sm">${chat.name}</span>
-                        <span class="badge badge-xs font-bold border-0 px-2 py-1 text-[9px] uppercase tracking-wide ${badgeColor}">${chat.status}</span>
-                    </div>
-                    <p class="text-xs text-gray-500 mt-1 truncate">${chat.meta}</p>
-                `;
+                const waiting = ['waiting', 'pending', 'queued'].includes(session.raw_status);
+                item.className = `p-4 rounded-2xl border transition cursor-pointer text-left ${String(session.id) === String(activeId) ? 'bg-indigo-50/50 border-indigo-200 shadow-sm ring-1 ring-indigo-150' : 'bg-white border-gray-100 hover:bg-slate-50'}`;
+                item.addEventListener('click', () => selectChat(session.id));
+                const heading = document.createElement('div');
+                heading.className = 'flex justify-between items-start';
+                heading.appendChild(textElement('span', 'font-bold text-gray-900 text-sm', session.customer_name));
+                heading.appendChild(textElement('span', `badge badge-xs font-bold border-0 px-2 py-1 text-[9px] uppercase tracking-wide ${waiting ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'}`, waiting ? 'WAITING' : 'ACTIVE'));
+                item.appendChild(heading);
+                item.appendChild(textElement('p', 'text-xs text-gray-500 mt-1 truncate', session.latest_message));
+                if (!waiting && session.assigned_user_name) {
+                    item.appendChild(textElement('p', 'text-xs text-blue-600 mt-1 truncate', `Active • Assigned to ${session.assigned_user_name}`));
+                }
                 list.appendChild(item);
-            }
-
-            // Update top counters
-            document.getElementById('queue-count').innerText = `${count} chats`;
-            document.getElementById('header-waiting-badge').innerText = `${waitingCount} Waiting`;
-            document.getElementById('header-active-badge').innerText = `${activeCount} Active`;
+            });
         }
 
-        // Active chat selection
-        function selectChat(id) {
+        async function refreshQueue() {
+            try {
+                const payload = await requestJson(chatRoutes.sessions);
+                renderQueue(payload.data);
+                document.getElementById('queue-count').innerText = `${payload.data.length} chats`;
+                document.getElementById('header-waiting-badge').innerText = `${payload.waiting_count} Waiting`;
+                document.getElementById('header-active-badge').innerText = `${payload.active_count} Active`;
+                if (activeId && !payload.data.some(session => String(session.id) === String(activeId))) resetChat();
+                if (activeId) {
+                    activeSession = payload.data.find(session => String(session.id) === String(activeId)) || activeSession;
+                    if (activeSession) {
+                        updateHeader();
+                        updateControls();
+                    }
+                }
+            } catch (error) { console.error(error); }
+        }
+
+        async function selectChat(id) {
             activeId = id;
-            const chat = chats[id];
-            
-            // Remove empty state placeholder
+            activeSession = null;
             document.getElementById('chat-empty-state').classList.add('hidden');
-            
-            // Header content
-            document.getElementById('active-client-name').innerText = chat.name;
-            document.getElementById('active-client-status').innerText = chat.meta;
-            
-            const badge = document.getElementById('session-badge');
-            badge.classList.remove('hidden');
-            badge.innerText = chat.status;
-            if (chat.status === 'waiting') {
-                badge.className = 'badge badge-sm font-bold border-0 text-[10px] uppercase tracking-wider py-2 bg-amber-100 text-amber-700';
-            } else {
-                badge.className = 'badge badge-sm font-bold border-0 text-[10px] uppercase tracking-wider py-2 bg-blue-100 text-blue-700';
-            }
-
-            // Load message timelines
-            renderTimeline();
-
-            // Toggle controls status
-            const inputsDisabled = !chat.claimed;
-            document.getElementById('reply-input').disabled = inputsDisabled;
-            document.getElementById('send-btn').disabled = inputsDisabled;
-            
-            document.getElementById('claim-btn').disabled = chat.claimed;
-            document.getElementById('canned-btn').disabled = inputsDisabled;
-            document.getElementById('resolve-btn').disabled = !chat.claimed;
-
-            if (inputsDisabled) {
-                document.getElementById('reply-input').placeholder = "Claim this chat to write a reply...";
-                document.getElementById('reply-input').classList.add('bg-slate-50');
-            } else {
-                document.getElementById('reply-input').placeholder = "Type a message to reply live...";
-                document.getElementById('reply-input').classList.remove('bg-slate-50');
-            }
-
-            renderQueue();
+            try {
+                const [queue, messages] = await Promise.all([
+                    requestJson(chatRoutes.sessions),
+                    requestJson(sessionUrl(chatRoutes.messages, id))
+                ]);
+                activeSession = queue.data.find(session => String(session.id) === String(id));
+                renderQueue(queue.data);
+                updateHeader();
+                renderTimeline(messages.data);
+                updateControls();
+            } catch (error) { console.error(error); }
         }
 
-        // Render message thread list
-        function renderTimeline() {
+        function updateHeader() {
+            if (!activeSession) return;
+            document.getElementById('active-client-name').innerText = activeSession.customer_name;
+            document.getElementById('active-client-status').innerText = activeSession.latest_message;
+            const badge = document.getElementById('session-badge');
+            badge.className = `badge badge-sm font-bold border-0 text-[10px] uppercase tracking-wider py-2 ${activeSession.status === 'waiting' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'}`;
+            badge.innerText = activeSession.status === 'waiting' ? 'WAITING' : 'ACTIVE';
+        }
+
+        function updateControls() {
+            const claimed = activeSession?.assigned_user_id !== null && activeSession?.assigned_user_id !== undefined;
+            const waiting = activeSession?.status === 'waiting';
+            document.getElementById('reply-input').disabled = !claimed;
+            document.getElementById('send-btn').disabled = !claimed;
+            document.getElementById('claim-btn').disabled = !activeSession;
+            document.getElementById('canned-btn').disabled = !claimed;
+            document.getElementById('resolve-btn').disabled = !claimed;
+            document.getElementById('reply-input').placeholder = claimed ? 'Type a message to reply live...' : 'Claim this chat to write a reply...';
+            document.getElementById('reply-input').classList.toggle('bg-slate-50', !claimed);
+        }
+
+        function renderTimeline(messages) {
             const timeline = document.getElementById('chat-timeline');
             timeline.innerHTML = '';
-            const chat = chats[activeId];
-
-            chat.messages.forEach(msg => {
-                const el = document.createElement('div');
-                
-                if (msg.sender === 'system') {
-                    // System logs
-                    el.className = 'flex justify-center my-2';
-                    el.innerHTML = `<span class="bg-slate-100 border border-slate-200/50 text-[10px] font-bold text-slate-500 uppercase tracking-wider px-3 py-1 rounded-full">${msg.text}</span>`;
-                } else if (msg.sender === 'bot') {
-                    // Bot responses
-                    el.className = 'flex justify-start items-end gap-2.5 max-w-[85%]';
-                    el.innerHTML = `
-                        <div class="h-8 w-8 rounded-lg bg-indigo-50 border border-indigo-150 flex items-center justify-center text-sm shrink-0">🤖</div>
-                        <div class="bg-white border border-gray-150 p-4 rounded-[1.5rem] rounded-bl-none text-sm text-gray-800 shadow-sm leading-relaxed">
-                            <p class="text-[10px] font-extrabold uppercase tracking-widest text-indigo-600 mb-1">AI Assistant</p>
-                            ${msg.text}
-                            <span class="block text-[9px] text-gray-400 mt-2 text-right">${msg.time}</span>
-                        </div>
-                    `;
-                } else if (msg.sender === 'operator') {
-                    // Operator answers
-                    el.className = 'flex justify-end gap-2.5 max-w-[85%] ml-auto';
-                    el.innerHTML = `
-                        <div class="bg-indigo-600 text-white p-4 rounded-[1.5rem] rounded-br-none text-sm shadow-sm leading-relaxed">
-                            <p class="text-[10px] font-extrabold uppercase tracking-widest text-white/80 mb-1">You (Operator)</p>
-                            ${msg.text}
-                            <span class="block text-[9px] text-white/60 mt-2 text-right">${msg.time}</span>
-                        </div>
-                    `;
+            messages.forEach(message => {
+                const time = message.created_at ? new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+                const sender = message.sender_type;
+                const element = document.createElement('div');
+                if (sender === 'system') {
+                    element.className = 'flex justify-center my-2';
+                    element.appendChild(textElement('span', 'bg-slate-100 border border-slate-200/50 text-[10px] font-bold text-slate-500 uppercase tracking-wider px-3 py-1 rounded-full', message.message_text));
+                } else if (sender === 'bot' || sender === 'ai') {
+                    element.className = 'flex justify-start items-end gap-2.5 max-w-[85%]';
+                    element.innerHTML = '<div class="h-8 w-8 rounded-lg bg-indigo-50 border border-indigo-150 flex items-center justify-center text-sm shrink-0">🤖</div><div class="bg-white border border-gray-150 p-4 rounded-[1.5rem] rounded-bl-none text-sm text-gray-800 shadow-sm leading-relaxed"><p class="text-[10px] font-extrabold uppercase tracking-widest text-indigo-600 mb-1">AI Assistant</p><span class="message-text"></span><span class="block text-[9px] text-gray-400 mt-2 text-right"></span></div>';
+                    element.querySelector('.message-text').textContent = message.message_text;
+                    element.querySelector('span:last-child').textContent = time;
+                } else if (sender === 'operator' || sender === 'staff' || sender === 'agent') {
+                    element.className = 'flex justify-end gap-2.5 max-w-[85%] ml-auto';
+                    element.innerHTML = '<div class="bg-indigo-600 text-white p-4 rounded-[1.5rem] rounded-br-none text-sm shadow-sm leading-relaxed"><p class="text-[10px] font-extrabold uppercase tracking-widest text-white/80 mb-1">You (Operator)</p><span class="message-text"></span><span class="block text-[9px] text-white/60 mt-2 text-right"></span></div>';
+                    element.querySelector('.message-text').textContent = message.message_text;
+                    element.querySelector('span:last-child').textContent = time;
                 } else {
-                    // Customer client text
-                    el.className = 'flex justify-start gap-2.5 max-w-[85%]';
-                    el.innerHTML = `
-                        <div class="bg-slate-100 border border-slate-200/60 p-4 rounded-[1.5rem] rounded-tl-none text-sm text-gray-800 leading-relaxed">
-                            <p class="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 mb-1">Client User</p>
-                            ${msg.text}
-                            <span class="block text-[9px] text-gray-400 mt-2">${msg.time}</span>
-                        </div>
-                    `;
+                    element.className = 'flex justify-start gap-2.5 max-w-[85%]';
+                    element.innerHTML = '<div class="bg-slate-100 border border-slate-200/60 p-4 rounded-[1.5rem] rounded-tl-none text-sm text-gray-800 leading-relaxed"><p class="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 mb-1">Client User</p><span class="message-text"></span><span class="block text-[9px] text-gray-400 mt-2"></span></div>';
+                    element.querySelector('.message-text').textContent = message.message_text;
+                    element.querySelector('span:last-child').textContent = time;
                 }
-                timeline.appendChild(el);
+                timeline.appendChild(element);
             });
-
-            // Auto-scroll timeline to bottom
             timeline.scrollTop = timeline.scrollHeight;
         }
 
-        // Claim Chat
-        function claimActiveChat() {
-            if (!activeId) return;
-            const chat = chats[activeId];
-            chat.claimed = true;
-            chat.status = 'active';
-            chat.messages.push({ sender: 'system', text: 'You claimed this chat session.', time: 'Just now' });
-            
-            selectChat(activeId);
-        }
-
-        // Resolve Chat
-        function resolveActiveChat() {
-            if (!activeId) return;
-            delete chats[activeId];
+        function resetChat() {
             activeId = null;
-
-            // Reset back to empty placeholder screen
+            activeSession = null;
             document.getElementById('chat-empty-state').classList.remove('hidden');
-            document.getElementById('active-client-name').innerText = "No Chat Selected";
-            document.getElementById('active-client-status').innerText = "Select a conversation from the queue to start reply";
+            document.getElementById('active-client-name').innerText = 'No Chat Selected';
+            document.getElementById('active-client-status').innerText = 'Select a conversation from the queue to start reply';
             document.getElementById('session-badge').classList.add('hidden');
             document.getElementById('chat-timeline').innerHTML = '';
-            
-            document.getElementById('reply-input').disabled = true;
-            document.getElementById('send-btn').disabled = true;
-            document.getElementById('claim-btn').disabled = true;
-            document.getElementById('canned-btn').disabled = true;
-            document.getElementById('resolve-btn').disabled = true;
-
-            renderQueue();
+            updateControls();
         }
 
-        // Quick responses insertion
+        async function claimActiveChat() {
+            if (!activeId) return;
+            await requestJson(sessionUrl(chatRoutes.claim, activeId), { method: 'POST' });
+            await selectChat(activeId);
+        }
+
+        async function resolveActiveChat() {
+            if (!activeId) return;
+            const id = activeId;
+            await requestJson(sessionUrl(chatRoutes.resolve, id), { method: 'POST' });
+            resetChat();
+            await refreshQueue();
+        }
+
         function insertCanned(text) {
             document.getElementById('reply-input').value = text;
             document.getElementById('reply-input').focus();
         }
 
-        // Submit replies
-        document.getElementById('operator-reply-form').addEventListener('submit', function(e) {
-            e.preventDefault();
+        document.getElementById('operator-reply-form').addEventListener('submit', async function (event) {
+            event.preventDefault();
             const input = document.getElementById('reply-input');
             const text = input.value.trim();
             if (!text || !activeId) return;
-
-            const chat = chats[activeId];
-            const now = new Date();
-            const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-            chat.messages.push({ sender: 'operator', text: text, time: timeStr });
+            await requestJson(sessionUrl(chatRoutes.reply, activeId), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: text })
+            });
             input.value = '';
-            renderTimeline();
+            await selectChat(activeId);
         });
 
-        // Bootstrap on page load
-        renderQueue();
+        refreshQueue();
+        setInterval(async () => {
+            await refreshQueue();
+            if (activeId) {
+                const response = await requestJson(sessionUrl(chatRoutes.messages, activeId));
+                renderTimeline(response.data);
+            }
+        }, 3000);
     </script>
 @endsection

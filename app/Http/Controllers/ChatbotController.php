@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\BusinessUnit;
 use App\Models\ChatMessage;
 use App\Models\ChatSession;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Client\ConnectionException;
@@ -197,7 +198,7 @@ class ChatbotController extends Controller
             $this->markSessionHumanActive($session);
 
             return response()->json([
-                'status' => 'human_active',
+                'status' => 'waiting',
                 'message' => $promptText,
                 'response' => 'Connecting you to a live representative...',
                 'session_id' => $session->id,
@@ -462,9 +463,11 @@ class ChatbotController extends Controller
 
     private function markSessionHumanActive(ChatSession $session): void
     {
-        $session->status = 'human_active';
+        $session->status = 'waiting';
         $session->handed_off_at = $session->handed_off_at ?? now();
         $session->save();
+
+        ActivityLog::record(null, 'Human handoff requested', 'Pending', null, 'DARIV', 'chat');
     }
 
     private function classifyIntent(string $prompt): string
