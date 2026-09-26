@@ -14,6 +14,11 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         //
+        // Exempt iframe widget endpoints from CSRF token requirements
+        $middleware->validateCsrfTokens(except: [
+            'chat/*',
+            'api/*',
+        ]);
         // Trust Render's reverse proxy load balancer
         $middleware->trustProxies(
             at: '*',
