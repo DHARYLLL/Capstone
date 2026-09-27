@@ -100,7 +100,7 @@ class AdminController extends Controller
         abort_unless(session('user_role') === 'Administrator', 403);
 
         $documents = StagedKnowledgeDocument::query()
-            ->where('status', 'staged')
+            ->whereIn('status', ['staged', 'queued', 'processing'])
             ->latest()
             ->get()
             ->map(static fn (StagedKnowledgeDocument $document): array => [

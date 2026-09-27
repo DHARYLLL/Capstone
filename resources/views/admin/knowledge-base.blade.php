@@ -500,6 +500,7 @@
             const csrfToken          = @json(csrf_token());
             const uploadUrl          = @json(route('admin.knowledge.upload'));
             const approveUrlTemplate = @json(route('admin.knowledge.approve', ['stagedDocument' => '__ID__']));
+            const stagedUrl           = @json(route('admin.knowledge.staged'));
 
             let currentFile              = null;
             let currentParsedText        = '';
@@ -845,12 +846,53 @@
                         if (!approveRes.ok || !approvePayload.success) {
                             throw new Error(approvePayload.message || 'Approval failed. The file was staged but not queued.');
                         }
+                        window.location.reload();
+                        return;
                     } catch (err) {
                         showTrainingError(err.message || 'Approval failed. Please try again.');
                         modalConfirm.disabled = false;
                         return;
                     }
 
+
+                // Poll active ingestions and refresh once all queued work has finished.
+                let ingestionPoller = null;
+
+                async function checkIngestionStatus() {
+                    try {
+                        const response = await fetch(stagedUrl, {
+                            cache: 'no-store',
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest',
+                            },
+                        });
+                        const payload = await response.json();
+                        if (!response.ok || !payload.success) return null;
+
+                        return payload.data.some(document => ['queued', 'processing'].includes(document.status));
+                    } catch (error) {
+                        return null;
+                    }
+                }
+
+                async function pollIngestionStatus() {
+                    const hasActiveIngestion = await checkIngestionStatus();
+
+                    if (hasActiveIngestion === false) {
+                        if (ingestionPoller) {
+                            clearInterval(ingestionPoller);
+                            ingestionPoller = null;
+                            window.location.reload();
+                        }
+                    }
+                }
+
+                checkIngestionStatus().then(hasActiveIngestion => {
+                    if (hasActiveIngestion) {
+                        ingestionPoller = setInterval(pollIngestionStatus, 4000);
+                    }
+                });
                     setStepIndicator(processingStep2, 'done');
                     setStepIndicator(processingStep3, 'active');
 
@@ -1126,6 +1168,7 @@
                         totalBadge.textContent = (current + 1) + ' total';
                     }
                     closeAddModal();
+                    window.location.reload();
                 } catch (err) {
                     errorMsg.textContent = err.message || 'An error occurred.';
                     errorMsg.classList.remove('hidden');
