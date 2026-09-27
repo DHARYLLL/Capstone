@@ -63,7 +63,7 @@ class AdminChatController extends Controller
         $wasAssigned = filled($session->assigned_user_id);
 
         $session->update([
-            'status' => 'handed_off',
+            'status' => 'human_active',
             'assigned_user_id' => Auth::id(),
             'handed_off_at' => $session->handed_off_at ?? now(),
         ]);

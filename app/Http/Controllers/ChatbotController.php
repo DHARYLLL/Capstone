@@ -185,6 +185,14 @@ class ChatbotController extends Controller
             ]);
         }
 
+        if ($session->status === 'waiting') {
+            return response()->json([
+                'status' => 'waiting',
+                'session_id' => $session->id,
+                'message_id' => $customerMessage->id,
+            ]);
+        }
+
         if ($session->status === 'pending') {
             return response()->json([
                 'status' => 'pending',

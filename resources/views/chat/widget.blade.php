@@ -288,7 +288,7 @@
             }
 
             handoffTimeoutId = setTimeout(() => {
-                if (!['human_active', 'pending'].includes(lastKnownSessionStatus)) {
+                if (!['waiting', 'human_active', 'pending'].includes(lastKnownSessionStatus)) {
                     return;
                 }
 
@@ -348,7 +348,7 @@
                 appendBubble(payload.response, false, 'bot');
                 
                 // Add "Cancel Staff Request" button below contact info
-                if (activeSessionId && ['human_active', 'pending'].includes(lastKnownSessionStatus)) {
+                if (activeSessionId && ['waiting', 'human_active', 'pending'].includes(lastKnownSessionStatus)) {
                     setTimeout(() => {
                         const cancelButtonContainer = document.createElement('div');
                         cancelButtonContainer.className = 'flex justify-center pt-2 px-5';
@@ -451,7 +451,7 @@
         function handleSessionStatusChange(status, payload = {}) {
             const assignedUserId = payload.assigned_user_id ?? null;
 
-            if (status === 'bot_active' && ['human_active', 'pending'].includes(lastKnownSessionStatus)) {
+            if (status === 'bot_active' && ['waiting', 'human_active', 'pending'].includes(lastKnownSessionStatus)) {
                 appendSystemBubble('Your live chat with staff has ended. You are now speaking with the AI assistant again.');
                 clearHandoffTimeout();
                 handoffTimeoutNoticeShown = false;
@@ -460,7 +460,7 @@
                 chatStatus.textContent = 'AI assistant online.';
             }
 
-            if (status === 'human_active' || status === 'pending') {
+            if (status === 'waiting' || status === 'human_active' || status === 'pending') {
                 if (assignedUserId === null && !handoffRequestedAt) {
                     handoffRequestedAt = Date.now();
                 }
@@ -532,7 +532,7 @@
             renderMessageHistory(filteredMessages);
             handleSessionStatusChange(payload.status, payload);
 
-            if (payload.status === 'human_active' || payload.status === 'pending') {
+            if (payload.status === 'waiting' || payload.status === 'human_active' || payload.status === 'pending') {
                 startMessagePolling(activeSessionId);
             } else {
                 chatStatus.textContent = 'Chat restored.';
@@ -745,10 +745,10 @@
                     renderedIds.add(String(customerMessageId));
                 }
 
-                if (payload.status === 'human_active') {
-                    lastKnownSessionStatus = 'human_active';
+                if (payload.status === 'waiting' || payload.status === 'human_active') {
+                    lastKnownSessionStatus = payload.status;
                     handoffRequestedAt = Date.now();
-                    handleSessionStatusChange('human_active', payload);
+                    handleSessionStatusChange(payload.status, payload);
                     startMessagePolling(payload.session_id);
                 } else if (payload.status === 'success') {
                     lastKnownSessionStatus = 'human_active';

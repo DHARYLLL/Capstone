@@ -63,7 +63,7 @@ class StaffChatController extends Controller
     {
         $this->touchLastSeen();
         $this->ensureCompanySession($session);
-        abort_unless(in_array($session->status, ['pending', 'human_active'], true), 422);
+        abort_unless(in_array($session->status, ['waiting', 'pending', 'human_active'], true), 422);
 
         $session->status = 'human_active';
         $session->handed_off_at = $session->handed_off_at ?? now();
