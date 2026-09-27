@@ -211,6 +211,7 @@
         let handoffTimeoutId = null;
         let handoffTimeoutNoticeShown = false;
         let transferNoticeVisible = false;
+        let agentJoinedNoticeShown = false;
         let lastKnownSessionStatus = null;
         let handoffRequestedAt = null;
 
@@ -395,6 +396,7 @@
                 }
 
                 // Add system message indicating handoff was cancelled
+                removeConnectingNotice();
                 appendSystemBubble('Staff handoff request canceled. You are back in chat with the AI assistant.');
 
                 // Update header status to reflect AI state
@@ -407,7 +409,6 @@
                 lastKnownSessionStatus = 'bot_active';
                 clearHandoffTimeout();
                 handoffTimeoutNoticeShown = false;
-                transferNoticeVisible = false;
                 handoffRequestedAt = null;
                 stopMessagePolling();
 
@@ -418,9 +419,18 @@
             }
         }
 
+        function removeConnectingNotice() {
+            messageContainer.querySelectorAll('[data-handoff-connecting="true"]').forEach((notice) => notice.remove());
+            transferNoticeVisible = false;
+        }
+
         function appendSystemBubble(message, senderType = 'system') {
             const wrapper = document.createElement('div');
             wrapper.className = 'chat chat-start';
+
+            if (message === 'Connecting you to a live representative...') {
+                wrapper.dataset.handoffConnecting = 'true';
+            }
 
             const avatarWrapper = document.createElement('div');
             avatarWrapper.className = 'chat-image avatar';
@@ -450,22 +460,35 @@
 
         function handleSessionStatusChange(status, payload = {}) {
             const assignedUserId = payload.assigned_user_id ?? null;
+            const handoffStatuses = ['waiting', 'human_active', 'pending'];
+            const isHandoffActive = handoffStatuses.includes(status);
+            const wasWaitingForAgent = handoffStatuses.includes(lastKnownSessionStatus);
 
-            if (status === 'bot_active' && ['waiting', 'human_active', 'pending'].includes(lastKnownSessionStatus)) {
+            if (status === 'bot_active' && wasWaitingForAgent) {
+                removeConnectingNotice();
                 appendSystemBubble('Your live chat with staff has ended. You are now speaking with the AI assistant again.');
                 clearHandoffTimeout();
                 handoffTimeoutNoticeShown = false;
-                transferNoticeVisible = false;
+                agentJoinedNoticeShown = false;
                 handoffRequestedAt = null;
                 chatStatus.textContent = 'AI assistant online.';
             }
 
-            if (status === 'waiting' || status === 'human_active' || status === 'pending') {
+            if (isHandoffActive) {
+                if (assignedUserId !== null) {
+                    removeConnectingNotice();
+
+                    if (!agentJoinedNoticeShown && (status === 'human_active' || lastKnownSessionStatus === 'waiting' || lastKnownSessionStatus === 'pending')) {
+                        appendSystemBubble('An agent has joined the chat.');
+                        agentJoinedNoticeShown = true;
+                    }
+                }
+
                 if (assignedUserId === null && !handoffRequestedAt) {
                     handoffRequestedAt = Date.now();
                 }
 
-                if (!transferNoticeVisible) {
+                if (assignedUserId === null && !transferNoticeVisible) {
                     appendSystemBubble('Connecting you to a live representative...');
                     transferNoticeVisible = true;
                 }
@@ -479,7 +502,8 @@
             } else {
                 clearHandoffTimeout();
                 handoffTimeoutNoticeShown = false;
-                transferNoticeVisible = false;
+                removeConnectingNotice();
+                agentJoinedNoticeShown = false;
                 handoffRequestedAt = null;
             }
 
