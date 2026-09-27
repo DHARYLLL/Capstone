@@ -42,6 +42,15 @@ class AdminChatController extends Controller
         ]);
     }
 
+    public function pendingCount(): JsonResponse
+    {
+        $this->authorizeAdmin();
+
+        return response()->json([
+            'count' => $this->pendingSessionsQuery()->count(),
+        ]);
+    }
+
     public function messages(ChatSession $session): JsonResponse
     {
         $this->authorizeAdmin();
@@ -142,6 +151,18 @@ class AdminChatController extends Controller
         return in_array($session->status, [
             'waiting', 'pending', 'queued', 'handed_off', 'active', 'in_progress',
         ], true);
+    }
+
+    private function pendingSessionsQuery()
+    {
+        $query = ChatSession::query()->where('status', 'waiting');
+        $user = Auth::user();
+
+        if ($user?->company_id) {
+            $query->where('company_id', $user->company_id);
+        }
+
+        return $query;
     }
 
     private function authorizeAdmin(): void

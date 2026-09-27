@@ -129,6 +129,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::controller(AdminChatController::class)->group(function (): void {
         Route::get('/chat', 'index')->name('chat');
         Route::get('/chat/sessions', 'sessions')->name('chat.sessions');
+        Route::get('/chat/pending-count', 'pendingCount')->name('chat.pending-count');
         Route::get('/chat/{session}/messages', 'messages')->name('chat.messages');
         Route::post('/chat/{session}/claim', 'claim')->name('chat.claim');
         Route::post('/chat/{session}/reply', 'reply')->name('chat.reply');
@@ -160,6 +161,7 @@ Route::prefix('staff')->name('staff.')->middleware('auth')->group(function () {
 
     Route::get('/chat', [StaffChatController::class, 'index'])->name('chat');
     Route::get('/chats', [StaffChatController::class, 'sessions'])->name('chats.index');
+    Route::get('/chats/pending-count', [StaffChatController::class, 'pendingCount'])->name('chats.pending-count');
     Route::get('/chats/{session}/messages', [StaffChatController::class, 'messages'])->name('chats.messages');
     Route::post('/chats/{session}/messages', [StaffChatController::class, 'sendMessage'])->name('chats.messages.store');
     Route::post('/chats/{session}/claim', [StaffChatController::class, 'claimSession'])->name('chats.claim');

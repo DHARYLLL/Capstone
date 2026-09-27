@@ -31,6 +31,21 @@ class StaffChatController extends Controller
         return response()->json(['data' => $sessions]);
     }
 
+    public function pendingCount(): JsonResponse
+    {
+        $this->touchLastSeen();
+        $companyId = Auth::user()?->company_id;
+
+        abort_unless($companyId, 403);
+
+        return response()->json([
+            'count' => ChatSession::query()
+                ->where('company_id', $companyId)
+                ->where('status', 'waiting')
+                ->count(),
+        ]);
+    }
+
     public function messages(ChatSession $session): JsonResponse
     {
         $this->touchLastSeen();

@@ -53,6 +53,7 @@
                             <path d="{{ $item['icon'] }}"/>
                         </svg>
                         {{ $item['label'] }}
+                        <span id="pending-handoff-badge" class="hidden ml-auto rounded-full bg-red-500 px-2 py-0.5 text-xs font-bold text-white">0</span>
                     </a>
                 </li>
             @endforeach
@@ -60,3 +61,33 @@
     </nav>
 
 </aside>
+
+<script>
+    (() => {
+        const badge = document.getElementById('pending-handoff-badge');
+        if (!badge) return;
+
+        const pendingCountUrl = @json(route('staff.chats.pending-count'));
+
+        async function refreshPendingHandoffBadge() {
+            try {
+                const response = await fetch(pendingCountUrl, {
+                    cache: 'no-store',
+                    headers: { 'Accept': 'application/json' },
+                });
+
+                if (!response.ok) return;
+
+                const payload = await response.json();
+                const count = Number(payload.count) || 0;
+                badge.textContent = String(count);
+                badge.classList.toggle('hidden', count === 0);
+            } catch (error) {
+                console.error('Pending handoff count refresh failed:', error);
+            }
+        }
+
+        refreshPendingHandoffBadge();
+        window.setInterval(refreshPendingHandoffBadge, 5000);
+    })();
+</script>
