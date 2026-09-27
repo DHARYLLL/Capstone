@@ -1,114 +1,236 @@
 @extends('layouts.admin')
 
-@section('page_title', 'Live Chat & Staff Handoff')
-@section('breadcrumbs', 'Admin / Chat & Handoff')
+@section('page_title', 'Live Chat Console')
+@section('breadcrumbs', 'Admin / Live Chat')
 
 @section('content')
-    <div class="space-y-8">
-        <!-- Dashboard Header -->
-        <section class="rounded-[2rem] border border-[#e2e8f0] bg-white p-6 shadow-sm lg:p-8">
-            <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+    <div class="space-y-5">
+        
+        <!-- Low-Profile Status & Control Bar -->
+        <div class="flex flex-col gap-4 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex items-center gap-3">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-violet-600 to-indigo-600 text-white shadow-xs">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 0 1 .865-.501 48.172 48.172 0 0 0 3.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
+                    </svg>
+                </div>
                 <div>
-                    <h1 class="text-3xl font-black tracking-tight text-gray-900 font-sans">Live Chat & Staff Handoff</h1>
-                    <p class="mt-2 max-w-3xl text-sm leading-6 text-gray-500">Operate a split-screen console for active queues, conversation timelines, and live handoff actions.</p>
-                </div>
-                <div class="flex gap-2">
-                    <span id="header-waiting-badge" class="badge badge-warning badge-outline font-bold px-3 py-2.5 text-xs rounded-full">{{ $waitingCount }} Waiting</span>
-                    <span id="header-active-badge" class="badge badge-info badge-outline font-bold px-3 py-2.5 text-xs rounded-full">{{ $activeCount }} Active</span>
+                    <h1 class="text-base font-black tracking-tight text-slate-900 leading-tight">Live Operator Console</h1>
+                    <p class="text-xs text-slate-400">Manage real-time escalations, customer inquiries, and AI handoffs</p>
                 </div>
             </div>
-        </section>
 
-        <!-- Main Console Layout -->
-        <section class="grid gap-6 xl:grid-cols-[300px_1fr_280px]">
+            <!-- Queue Counter Badges -->
+            <div class="flex flex-wrap items-center gap-2">
+                <span id="header-waiting-badge" class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700 ring-1 ring-amber-500/20">
+                    <span class="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                    {{ $waitingCount }} Waiting Handoff
+                </span>
+                <span id="header-active-badge" class="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700 ring-1 ring-blue-500/20">
+                    <span class="h-1.5 w-1.5 rounded-full bg-blue-500"></span>
+                    {{ $activeCount }} Active Chats
+                </span>
+                <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                    Live Sync
+                </span>
+            </div>
+        </div>
+
+        <!-- 3-Column Modern Unified Workbench -->
+        <div class="grid gap-5 xl:grid-cols-[320px_1fr_300px] h-[calc(100vh-190px)] min-h-[600px]">
             
-            <!-- Left Column: Client Queue -->
-            <div class="card bg-base-100 shadow-sm border border-gray-100 rounded-3xl h-[650px] overflow-hidden flex flex-col">
-                <div class="p-5 border-b border-gray-100 flex items-center justify-between bg-slate-50/30">
-                    <h2 class="text-xs font-bold text-gray-900 uppercase tracking-wider">Active Queue</h2>
-                    <span id="queue-count" class="badge bg-slate-100 border-0 text-gray-700 font-bold px-2 py-1.5 text-[10px]">{{ $sessions->count() }} chats</span>
+            <!-- 1. Left Column: Queue & Triage -->
+            <div class="flex flex-col rounded-2xl border border-slate-200/80 bg-white shadow-xs overflow-hidden">
+                <div class="p-4 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-700">Active Queue</span>
+                        <span id="queue-count" class="rounded-md bg-violet-100 px-1.5 py-0.5 text-[10px] font-bold text-violet-700">
+                            {{ $sessions->count() }}
+                        </span>
+                    </div>
+                    <button onclick="refreshQueue()" class="text-slate-400 hover:text-violet-600 transition p-1 hover:rotate-180 duration-300" title="Refresh Queue">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                        </svg>
+                    </button>
                 </div>
-                <div class="flex-1 overflow-y-auto p-4 space-y-3" id="queue-list">
-                    <!-- Queue items populated via JS -->
+
+                <!-- Queue Filter / Search -->
+                <div class="p-3 border-b border-slate-100">
+                    <div class="relative">
+                        <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                        </svg>
+                        <input type="text" id="queue-search" oninput="filterQueue(this.value)" placeholder="Filter conversations..." 
+                               class="w-full pl-8 pr-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:border-violet-500 focus:outline-none transition">
+                    </div>
+                </div>
+
+                <!-- Scrollable Queue List -->
+                <div class="flex-1 overflow-y-auto p-3 space-y-2" id="queue-list">
+                    <!-- Javascript populates queue cards -->
                 </div>
             </div>
 
-            <!-- Center Column: Conversation View -->
-            <div class="card bg-base-100 shadow-sm border border-gray-100 rounded-3xl h-[650px] flex flex-col justify-between overflow-hidden relative">
-                <!-- Active Chat Header -->
-                <div class="p-5 border-b border-gray-100 flex items-center justify-between bg-slate-50/50" id="chat-header">
-                    <div class="min-w-0">
-                        <h3 class="font-extrabold text-gray-900 text-base truncate" id="active-client-name">No Chat Selected</h3>
-                        <p class="text-xs text-gray-400 mt-0.5 truncate" id="active-client-status">Select a conversation from the queue to start reply</p>
+            <!-- 2. Center Column: Live Conversation Timeline & Composer -->
+            <div class="flex flex-col rounded-2xl border border-slate-200/80 bg-white shadow-xs overflow-hidden relative">
+                
+                <!-- Chat Header -->
+                <div class="p-4 border-b border-slate-100 bg-slate-50/60 flex items-center justify-between gap-3" id="chat-header">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <div id="active-client-avatar" class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-violet-100 text-violet-700 text-xs font-bold">
+                            💬
+                        </div>
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-2">
+                                <h3 class="font-bold text-slate-900 text-sm truncate" id="active-client-name">No Chat Selected</h3>
+                                <span id="session-badge" class="hidden rounded-full px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wide"></span>
+                            </div>
+                            <p class="text-xs text-slate-400 truncate mt-0.5" id="active-client-status">Select an active conversation to begin live assistance</p>
+                        </div>
                     </div>
-                    <div id="session-badge" class="badge badge-sm font-bold border-0 text-[10px] uppercase tracking-wider py-2 hidden"></div>
+
+                    <!-- Header Fast Action Buttons -->
+                    <div class="flex items-center gap-2 shrink-0">
+                        <button onclick="claimActiveChat()" id="header-claim-btn" disabled 
+                                class="inline-flex items-center gap-1.5 rounded-xl bg-violet-600 px-3 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-violet-700 disabled:opacity-40 transition cursor-pointer disabled:cursor-not-allowed">
+                            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                            </svg>
+                            Claim Session
+                        </button>
+                        <button onclick="resolveActiveChat()" id="header-resolve-btn" disabled 
+                                class="inline-flex items-center gap-1.5 rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700 hover:bg-emerald-100 disabled:opacity-40 transition cursor-pointer disabled:cursor-not-allowed">
+                            ✓ Resolve
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Empty State Placeholder -->
-                <div id="chat-empty-state" class="absolute inset-0 flex flex-col items-center justify-center bg-white z-10 p-8 text-center space-y-4">
-                    <div class="h-16 w-16 bg-slate-50 rounded-2xl flex items-center justify-center text-3xl">💬</div>
+                <div id="chat-empty-state" class="absolute inset-0 top-[65px] flex flex-col items-center justify-center bg-white/95 z-10 p-8 text-center space-y-3">
+                    <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-tr from-violet-100 to-indigo-100 text-violet-600 text-2xl shadow-xs">
+                        <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a.75.75 0 0 1-.974-.94 4.09 4.09 0 0 0 .546-2.127C3.308 16.326 2 14.307 2 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
+                        </svg>
+                    </div>
                     <div>
-                        <h3 class="font-bold text-gray-800">No Chat Selected</h3>
-                        <p class="text-xs text-gray-400 mt-1">Select a waiting client from the active queue to take over the session.</p>
+                        <h3 class="text-sm font-bold text-slate-800">Select a Conversation</h3>
+                        <p class="text-xs text-slate-400 mt-1 max-w-xs">Pick a waiting client inquiry from the queue on the left to monitor or take over live.</p>
                     </div>
                 </div>
 
-                <!-- Chat Timeline Container -->
-                <div class="flex-1 overflow-y-auto p-5 space-y-4 bg-slate-50/20" id="chat-timeline">
+                <!-- Chat Timeline Stream -->
+                <div class="flex-1 overflow-y-auto p-5 space-y-4 bg-slate-50/30" id="chat-timeline">
                     <!-- Messages injected dynamically -->
                 </div>
 
-                <!-- Message Input Bar -->
-                <div class="p-4 border-t border-gray-100 bg-white" id="input-container">
-                    <form id="operator-reply-form" class="flex gap-2">
+                <!-- Quick Response Action Chips -->
+                <div class="px-4 py-2 border-t border-slate-100 bg-white flex items-center gap-1.5 overflow-x-auto no-scrollbar" id="canned-chips">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 shrink-0 mr-1">Quick:</span>
+                    <button type="button" onclick="insertCanned('Hello! I am reviewing your case now.')" 
+                            class="shrink-0 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-600 hover:border-violet-300 hover:bg-violet-50 hover:text-violet-700 transition">
+                        👋 Reviewing case
+                    </button>
+                    <button type="button" onclick="insertCanned('Could you upload or send a photo of the area?')" 
+                            class="shrink-0 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-600 hover:border-violet-300 hover:bg-violet-50 hover:text-violet-700 transition">
+                        📸 Request photos
+                    </button>
+                    <button type="button" onclick="insertCanned('We can schedule an on-site inspection for you.')" 
+                            class="shrink-0 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-600 hover:border-violet-300 hover:bg-violet-50 hover:text-violet-700 transition">
+                        📅 Schedule inspection
+                    </button>
+                    <button type="button" onclick="insertCanned('Our estimator will email your official quotation today.')" 
+                            class="shrink-0 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-600 hover:border-violet-300 hover:bg-violet-50 hover:text-violet-700 transition">
+                        ✉️ Send email quote
+                    </button>
+                </div>
+
+                <!-- Message Composer Input Bar -->
+                <div class="p-3 border-t border-slate-100 bg-white" id="input-container">
+                    <form id="operator-reply-form" class="flex items-center gap-2">
                         <input type="text" id="reply-input" disabled placeholder="Claim this chat to write a reply..." 
-                            class="input input-bordered flex-1 rounded-2xl border-gray-200 bg-slate-50 text-sm text-gray-800 focus:border-indigo-500 focus:bg-white focus:outline-none">
+                               class="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:border-violet-500 focus:outline-none transition">
                         <button type="submit" id="send-btn" disabled 
-                            class="btn rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-3 h-auto">
-                            Send
+                                class="inline-flex items-center gap-1.5 rounded-xl bg-violet-600 px-4 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-violet-700 disabled:opacity-40 transition cursor-pointer disabled:cursor-not-allowed">
+                            <span>Send</span>
+                            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
+                            </svg>
                         </button>
                     </form>
                 </div>
             </div>
 
-            <!-- Right Column: Operator Controls -->
-            <div class="card bg-base-100 shadow-sm border border-gray-100 rounded-3xl h-[650px] flex flex-col overflow-hidden">
-                <div class="p-5 border-b border-gray-100 bg-slate-50/30">
-                    <h2 class="text-xs font-bold text-gray-900 uppercase tracking-wider">Handoff Actions</h2>
+            <!-- 3. Right Column: Customer Dossier & AI Context Panel -->
+            <div class="flex flex-col rounded-2xl border border-slate-200/80 bg-white shadow-xs overflow-hidden">
+                <div class="p-4 border-b border-slate-100 bg-slate-50/50">
+                    <h2 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Session Dossier</h2>
                 </div>
-                <div class="p-5 flex-1 flex flex-col justify-between" id="control-panel">
-                    <div class="space-y-4">
-                        <button onclick="claimActiveChat()" id="claim-btn" disabled 
-                            class="btn w-full rounded-2xl border-0 bg-indigo-600 hover:bg-indigo-700 text-white font-bold h-auto py-3.5">
-                            👋 Claim & Take Over
-                        </button>
-                        
-                        <div class="dropdown w-full">
-                            <button id="canned-btn" tabindex="0" role="button" disabled 
-                                class="btn w-full rounded-2xl border border-gray-200 bg-white hover:bg-slate-50 text-gray-700 font-bold text-left justify-between h-auto py-3 text-xs">
-                                <span>💬 Quick Responses</span>
-                                <span>▼</span>
-                            </button>
-                            <ul tabindex="0" class="dropdown-content z-30 menu p-2 shadow-lg bg-white border border-gray-200 rounded-2xl w-full mt-1 space-y-1 text-xs">
-                                <li><a onclick="insertCanned('Hello! I am reviewing your case now.')">Reviewing case now</a></li>
-                                <li><a onclick="insertCanned('We will schedule a site visit shortly.')">Schedule site visit</a></li>
-                                <li><a onclick="insertCanned('Could you upload a photo of the leakage?')">Ask for photos</a></li>
-                                <li><a onclick="insertCanned('Our estimator will email your final quote today.')">Send email quote</a></li>
-                            </ul>
+
+                <div class="p-4 flex-1 flex flex-col justify-between overflow-y-auto space-y-4" id="control-panel">
+                    
+                    <!-- Customer Details Card -->
+                    <div class="space-y-3">
+                        <div class="rounded-xl border border-slate-200/70 bg-slate-50/60 p-3.5">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Customer Profile</span>
+                            <div class="text-sm font-bold text-slate-800" id="dossier-name">Anonymous Client</div>
+                            <div class="text-xs text-slate-500 mt-0.5" id="dossier-session-id">Session #—</div>
+                        </div>
+
+                        <!-- Tenant & Channel -->
+                        <div class="rounded-xl border border-slate-200/70 bg-slate-50/60 p-3.5 space-y-2 text-xs">
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-400">Tenant:</span>
+                                <span class="font-bold text-slate-700">DARIV Waterproofing</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-400">Channel:</span>
+                                <span class="font-semibold text-slate-700">Web Chat Widget</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-400">Assigned To:</span>
+                                <span class="font-semibold text-violet-700" id="dossier-operator">Unassigned</span>
+                            </div>
+                        </div>
+
+                        <!-- AI Context Card -->
+                        <div class="rounded-xl border border-violet-100 bg-violet-50/40 p-3.5">
+                            <div class="flex items-center gap-1.5 text-violet-700 text-xs font-bold mb-1">
+                                <span>🤖</span>
+                                <span>AI Assistant Routing</span>
+                            </div>
+                            <p class="text-xs text-slate-600 leading-relaxed" id="dossier-ai-summary">
+                                Customer requested human operator support. AI answered prior questions using uploaded knowledge docs.
+                            </p>
                         </div>
                     </div>
 
-                    <div class="space-y-3 pt-6 border-t border-gray-100">
+                    <!-- Primary Action Controls -->
+                    <div class="space-y-2 pt-4 border-t border-slate-100">
+                        <button onclick="claimActiveChat()" id="claim-btn" disabled 
+                                class="w-full rounded-xl bg-violet-600 px-4 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-violet-700 disabled:opacity-40 transition flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM4 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 10.374 21c-2.331 0-4.512-.645-6.374-1.765Z" />
+                            </svg>
+                            Claim Conversation
+                        </button>
+                        
                         <button onclick="resolveActiveChat()" id="resolve-btn" disabled 
-                            class="btn w-full rounded-2xl border-0 bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-auto py-3.5">
-                            ✓ Mark Resolved
+                                class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-40 transition flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed">
+                            <svg class="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                            </svg>
+                            Mark as Resolved
                         </button>
                     </div>
                 </div>
             </div>
-        </section>
+
+        </div>
     </div>
 
+    <!-- Script: Realtime Queue & Chat Logic -->
     <script>
         const chatRoutes = {
             sessions: @json(route('admin.chat.sessions')),
@@ -120,6 +242,7 @@
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}';
         let activeId = null;
         let activeSession = null;
+        let allSessions = [];
 
         function sessionUrl(template, id) {
             return template.replace('__SESSION__', id);
@@ -144,37 +267,93 @@
         function renderQueue(sessions = []) {
             const list = document.getElementById('queue-list');
             list.innerHTML = '';
+            
+            if (sessions.length === 0) {
+                list.innerHTML = `
+                    <div class="text-center py-10 text-slate-400">
+                        <svg class="mx-auto h-8 w-8 text-slate-300 mb-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 0 1 1.037-.443 48.282 48.282 0 0 0 5.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
+                        </svg>
+                        <p class="text-xs font-bold text-slate-600">Queue is Clear</p>
+                        <p class="text-[11px] text-slate-400 mt-0.5">No active handoffs waiting.</p>
+                    </div>
+                `;
+                return;
+            }
+
             sessions.forEach(session => {
                 const item = document.createElement('div');
                 const waiting = ['waiting', 'pending', 'queued'].includes(session.raw_status);
-                item.className = `p-4 rounded-2xl border transition cursor-pointer text-left ${String(session.id) === String(activeId) ? 'bg-indigo-50/50 border-indigo-200 shadow-sm ring-1 ring-indigo-150' : 'bg-white border-gray-100 hover:bg-slate-50'}`;
+                const isSelected = String(session.id) === String(activeId);
+                const initials = (session.customer_name || 'CL').substring(0, 2).toUpperCase();
+
+                item.className = `p-3 rounded-xl border transition-all duration-150 cursor-pointer text-left ${
+                    isSelected 
+                        ? 'bg-violet-50/70 border-violet-300 shadow-xs ring-1 ring-violet-200' 
+                        : 'bg-white border-slate-200/80 hover:border-slate-300 hover:bg-slate-50/70'
+                }`;
                 item.addEventListener('click', () => selectChat(session.id));
-                const heading = document.createElement('div');
-                heading.className = 'flex justify-between items-start';
-                heading.appendChild(textElement('span', 'font-bold text-gray-900 text-sm', session.customer_name));
-                heading.appendChild(textElement('span', `badge badge-xs font-bold border-0 px-2 py-1 text-[9px] uppercase tracking-wide ${waiting ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'}`, waiting ? 'WAITING' : 'ACTIVE'));
-                item.appendChild(heading);
-                item.appendChild(textElement('p', 'text-xs text-gray-500 mt-1 truncate', session.latest_message));
-                if (!waiting && session.assigned_user_name) {
-                    item.appendChild(textElement('p', 'text-xs text-blue-600 mt-1 truncate', `Active • Assigned to ${session.assigned_user_name}`));
-                }
+
+                item.innerHTML = `
+                    <div class="flex items-start gap-2.5">
+                        <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${waiting ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'} text-xs font-bold">
+                            ${initials}
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div class="flex justify-between items-center gap-1">
+                                <span class="font-bold text-slate-800 text-xs truncate">${session.customer_name}</span>
+                                <span class="inline-flex rounded-full px-1.5 py-0.5 text-[9px] font-bold ${
+                                    waiting ? 'bg-amber-50 text-amber-700 ring-1 ring-amber-500/20' : 'bg-blue-50 text-blue-700 ring-1 ring-blue-500/20'
+                                }">
+                                    ${waiting ? 'WAITING' : 'ACTIVE'}
+                                </span>
+                            </div>
+                            <p class="text-[11px] text-slate-400 truncate mt-0.5">${session.latest_message || 'No messages yet'}</p>
+                            ${!waiting && session.assigned_user_name ? `<p class="text-[10px] font-semibold text-blue-600 truncate mt-1">Assigned: ${session.assigned_user_name}</p>` : ''}
+                        </div>
+                    </div>
+                `;
                 list.appendChild(item);
             });
+        }
+
+        function filterQueue(query) {
+            if (!query.trim()) {
+                renderQueue(allSessions);
+                return;
+            }
+            const filtered = allSessions.filter(s => 
+                (s.customer_name || '').toLowerCase().includes(query.toLowerCase()) ||
+                (s.latest_message || '').toLowerCase().includes(query.toLowerCase())
+            );
+            renderQueue(filtered);
         }
 
         async function refreshQueue() {
             try {
                 const payload = await requestJson(chatRoutes.sessions);
-                renderQueue(payload.data);
-                document.getElementById('queue-count').innerText = `${payload.data.length} chats`;
-                document.getElementById('header-waiting-badge').innerText = `${payload.waiting_count} Waiting`;
-                document.getElementById('header-active-badge').innerText = `${payload.active_count} Active`;
-                if (activeId && !payload.data.some(session => String(session.id) === String(activeId))) resetChat();
+                allSessions = payload.data || [];
+                
+                const searchInput = document.getElementById('queue-search');
+                if (searchInput && searchInput.value.trim()) {
+                    filterQueue(searchInput.value);
+                } else {
+                    renderQueue(allSessions);
+                }
+
+                document.getElementById('queue-count').innerText = String(allSessions.length);
+                document.getElementById('header-waiting-badge').innerHTML = `<span class="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse"></span>${payload.waiting_count} Waiting Handoff`;
+                document.getElementById('header-active-badge').innerHTML = `<span class="h-1.5 w-1.5 rounded-full bg-blue-500"></span>${payload.active_count} Active Chats`;
+
+                if (activeId && !allSessions.some(session => String(session.id) === String(activeId))) {
+                    resetChat();
+                }
                 if (activeId) {
-                    activeSession = payload.data.find(session => String(session.id) === String(activeId)) || activeSession;
+                    activeSession = allSessions.find(session => String(session.id) === String(activeId)) || activeSession;
                     if (activeSession) {
                         updateHeader();
                         updateControls();
+                        updateDossier();
                     }
                 }
             } catch (error) { console.error(error); }
@@ -189,60 +368,95 @@
                     requestJson(chatRoutes.sessions),
                     requestJson(sessionUrl(chatRoutes.messages, id))
                 ]);
-                activeSession = queue.data.find(session => String(session.id) === String(id));
-                renderQueue(queue.data);
+                allSessions = queue.data || [];
+                activeSession = allSessions.find(session => String(session.id) === String(id));
+                renderQueue(allSessions);
                 updateHeader();
                 renderTimeline(messages.data);
                 updateControls();
+                updateDossier();
             } catch (error) { console.error(error); }
         }
 
         function updateHeader() {
             if (!activeSession) return;
             document.getElementById('active-client-name').innerText = activeSession.customer_name;
-            document.getElementById('active-client-status').innerText = activeSession.latest_message;
+            document.getElementById('active-client-status').innerText = activeSession.latest_message || 'Active conversation';
+            
+            const initials = (activeSession.customer_name || 'CL').substring(0, 2).toUpperCase();
+            document.getElementById('active-client-avatar').innerText = initials;
+
             const badge = document.getElementById('session-badge');
-            badge.className = `badge badge-sm font-bold border-0 text-[10px] uppercase tracking-wider py-2 ${activeSession.status === 'waiting' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'}`;
-            badge.innerText = activeSession.status === 'waiting' ? 'WAITING' : 'ACTIVE';
+            badge.classList.remove('hidden');
+            const isWaiting = activeSession.status === 'waiting' || ['waiting', 'pending', 'queued'].includes(activeSession.raw_status);
+            badge.className = `rounded-full px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wide ${
+                isWaiting ? 'bg-amber-50 text-amber-700 ring-1 ring-amber-500/20' : 'bg-blue-50 text-blue-700 ring-1 ring-blue-500/20'
+            }`;
+            badge.innerText = isWaiting ? 'WAITING HANDOFF' : 'OPERATOR ACTIVE';
+        }
+
+        function updateDossier() {
+            if (!activeSession) return;
+            document.getElementById('dossier-name').innerText = activeSession.customer_name;
+            document.getElementById('dossier-session-id').innerText = `Session #${activeSession.id}`;
+            document.getElementById('dossier-operator').innerText = activeSession.assigned_user_name || 'Unassigned (Waiting)';
         }
 
         function updateControls() {
             const claimed = activeSession?.assigned_user_id !== null && activeSession?.assigned_user_id !== undefined;
-            const waiting = activeSession?.status === 'waiting';
             document.getElementById('reply-input').disabled = !claimed;
             document.getElementById('send-btn').disabled = !claimed;
-            document.getElementById('claim-btn').disabled = !activeSession;
-            document.getElementById('canned-btn').disabled = !claimed;
+            document.getElementById('header-claim-btn').disabled = !activeSession || claimed;
+            document.getElementById('header-resolve-btn').disabled = !claimed;
+            document.getElementById('claim-btn').disabled = !activeSession || claimed;
             document.getElementById('resolve-btn').disabled = !claimed;
-            document.getElementById('reply-input').placeholder = claimed ? 'Type a message to reply live...' : 'Claim this chat to write a reply...';
+            document.getElementById('reply-input').placeholder = claimed ? 'Type a live message (Enter to send)...' : 'Claim this conversation to reply...';
             document.getElementById('reply-input').classList.toggle('bg-slate-50', !claimed);
         }
 
-        function renderTimeline(messages) {
+        function renderTimeline(messages = []) {
             const timeline = document.getElementById('chat-timeline');
             timeline.innerHTML = '';
             messages.forEach(message => {
                 const time = message.created_at ? new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
                 const sender = message.sender_type;
                 const element = document.createElement('div');
+
                 if (sender === 'system') {
                     element.className = 'flex justify-center my-2';
-                    element.appendChild(textElement('span', 'bg-slate-100 border border-slate-200/50 text-[10px] font-bold text-slate-500 uppercase tracking-wider px-3 py-1 rounded-full', message.message_text));
+                    element.innerHTML = `<span class="bg-slate-100 border border-slate-200/60 text-[10px] font-bold text-slate-500 uppercase tracking-wider px-3 py-1 rounded-full">${message.message_text}</span>`;
                 } else if (sender === 'bot' || sender === 'ai') {
                     element.className = 'flex justify-start items-end gap-2.5 max-w-[85%]';
-                    element.innerHTML = '<div class="h-8 w-8 rounded-lg bg-indigo-50 border border-indigo-150 flex items-center justify-center text-sm shrink-0">🤖</div><div class="bg-white border border-gray-150 p-4 rounded-[1.5rem] rounded-bl-none text-sm text-gray-800 shadow-sm leading-relaxed"><p class="text-[10px] font-extrabold uppercase tracking-widest text-indigo-600 mb-1">AI Assistant</p><span class="message-text"></span><span class="block text-[9px] text-gray-400 mt-2 text-right"></span></div>';
+                    element.innerHTML = `
+                        <div class="h-7 w-7 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-xs shrink-0 shadow-2xs">🤖</div>
+                        <div class="bg-white border border-slate-200/80 p-3.5 rounded-2xl rounded-bl-xs text-xs text-slate-800 shadow-xs leading-relaxed">
+                            <p class="text-[10px] font-extrabold uppercase tracking-widest text-indigo-600 mb-1">RED AI Assistant</p>
+                            <div class="message-text"></div>
+                            <span class="block text-[9px] text-slate-400 mt-1.5 text-right">${time}</span>
+                        </div>
+                    `;
                     element.querySelector('.message-text').textContent = message.message_text;
-                    element.querySelector('span:last-child').textContent = time;
                 } else if (sender === 'operator' || sender === 'staff' || sender === 'agent') {
                     element.className = 'flex justify-end gap-2.5 max-w-[85%] ml-auto';
-                    element.innerHTML = '<div class="bg-indigo-600 text-white p-4 rounded-[1.5rem] rounded-br-none text-sm shadow-sm leading-relaxed"><p class="text-[10px] font-extrabold uppercase tracking-widest text-white/80 mb-1">You (Operator)</p><span class="message-text"></span><span class="block text-[9px] text-white/60 mt-2 text-right"></span></div>';
+                    element.innerHTML = `
+                        <div class="bg-gradient-to-tr from-violet-600 to-indigo-600 text-white p-3.5 rounded-2xl rounded-br-xs text-xs shadow-xs leading-relaxed">
+                            <p class="text-[10px] font-extrabold uppercase tracking-widest text-white/80 mb-1">Operator (You)</p>
+                            <div class="message-text"></div>
+                            <span class="block text-[9px] text-white/60 mt-1.5 text-right">${time}</span>
+                        </div>
+                    `;
                     element.querySelector('.message-text').textContent = message.message_text;
-                    element.querySelector('span:last-child').textContent = time;
                 } else {
-                    element.className = 'flex justify-start gap-2.5 max-w-[85%]';
-                    element.innerHTML = '<div class="bg-slate-100 border border-slate-200/60 p-4 rounded-[1.5rem] rounded-tl-none text-sm text-gray-800 leading-relaxed"><p class="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 mb-1">Client User</p><span class="message-text"></span><span class="block text-[9px] text-gray-400 mt-2"></span></div>';
+                    element.className = 'flex justify-start items-end gap-2.5 max-w-[85%]';
+                    element.innerHTML = `
+                        <div class="h-7 w-7 rounded-lg bg-slate-200 text-slate-700 flex items-center justify-center text-xs font-bold shrink-0 shadow-2xs">CL</div>
+                        <div class="bg-slate-100 border border-slate-200/60 p-3.5 rounded-2xl rounded-tl-xs text-xs text-slate-800 leading-relaxed">
+                            <p class="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 mb-1">Customer</p>
+                            <div class="message-text"></div>
+                            <span class="block text-[9px] text-slate-400 mt-1.5">${time}</span>
+                        </div>
+                    `;
                     element.querySelector('.message-text').textContent = message.message_text;
-                    element.querySelector('span:last-child').textContent = time;
                 }
                 timeline.appendChild(element);
             });
@@ -255,8 +469,12 @@
             document.getElementById('chat-empty-state').classList.remove('hidden');
             document.getElementById('active-client-name').innerText = 'No Chat Selected';
             document.getElementById('active-client-status').innerText = 'Select a conversation from the queue to start reply';
+            document.getElementById('active-client-avatar').innerText = '💬';
             document.getElementById('session-badge').classList.add('hidden');
             document.getElementById('chat-timeline').innerHTML = '';
+            document.getElementById('dossier-name').innerText = 'Anonymous Client';
+            document.getElementById('dossier-session-id').innerText = 'Session #—';
+            document.getElementById('dossier-operator').innerText = 'Unassigned';
             updateControls();
         }
 
@@ -275,8 +493,9 @@
         }
 
         function insertCanned(text) {
-            document.getElementById('reply-input').value = text;
-            document.getElementById('reply-input').focus();
+            const input = document.getElementById('reply-input');
+            input.value = text;
+            input.focus();
         }
 
         document.getElementById('operator-reply-form').addEventListener('submit', async function (event) {
@@ -290,7 +509,8 @@
                 body: JSON.stringify({ message: text })
             });
             input.value = '';
-            await selectChat(activeId);
+            const messages = await requestJson(sessionUrl(chatRoutes.messages, activeId));
+            renderTimeline(messages.data);
         });
 
         refreshQueue();
