@@ -24,7 +24,7 @@ class StaffChatController extends Controller
         $sessions = ChatSession::query()
             ->with(['assignedUser:id,name', 'businessUnit:id,name'])
             ->where('company_id', Auth::user()->company_id)
-            ->whereIn('status', ['pending', 'human_active'])
+            ->whereIn('status', ['waiting', 'human_active'])
             ->latest('updated_at')
             ->get();
 
