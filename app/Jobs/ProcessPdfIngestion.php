@@ -32,6 +32,7 @@ class ProcessPdfIngestion implements ShouldQueue
         public int $businessUnitId,
         public string $storageDisk,
         public string $storedPath,
+        public string $ingestionMode = 'append',
         public ?int $stagedDocumentId = null,
         public ?string $editedContent = null,
         public ?string $mimeType = null,
@@ -136,11 +137,13 @@ class ProcessPdfIngestion implements ShouldQueue
             return;
         }
 
-        // Delete and replace in one transaction so the knowledge base never ends up half-written.
+        // Replace only when explicitly requested; append preserves existing knowledge.
         DB::transaction(function () use ($businessUnit, $rows): void {
-            BusinessKnowledge::query()
-                ->where('business_unit_id', $businessUnit->id)
-                ->delete();
+            if ($this->ingestionMode === 'overwrite') {
+                BusinessKnowledge::query()
+                    ->where('business_unit_id', $businessUnit->id)
+                    ->delete();
+            }
 
             BusinessKnowledge::query()->insert($rows);
         });

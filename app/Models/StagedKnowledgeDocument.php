@@ -18,6 +18,7 @@ class StagedKnowledgeDocument extends Model
         'file_size',
         'stored_path',
         'edited_content',
+        'ingestion_mode',
         'status',
     ];
 

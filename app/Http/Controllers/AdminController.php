@@ -14,6 +14,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -42,7 +43,12 @@ class AdminController extends Controller
             'business_unit_id' => ['required', 'integer', 'exists:business_units,id'],
         ]);
 
-        $chunk = BusinessKnowledge::query()->create($validated);
+        $embedding = $this->embedKnowledgeContent($validated['content']);
+        $chunk = BusinessKnowledge::query()->create([
+            'business_unit_id' => $validated['business_unit_id'],
+            'content' => $validated['content'],
+            'embedding' => $embedding,
+        ]);
         $chunk->load('businessUnit');
         ActivityLog::record(Auth::id(), 'Indexed', 'Done', null, $chunk->businessUnit->name);
 
@@ -118,7 +124,10 @@ class AdminController extends Controller
             'business_unit_id' => ['nullable', 'integer', 'exists:business_units,id'],
             'branch' => ['nullable', 'string', 'max:100'],
             'edited_content' => ['nullable', 'string'],
+            'ingestion_mode' => ['nullable', 'in:append,overwrite'],
         ]);
+
+        $ingestionMode = $validated['ingestion_mode'] ?? 'append';
 
         $businessUnit = isset($validated['business_unit_id'])
             ? BusinessUnit::query()->findOrFail($validated['business_unit_id'])
@@ -138,6 +147,7 @@ class AdminController extends Controller
             'file_size' => $file->getSize(),
             'stored_path' => $storedPath,
             'edited_content' => $validated['edited_content'] ?? null,
+            'ingestion_mode' => $ingestionMode,
             'status' => 'staged',
         ]);
 
@@ -186,6 +196,7 @@ class AdminController extends Controller
             stagedDocumentId: $stagedDocument->id,
             editedContent: $stagedDocument->edited_content,
             mimeType: $stagedDocument->mime_type,
+            ingestionMode: $stagedDocument->ingestion_mode,
             fileName: $stagedDocument->original_name,
             division: $stagedDocument->businessUnit->name,
             userId: Auth::id(),
@@ -294,9 +305,12 @@ class AdminController extends Controller
 
     public function uploadPdf(Request $request, BusinessUnit $businessUnit): RedirectResponse
     {
-        $request->validate([
+        $validated = $request->validate([
             'pdf' => ['required', 'file', 'mimetypes:application/pdf,application/x-pdf', 'mimes:pdf', 'max:10000'],
+            'ingestion_mode' => ['nullable', 'in:append,overwrite'],
         ]);
+
+        $ingestionMode = $validated['ingestion_mode'] ?? 'append';
 
         $uploadedFile = $request->file('pdf');
         $storedPath = $uploadedFile->storeAs(
@@ -312,6 +326,7 @@ class AdminController extends Controller
             businessUnitId: $businessUnit->id,
             storageDisk: 'local',
             storedPath: $storedPath,
+            ingestionMode: $ingestionMode,
             fileName: $uploadedFile->getClientOriginalName(),
             division: $businessUnit->name,
             userId: Auth::id(),
@@ -390,5 +405,26 @@ class AdminController extends Controller
                 'business_unit_id' => $businessUnitId,
             ]))
             ->with('status', $status);
+    }
+
+    private function embedKnowledgeContent(string $content): string
+    {
+        $response = Http::baseUrl(rtrim((string) (config('gemini.base_url') ?: 'https://generativelanguage.googleapis.com/v1beta'), '/'))
+            ->acceptJson()
+            ->timeout((int) config('gemini.request_timeout', 30))
+            ->retry([200, 400, 800])
+            ->withQueryParameters(['key' => (string) config('gemini.api_key')])
+            ->post('models/gemini-embedding-001:embedContent', [
+                'model' => 'models/gemini-embedding-001',
+                'content' => ['parts' => [['text' => $content]]],
+                'taskType' => 'RETRIEVAL_DOCUMENT',
+                'outputDimensionality' => 768,
+            ]);
+
+        $values = $response->json('embedding.values');
+
+        abort_unless($response->successful() && is_array($values) && $values !== [], 502, 'Could not generate an embedding for this knowledge entry.');
+
+        return '['.implode(',', array_map(static fn (float|int|string $value): string => (string) $value, $values)).']';
     }
 }

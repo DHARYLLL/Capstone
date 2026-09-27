@@ -125,7 +125,7 @@
                     </span>
                     <button type="button" id="add-chunk-btn"
                         class="inline-flex items-center gap-1.5 rounded-full border-0 bg-[#1e293b] px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-[#0f172a]">
-                        + Add Chunk
+                        + Add Knowledge Manually
                     </button>
                 </div>
             </div>
@@ -316,6 +316,15 @@
                             class="mt-2 w-full rounded-2xl border border-[#e2e8f0] bg-white p-4 font-mono text-sm leading-6 text-gray-700 focus:border-[#1e293b] focus:outline-none resize-y"
                             placeholder="Edit parsed content here..."></textarea>
                         <p class="mt-2 text-xs text-gray-500">Changes made here are saved with the file and used for AI training.</p>
+
+                        <div class="mt-4">
+                            <label for="ingestion-mode" class="block text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Ingestion mode</label>
+                            <select id="ingestion-mode"
+                                class="mt-2 w-full rounded-2xl border border-[#e2e8f0] bg-white p-3 text-sm text-gray-700 focus:border-[#1e293b] focus:outline-none">
+                                <option value="append">Append to existing knowledge</option>
+                                <option value="overwrite">Overwrite this business unit's knowledge</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="flex flex-wrap items-center justify-between gap-3 border-t border-[#e2e8f0] pt-4">
@@ -468,6 +477,7 @@
             const phasePill2            = document.getElementById('phase-pill-2');
             const phasePill3            = document.getElementById('phase-pill-3');
             const confirmEditBox        = document.getElementById('confirm-edit-box');
+            const ingestionModeField    = document.getElementById('ingestion-mode');
             const trainingProgressPanel = document.getElementById('training-progress-panel');
             const trainingSuccessPanel  = document.getElementById('training-success-panel');
             const trainingErrorPanel    = document.getElementById('training-error-panel');
@@ -780,6 +790,7 @@
                     const fileSize      = formatBytes(currentFile.size);
                     const editedText    = confirmEditBox ? confirmEditBox.value.trim() : '';
                     const editedContent = editedText && editedText !== currentParsedText ? editedText : '';
+                    const ingestionMode = ingestionModeField ? ingestionModeField.value : 'append';
 
                     modalConfirm.disabled = true;
                     setModalStep(3);
@@ -794,6 +805,7 @@
                         const formData = new FormData();
                         formData.append('file', currentFile);
                         formData.append('edited_content', editedContent);
+                        formData.append('ingestion_mode', ingestionMode);
 
                         const uploadRes = await fetch(uploadUrl, {
                             method: 'POST',
