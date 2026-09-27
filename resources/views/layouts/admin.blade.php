@@ -37,15 +37,11 @@
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
 </head>
-<body class="bg-[#f8fafc] font-sans text-gray-800 antialiased">
-    <div class="flex h-screen overflow-hidden">
-        @hasSection('sidebar')
-            @yield('sidebar')
-        @else
-            @include('partials.admin-sidebar')
-        @endif
-
-        <div class="flex min-w-0 flex-1 flex-col overflow-hidden">
+<body class="bg-[#f8fafc] font-sans text-slate-800 antialiased">
+    <div class="drawer md:drawer-open">
+        <input id="admin-mobile-drawer" type="checkbox" class="drawer-toggle" />
+        
+        <div class="drawer-content flex h-screen flex-col overflow-hidden bg-slate-50/50">
             @include('partials.admin-header')
 
             <main class="flex-1 overflow-y-auto">
@@ -53,6 +49,15 @@
                     @yield('content')
                 </div>
             </main>
+        </div>
+
+        <div class="drawer-side z-40">
+            <label for="admin-mobile-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
+            @hasSection('sidebar')
+                @yield('sidebar')
+            @else
+                @include('partials.admin-sidebar')
+            @endif
         </div>
     </div>
     @yield('scripts')
