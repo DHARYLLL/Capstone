@@ -98,7 +98,7 @@
                             <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
                             </svg>
-                            Claim Session
+                            <span id="header-claim-label">Claim Session</span>
                         </button>
                         <button onclick="resolveActiveChat()" id="header-resolve-btn" disabled 
                                 class="inline-flex items-center gap-1.5 rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700 hover:bg-emerald-100 disabled:opacity-40 transition cursor-pointer disabled:cursor-not-allowed">
@@ -213,7 +213,7 @@
                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM4 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 10.374 21c-2.331 0-4.512-.645-6.374-1.765Z" />
                             </svg>
-                            Claim Conversation
+                            <span id="claim-label">Claim Conversation</span>
                         </button>
                         
                         <button onclick="resolveActiveChat()" id="resolve-btn" disabled 
@@ -404,6 +404,8 @@
 
         function updateControls() {
             const claimed = activeSession?.assigned_user_id !== null && activeSession?.assigned_user_id !== undefined;
+            document.getElementById('header-claim-label').textContent = claimed ? 'Assigned' : 'Claim Session';
+            document.getElementById('claim-label').textContent = claimed ? 'Assigned' : 'Claim Conversation';
             document.getElementById('reply-input').disabled = !claimed;
             document.getElementById('send-btn').disabled = !claimed;
             document.getElementById('header-claim-btn').disabled = !activeSession || claimed;

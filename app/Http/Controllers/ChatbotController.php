@@ -434,8 +434,12 @@ class ChatbotController extends Controller
             }
 
             $businessUnit = $session?->business_unit_id
-                ? BusinessUnit::find($session->business_unit_id)
+                ? BusinessUnit::with('company')->find($session->business_unit_id)
                 : null;
+
+            if (! $businessUnit && $request->filled('business_unit_id')) {
+                $businessUnit = BusinessUnit::with('company')->find($request->integer('business_unit_id'));
+            }
 
             if (! $businessUnit && $businessParam !== '') {
                 $businessUnitQuery = BusinessUnit::where('name', 'LIKE', "%{$businessParam}%");
@@ -465,16 +469,34 @@ class ChatbotController extends Controller
 
             $this->ensureAuthenticatedCompanyScope($request, $businessUnit->company_id);
 
-            $contactPrompt = 'Provide official contact information including phone, email, and operating hours for DARIV Waterproofing';
-            $systemInstructions =
-                "You are a contact information extractor for {$businessUnit->name}. " .
-                "Extract ONLY the direct contact information (Phone Number, Email Address, Operating Hours) from the provided facts. " .
-                "Do NOT include pricing, services, guarantees, or warranty details under any circumstances. " .
-                "Format the output cleanly in 3 bullet points.";
+            $company = $businessUnit->company;
+            $contact = collect([
+                'email' => $company?->contact_email,
+                'phone' => $company?->contact_phone,
+                'address' => $company?->contact_address,
+            ])->filter(fn (?string $value): bool => filled($value));
 
-            $botReply = $this->generateAiResponse($contactPrompt, $businessUnit, $systemInstructions);
+            if ($contact->isEmpty()) {
+                return response()->json([
+                    'message' => 'Direct contact information is not configured for this company yet.',
+                    'contact_configured' => false,
+                ], 404);
+            }
 
-            return response()->json(['response' => $botReply]);
+            $labels = [
+                'email' => 'Email',
+                'phone' => 'Phone',
+                'address' => 'Address',
+            ];
+            $contactLines = $contact
+                ->map(fn (string $value, string $key): string => '<p><strong>' . $labels[$key] . ':</strong> ' . e($value) . '</p>')
+                ->implode('');
+
+            return response()->json([
+                'response' => '<div class="space-y-1"><p class="font-bold">' . e($company?->name ?? $businessUnit->name) . ' Contact Information</p>' . $contactLines . '</div>',
+                'contact' => $contact,
+                'contact_configured' => true,
+            ]);
         } catch (\Throwable $e) {
             logger()->error('Contact lookup failed', [
                 'error' => $e->getMessage(),
@@ -900,6 +922,7 @@ class ChatbotController extends Controller
 
         try {
             $session = ChatSession::findOrFail($validated['session_id']);
+            $this->ensureAuthenticatedCompanyScope($request, $session->company_id);
 
             // Update session to bot_active and clear operator assignments
             $session->update([

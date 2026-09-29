@@ -185,6 +185,8 @@
         const welcomeMessage = document.getElementById('welcome-message');
         const suggestionsContainer = document.getElementById('suggestions-container');
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        const contactInfoUrl = @json(route('chatbot.contact-info'));
+        const cancelHandoffUrl = @json(route('chatbot.cancel-handoff'));
         const renderedIds = new Set();
         const sessionStorageKey = 'session_id';
         const scopedSessionStorageKey = 'session_id_{{ $businessUnit->id ?? 0 }}';
@@ -330,13 +332,14 @@
             try {
                 const contactParams = new URLSearchParams({
                     business: businessSlug,
+                    business_unit_id: String(@json($businessUnit->id ?? 0)),
                 });
 
                 if (activeSessionId) {
                     contactParams.set('session_id', activeSessionId);
                 }
 
-                const response = await fetch(`/api/chatbot/contact-info?${contactParams.toString()}`, {
+                const response = await fetch(`${contactInfoUrl}?${contactParams.toString()}`, {
                     headers: { 'Accept': 'application/json' },
                 });
 
@@ -348,23 +351,7 @@
 
                 appendBubble(payload.response, false, 'bot');
                 
-                // Add "Cancel Staff Request" button below contact info
-                if (activeSessionId && ['waiting', 'human_active', 'pending'].includes(lastKnownSessionStatus)) {
-                    setTimeout(() => {
-                        const cancelButtonContainer = document.createElement('div');
-                        cancelButtonContainer.className = 'flex justify-center pt-2 px-5';
-                        cancelButtonContainer.id = 'cancel-handoff-container';
-                        
-                        const cancelButton = document.createElement('button');
-                        cancelButton.className = 'btn btn-xs bg-red-500 text-white border-0 hover:bg-red-600 rounded-lg px-4 py-2 text-xs font-semibold normal-case transition-all';
-                        cancelButton.textContent = 'Cancel Staff Request';
-                        cancelButton.onclick = () => performCancelHandoff(activeSessionId);
-                        
-                        cancelButtonContainer.appendChild(cancelButton);
-                        messageContainer.appendChild(cancelButtonContainer);
-                        scrollToBottom();
-                    }, 300);
-                }
+                ensureCancelHandoffButton();
             } catch (error) {
                 console.error('Contact info fetch error:', error);
                 appendBubble("We couldn't retrieve our direct contact details right now, but please hang tight—an agent will be with you shortly!", false, 'system');
@@ -373,7 +360,7 @@
 
         async function performCancelHandoff(sessionId) {
             try {
-                const response = await fetch('/api/chatbot/cancel-handoff', {
+                const response = await fetch(cancelHandoffUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -417,6 +404,24 @@
                 console.error('Cancel handoff error:', error);
                 chatStatus.textContent = 'Failed to cancel staff request. Please try again.';
             }
+        }
+
+        function ensureCancelHandoffButton() {
+            if (!activeSessionId || document.getElementById('cancel-handoff-container')) return;
+
+            const cancelButtonContainer = document.createElement('div');
+            cancelButtonContainer.className = 'flex justify-center pt-2 px-5';
+            cancelButtonContainer.id = 'cancel-handoff-container';
+
+            const cancelButton = document.createElement('button');
+            cancelButton.type = 'button';
+            cancelButton.className = 'btn btn-sm bg-red-500 text-white border-0 hover:bg-red-600 rounded-lg px-4 py-2 text-xs font-semibold normal-case transition-all';
+            cancelButton.textContent = 'Cancel Staff Request';
+            cancelButton.onclick = () => performCancelHandoff(activeSessionId);
+
+            cancelButtonContainer.appendChild(cancelButton);
+            messageContainer.appendChild(cancelButtonContainer);
+            scrollToBottom();
         }
 
         function removeConnectingNotice() {
@@ -465,6 +470,7 @@
             const wasWaitingForAgent = handoffStatuses.includes(lastKnownSessionStatus);
 
             if (status === 'bot_active' && wasWaitingForAgent) {
+                document.getElementById('cancel-handoff-container')?.remove();
                 removeConnectingNotice();
                 appendSystemBubble('Your live chat with staff has ended. You are now speaking with the AI assistant again.');
                 clearHandoffTimeout();
@@ -475,6 +481,7 @@
             }
 
             if (isHandoffActive) {
+                ensureCancelHandoffButton();
                 if (assignedUserId !== null) {
                     removeConnectingNotice();
 

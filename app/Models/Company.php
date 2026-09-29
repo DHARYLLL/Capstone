@@ -20,6 +20,9 @@ class Company extends Model
      */
     protected $fillable = [
         'name',
+        'contact_email',
+        'contact_phone',
+        'contact_address',
         'api_key',
         'storage_quota_bytes',
         'vector_chunk_quota',

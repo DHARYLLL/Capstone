@@ -99,7 +99,10 @@ class AdminController extends Controller
             'content' => ['required', 'string'],
         ]);
 
-        $knowledge->update($validated);
+        $knowledge->update([
+            'content' => $validated['content'],
+            'embedding' => $this->embedKnowledgeContent($validated['content']),
+        ]);
         $knowledge->load('businessUnit');
 
         return response()->json([
@@ -340,6 +343,7 @@ class AdminController extends Controller
         $businessUnit->businessKnowledge()->create([
             'company_id' => $companyId,
             'content' => $validated['content'],
+            'embedding' => $this->embedKnowledgeContent($validated['content']),
         ]);
 
         return $this->redirectToAdmin($businessUnit->company_id, $businessUnit->id, 'Knowledge snippet added successfully.');
