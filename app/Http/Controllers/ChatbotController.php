@@ -14,6 +14,7 @@ use Illuminate\View\View;
 use Gemini\Laravel\Facades\Gemini;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Throwable;
@@ -353,16 +354,12 @@ class ChatbotController extends Controller
                 'low_confidence_flag' => $lowConfidenceFlag,
             ]);
         } catch (\Throwable $e) {
-            logger()->error('Gemini Chat Error', [
-                'business_unit_id' => $businessUnit->id,
-                'session_id' => $session->id,
-                'error' => $e->getMessage(),
-            ]);
+            Log::error('Gemini API Error: ' . $e->getMessage());
 
             return response()->json([
                 'status' => 'bot_active',
                 'message' => $promptText,
-                'response' => 'Our assistant is receiving high traffic right now. Please try your request again in a moment.',
+                'response' => $e->getMessage(),
                 'session_id' => $session->id,
                 'customer_message_id' => $customerMessage->id,
                 'low_confidence_flag' => $lowConfidenceFlag ?? false,
