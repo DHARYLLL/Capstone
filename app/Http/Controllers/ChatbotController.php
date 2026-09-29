@@ -278,24 +278,6 @@ class ChatbotController extends Controller
 
             $lowConfidenceFlag = $lowConfidenceFlag || $vectorRows->isEmpty();
 
-            if ($lowConfidenceFlag) {
-                $this->markSessionHumanActive($session);
-
-                return response()->json([
-                    'status' => 'waiting',
-                    'message' => $promptText,
-                    'response' => 'I could not confidently identify the right information. Connecting you to a live representative...',
-                    'session_id' => $session->id,
-                    'message_id' => $customerMessage->id,
-                    'customer_message_id' => $customerMessage->id,
-                    'distance' => $vectorRows->isNotEmpty() ? round($bestDistance, 4) : null,
-                    'similarity' => $routing['similarity'],
-                    'routing_tier' => $routing['tier'],
-                    'routing_module' => $resolvedBusinessUnit->name,
-                    'low_confidence_flag' => true,
-                ]);
-            }
-
             $candidateRows = $vectorRows;
 
             if ($candidateRows->isEmpty()) {
@@ -595,7 +577,7 @@ class ChatbotController extends Controller
     private function resolveRoutingScope(string $prompt, BusinessUnit $fallbackBusinessUnit): array
     {
         $embedding = $this->embedUserPrompt($prompt);
-        $threshold = 0.78;
+        $threshold = 0.60;
 
         if (! empty($embedding)) {
             $anchor = BusinessKnowledge::query()
