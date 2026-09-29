@@ -21,6 +21,13 @@ class Company extends Model
     protected $fillable = [
         'name',
         'api_key',
+        'storage_quota_bytes',
+        'vector_chunk_quota',
+    ];
+
+    protected $casts = [
+        'storage_quota_bytes' => 'integer',
+        'vector_chunk_quota' => 'integer',
     ];
 
     protected static function booted(): void

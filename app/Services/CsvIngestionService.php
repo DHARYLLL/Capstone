@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Models\BusinessUnit;
+use InvalidArgumentException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -35,6 +37,13 @@ class CsvIngestionService
         string $storageDisk,
         string $storedPath,
     ): array {
+        $businessUnit = BusinessUnit::query()->findOrFail($businessUnitId);
+
+        if ((int) $businessUnit->company_id !== $companyId) {
+            throw new InvalidArgumentException('The business unit does not belong to the specified company.');
+        }
+
+        $companyId = (int) $businessUnit->company_id;
         $csvPath = Storage::disk($storageDisk)->path($storedPath);
         $reader = Reader::createFromPath($csvPath, 'r');
         $reader->setHeaderOffset(0);

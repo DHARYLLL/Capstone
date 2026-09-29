@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ChatFeedback;
+use App\Jobs\ProcessChatFeedbackJob;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -21,17 +21,15 @@ class ChatFeedbackController extends Controller
             'comment' => ['nullable', 'string', 'max:5000'],
         ]);
 
-        ChatFeedback::updateOrCreate(
-            ['chat_message_id' => $validated['chat_message_id']],
-            [
-                'rating' => $validated['rating'],
-                'comment' => $validated['comment'] ?? null,
-            ],
+        ProcessChatFeedbackJob::dispatch(
+            chatMessageId: (int) $validated['chat_message_id'],
+            rating: $validated['rating'],
+            comment: $validated['comment'] ?? null,
         );
 
         return response()->json([
             'success' => true,
-            'message' => 'Feedback recorded',
-        ]);
+            'message' => 'Feedback queued for processing',
+        ], 202);
     }
 }

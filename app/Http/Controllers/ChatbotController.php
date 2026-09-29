@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\BusinessUnit;
+use App\Models\BusinessKnowledge;
 use App\Models\ChatMessage;
 use App\Models\ChatSession;
 use App\Models\ActivityLog;
@@ -129,6 +130,8 @@ class ChatbotController extends Controller
         abort(404, 'No business units configured.');
     }
 
+    $this->ensureAuthenticatedCompanyScope($request, $businessUnit->company_id);
+
     // 3. Get user_id passed from query string
     $userId = $request->query('user_id', 'guest');
 
@@ -136,8 +139,10 @@ class ChatbotController extends Controller
     return view('chat.widget', compact('businessUnit', 'userId'));
 }
 
-    public function chat(BusinessUnit $businessUnit): View
+    public function chat(Request $request, BusinessUnit $businessUnit): View
     {
+        $this->ensureAuthenticatedCompanyScope($request, $businessUnit->company_id);
+
         return view('chat', [
             'businessUnit' => $businessUnit,
         ]);
@@ -146,6 +151,8 @@ class ChatbotController extends Controller
 
     public function ask(Request $request, BusinessUnit $businessUnit): JsonResponse
     {
+        $this->ensureAuthenticatedCompanyScope($request, $businessUnit->company_id);
+
         $validated = $request->validate([
             'prompt' => ['required', 'string', 'max:5000'],
             'user_identifier' => ['nullable', 'string', 'max:255'],
@@ -211,6 +218,7 @@ class ChatbotController extends Controller
                 'response' => 'Connecting you to a live representative...',
                 'session_id' => $session->id,
                 'message_id' => $customerMessage->id,
+                'low_confidence_flag' => false,
             ]);
         }
         $isGreetingOnly = (bool) preg_match(
@@ -235,27 +243,70 @@ class ChatbotController extends Controller
                 'message_id' => $botMessage->id,
                 'customer_message_id' => $customerMessage->id,
                 'distance' => null,
+                'similarity' => null,
+                'routing_tier' => null,
+                'routing_module' => $businessUnit->name,
+                'low_confidence_flag' => false,
             ]);
         }
 
         try {
-            $queryEmbedding = $this->embedUserPrompt($promptText);
+            $routing = $this->resolveRoutingScope($promptText, $businessUnit);
+            $queryEmbedding = $routing['embedding'];
+            $resolvedBusinessUnit = $routing['business_unit'];
+            $lowConfidenceFlag = $routing['low_confidence'];
 
             $candidateRows = collect();
+            $vectorRows = collect();
             $bestDistance = 1.0;
 
             if (! empty($queryEmbedding)) {
-                $candidateRows = $businessUnit->businessKnowledge()
+                $vectorRows = $resolvedBusinessUnit->businessKnowledge()
                     ->select(['content', 'embedding'])
                     ->selectRaw('embedding::extensions.vector <=> ?::extensions.vector AS distance', [$queryEmbedding])
+                    ->where('company_id', $resolvedBusinessUnit->company_id)
+                    ->where('business_unit_id', $resolvedBusinessUnit->id)
                     ->whereNotNull('embedding')
                     ->orderByRaw('embedding::extensions.vector <=> ?::extensions.vector ASC', [$queryEmbedding])
                     ->limit(5)
                     ->get();
 
-                if ($candidateRows->isNotEmpty()) {
-                    $bestDistance = (float) ($candidateRows->min('distance') ?? 1.0);
+                if ($vectorRows->isNotEmpty()) {
+                    $bestDistance = (float) ($vectorRows->min('distance') ?? 1.0);
                 }
+            }
+
+            $lowConfidenceFlag = $lowConfidenceFlag || $vectorRows->isEmpty();
+
+            if ($lowConfidenceFlag) {
+                $this->markSessionHumanActive($session);
+
+                return response()->json([
+                    'status' => 'waiting',
+                    'message' => $promptText,
+                    'response' => 'I could not confidently identify the right information. Connecting you to a live representative...',
+                    'session_id' => $session->id,
+                    'message_id' => $customerMessage->id,
+                    'customer_message_id' => $customerMessage->id,
+                    'distance' => $vectorRows->isNotEmpty() ? round($bestDistance, 4) : null,
+                    'similarity' => $routing['similarity'],
+                    'routing_tier' => $routing['tier'],
+                    'routing_module' => $resolvedBusinessUnit->name,
+                    'low_confidence_flag' => true,
+                ]);
+            }
+
+            $candidateRows = $vectorRows;
+
+            if ($candidateRows->isEmpty()) {
+                $candidateRows = $resolvedBusinessUnit->businessKnowledge()
+                    ->select('content')
+                    ->where('company_id', $resolvedBusinessUnit->company_id)
+                    ->where('business_unit_id', $resolvedBusinessUnit->id)
+                    ->whereNotNull('content')
+                    ->latest()
+                    ->limit(5)
+                    ->get();
             }
 
             $knowledgeBase = $candidateRows->isNotEmpty()
@@ -272,7 +323,7 @@ class ChatbotController extends Controller
             }
 
             $systemInstructions =
-                "You are a helpful customer service AI for {$businessUnit->name}.\n" .
+                "You are a helpful customer service AI for {$resolvedBusinessUnit->name}.\n" .
                 "Use BUSINESS FACTS as your primary source of truth.\n\n" .
                 "RULES:\n" .
                 "1. If user asks a greeting/small-talk, reply politely.\n" .
@@ -314,6 +365,10 @@ class ChatbotController extends Controller
                 'message_id' => $botMessage->id,
                 'customer_message_id' => $customerMessage->id,
                 'distance' => $candidateRows->isNotEmpty() ? round($bestDistance, 4) : null,
+                'similarity' => $routing['similarity'],
+                'routing_tier' => $routing['tier'],
+                'routing_module' => $resolvedBusinessUnit->name,
+                'low_confidence_flag' => $lowConfidenceFlag,
             ]);
         } catch (\Throwable $e) {
             logger()->error('Gemini Chat Error', [
@@ -328,13 +383,22 @@ class ChatbotController extends Controller
                 'response' => 'Our assistant is receiving high traffic right now. Please try your request again in a moment.',
                 'session_id' => $session->id,
                 'customer_message_id' => $customerMessage->id,
+                'low_confidence_flag' => $lowConfidenceFlag ?? false,
             ]);
         }
     }
 
-    public function getMessages(int $sessionId): JsonResponse
+    public function getMessages(Request $request, int $sessionId): JsonResponse
     {
-        $session = ChatSession::findOrFail($sessionId);
+        $sessionQuery = ChatSession::query()->whereKey($sessionId);
+        $user = $request->user();
+
+        if ($user) {
+            abort_unless($user->company_id, 403);
+            $sessionQuery->where('company_id', $user->company_id);
+        }
+
+        $session = $sessionQuery->firstOrFail();
 
         $messagesQuery = $session->chatMessages()->orderBy('created_at');
 
@@ -364,22 +428,42 @@ class ChatbotController extends Controller
             $businessParam = trim((string) ($request->query('business') ?? ''));
             $sessionId = $request->query('session_id') ?? $request->query('sessionId');
             $session = $sessionId ? ChatSession::find($sessionId) : null;
+
+            if ($session) {
+                $this->ensureAuthenticatedCompanyScope($request, $session->company_id);
+            }
+
             $businessUnit = $session?->business_unit_id
                 ? BusinessUnit::find($session->business_unit_id)
                 : null;
 
             if (! $businessUnit && $businessParam !== '') {
-                $businessUnit = BusinessUnit::where('name', 'LIKE', "%{$businessParam}%")
-                    ->first();
+                $businessUnitQuery = BusinessUnit::where('name', 'LIKE', "%{$businessParam}%");
+
+                if ($request->user()?->company_id) {
+                    $businessUnitQuery->where('company_id', $request->user()->company_id);
+                }
+
+                $businessUnit = $businessUnitQuery->first();
             }
 
-            $businessUnit ??= BusinessUnit::first();
+            if (! $businessUnit) {
+                $businessUnitQuery = BusinessUnit::query();
+
+                if ($request->user()?->company_id) {
+                    $businessUnitQuery->where('company_id', $request->user()->company_id);
+                }
+
+                $businessUnit = $businessUnitQuery->first();
+            }
 
             if (! $businessUnit) {
                 return response()->json([
                     'message' => "We couldn't retrieve our direct contact details right now, but please hang tight—an agent will be with you shortly!",
                 ]);
             }
+
+            $this->ensureAuthenticatedCompanyScope($request, $businessUnit->company_id);
 
             $contactPrompt = 'Provide official contact information including phone, email, and operating hours for DARIV Waterproofing';
             $systemInstructions =
@@ -411,6 +495,8 @@ class ChatbotController extends Controller
             $knowledgeRows = $businessUnit->businessKnowledge()
                 ->select(['content', 'embedding'])
                 ->selectRaw('embedding::extensions.vector <=> ?::extensions.vector AS distance', [$embedding])
+                ->where('company_id', $businessUnit->company_id)
+                ->where('business_unit_id', $businessUnit->id)
                 ->whereNotNull('embedding')
                 ->orderByRaw('embedding::extensions.vector <=> ?::extensions.vector ASC', [$embedding])
                 ->limit(5)
@@ -420,6 +506,8 @@ class ChatbotController extends Controller
             if ($knowledgeRows->isEmpty()) {
                 $knowledgeRows = $businessUnit->businessKnowledge()
                 ->select('content')
+                ->where('company_id', $businessUnit->company_id)
+                ->where('business_unit_id', $businessUnit->id)
                 ->whereNotNull('content')
                 ->limit(20)
                 ->get();
@@ -466,6 +554,143 @@ class ChatbotController extends Controller
             ]);
 
             return $knowledgeText;
+        }
+    }
+
+    /**
+     * Resolve the business-unit module before retrieving answer context.
+     * Existing business knowledge vectors act as module anchors because the
+     * current schema does not have a separate routing-anchor table.
+     *
+     * @return array{
+     *     embedding: ?string,
+     *     business_unit: BusinessUnit,
+     *     similarity: ?float,
+     *     tier: int,
+     *     low_confidence: bool
+     * }
+     */
+    private function resolveRoutingScope(string $prompt, BusinessUnit $fallbackBusinessUnit): array
+    {
+        $embedding = $this->embedUserPrompt($prompt);
+        $threshold = 0.78;
+
+        if (! empty($embedding)) {
+            $anchor = BusinessKnowledge::query()
+                ->select(['business_unit_id', 'embedding'])
+                ->selectRaw('embedding::extensions.vector <=> ?::extensions.vector AS distance', [$embedding])
+                ->where('company_id', $fallbackBusinessUnit->company_id)
+                ->whereNotNull('embedding')
+                ->orderByRaw('embedding::extensions.vector <=> ?::extensions.vector ASC', [$embedding])
+                ->first();
+
+            if ($anchor) {
+                $distance = (float) $anchor->distance;
+                $similarity = max(-1.0, min(1.0, 1.0 - $distance));
+
+                if ($similarity >= $threshold) {
+                    $matchedBusinessUnit = BusinessUnit::query()
+                        ->where('company_id', $fallbackBusinessUnit->company_id)
+                        ->find($anchor->business_unit_id);
+
+                    if ($matchedBusinessUnit) {
+                        return [
+                            'embedding' => $embedding,
+                            'business_unit' => $matchedBusinessUnit,
+                            'similarity' => round($similarity, 4),
+                            'tier' => 1,
+                            'low_confidence' => false,
+                        ];
+                    }
+                }
+            }
+        }
+
+        $tierTwo = $this->classifyRoutingModule($prompt, $fallbackBusinessUnit);
+
+        if ($tierTwo) {
+            $matchedBusinessUnit = BusinessUnit::query()
+                ->where('company_id', $fallbackBusinessUnit->company_id)
+                ->find($tierTwo['business_unit_id']);
+
+            if ($matchedBusinessUnit && $tierTwo['confidence'] >= $threshold) {
+                return [
+                    'embedding' => $embedding,
+                    'business_unit' => $matchedBusinessUnit,
+                    'similarity' => $tierTwo['confidence'],
+                    'tier' => 2,
+                    'low_confidence' => false,
+                ];
+            }
+        }
+
+        return [
+            'embedding' => $embedding,
+            'business_unit' => $fallbackBusinessUnit,
+            'similarity' => null,
+            'tier' => 2,
+            'low_confidence' => true,
+        ];
+    }
+
+    /**
+     * @return array{business_unit_id: int, confidence: float}|null
+     */
+    private function classifyRoutingModule(string $prompt, BusinessUnit $fallbackBusinessUnit): ?array
+    {
+        $modules = BusinessUnit::query()
+            ->where('company_id', $fallbackBusinessUnit->company_id)
+            ->orderBy('id')
+            ->get(['id', 'name']);
+
+        if ($modules->isEmpty()) {
+            return null;
+        }
+
+        $moduleList = $modules
+            ->map(fn (BusinessUnit $module): string => "{$module->id}: {$module->name}")
+            ->implode("\n");
+
+        $classificationPrompt =
+            "Classify the customer question into exactly one business module from this company.\n" .
+            "Return valid JSON only in this exact shape:\n" .
+            '{"business_unit_id": 0, "confidence": 0.0}' .
+            "\nUse confidence from 0.0 to 1.0.\n\n" .
+            "AVAILABLE MODULES:\n{$moduleList}\n\n" .
+            "CUSTOMER QUESTION:\n{$prompt}";
+
+        try {
+            $response = retry(
+                [200, 400, 800],
+                fn () => Gemini::generativeModel('gemini-3.6-flash')
+                    ->generateContent($classificationPrompt),
+                when: fn (Throwable $exception): bool => $this->shouldRetryGemini($exception),
+            );
+
+            $json = $this->parseJsonObject(trim((string) $response->text()));
+            $businessUnitId = filter_var($json['business_unit_id'] ?? null, FILTER_VALIDATE_INT);
+            $confidence = filter_var($json['confidence'] ?? null, FILTER_VALIDATE_FLOAT);
+
+            if ($businessUnitId === false || $confidence === false) {
+                return null;
+            }
+
+            if (! $modules->contains('id', $businessUnitId)) {
+                return null;
+            }
+
+            return [
+                'business_unit_id' => (int) $businessUnitId,
+                'confidence' => max(0.0, min(1.0, (float) $confidence)),
+            ];
+        } catch (Throwable $exception) {
+            logger()->warning('Tier 2 routing classification failed.', [
+                'company_id' => $fallbackBusinessUnit->company_id,
+                'business_unit_id' => $fallbackBusinessUnit->id,
+                'error' => $exception->getMessage(),
+            ]);
+
+            return null;
         }
     }
 
@@ -754,6 +979,17 @@ class ChatbotController extends Controller
         $status = $response?->getStatusCode();
 
         return in_array($status, [429, 500, 503], true);
+    }
+
+    private function ensureAuthenticatedCompanyScope(Request $request, ?int $companyId): void
+    {
+        $user = $request->user();
+
+        if (! $user) {
+            return;
+        }
+
+        abort_unless($user->company_id && $companyId && (int) $user->company_id === (int) $companyId, 404);
     }
 
 //     private function embedUserPrompt(string $prompt): ?string

@@ -7,6 +7,7 @@ use App\Models\BusinessUnit;
 use App\Models\ActivityLog;
 use App\Models\StagedKnowledgeDocument;
 use App\Services\TextChunker;
+use App\Services\OrganizationQuotaService;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -46,7 +47,7 @@ class ProcessPdfIngestion implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(): void
+    public function handle(OrganizationQuotaService $quotaService): void
     {
         $stagedDocument = $this->stagedDocumentId
             ? StagedKnowledgeDocument::query()->find($this->stagedDocumentId)
@@ -63,6 +64,11 @@ class ProcessPdfIngestion implements ShouldQueue
 
             return;
         }
+
+        $quotaService->assertCanAcceptUpload(
+            (int) $businessUnit->company_id,
+            $stagedDocument ? 0 : (int) Storage::disk($this->storageDisk)->size($this->storedPath),
+        );
 
         $extractedText = $this->editedContent;
 
@@ -104,6 +110,13 @@ class ProcessPdfIngestion implements ShouldQueue
             return;
         }
 
+        $quotaService->assertCanInsertChunks(
+            (int) $businessUnit->company_id,
+            count($chunks),
+            $businessUnit->id,
+            $this->ingestionMode === 'overwrite',
+        );
+
         $rows = [];
 
         foreach (array_chunk($chunks, 75) as $chunkBatch) {
@@ -117,6 +130,7 @@ class ProcessPdfIngestion implements ShouldQueue
                 }
 
                 $rows[] = [
+                    'company_id' => $businessUnit->company_id,
                     'business_unit_id' => $businessUnit->id,
                     'content' => $chunk,
                     'embedding' => $embedding,
@@ -141,6 +155,7 @@ class ProcessPdfIngestion implements ShouldQueue
         DB::transaction(function () use ($businessUnit, $rows): void {
             if ($this->ingestionMode === 'overwrite') {
                 BusinessKnowledge::query()
+                    ->where('company_id', $businessUnit->company_id)
                     ->where('business_unit_id', $businessUnit->id)
                     ->delete();
             }

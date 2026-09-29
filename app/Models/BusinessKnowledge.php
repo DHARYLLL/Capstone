@@ -23,6 +23,7 @@ class BusinessKnowledge extends Model
      * @var list<string>
      */
     protected $fillable = [
+        'company_id',
         'business_unit_id',
         'content',
         'embedding',
@@ -37,5 +38,10 @@ class BusinessKnowledge extends Model
     public function businessUnit(): BelongsTo
     {
         return $this->belongsTo(BusinessUnit::class);
+    }
+
+    public function company(): BelongsTo
+    {
+        return $this->belongsTo(Company::class);
     }
 }

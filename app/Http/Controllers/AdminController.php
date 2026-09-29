@@ -8,6 +8,7 @@ use App\Models\BusinessUnit;
 use App\Models\Company;
 use App\Models\ActivityLog;
 use App\Models\StagedKnowledgeDocument;
+use App\Services\OrganizationQuotaService;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
@@ -20,16 +21,25 @@ use Illuminate\View\View;
 
 class AdminController extends Controller
 {
+    public function __construct(private OrganizationQuotaService $quotaService)
+    {
+    }
+
     public function knowledgeBase(Request $request): View
     {
         abort_unless(session('user_role') === 'Administrator', 403);
+        $companyId = $this->currentCompanyId($request);
 
         $chunks = BusinessKnowledge::query()
+            ->where('company_id', $companyId)
             ->with('businessUnit')
             ->latest()
             ->paginate(15);
 
-        $businessUnits = \App\Models\BusinessUnit::query()->orderBy('name')->get();
+        $businessUnits = BusinessUnit::query()
+            ->where('company_id', $companyId)
+            ->orderBy('name')
+            ->get();
 
         return view('admin.knowledge-base', compact('chunks', 'businessUnits'));
     }
@@ -37,15 +47,21 @@ class AdminController extends Controller
     public function storeChunk(Request $request): JsonResponse
     {
         abort_unless(session('user_role') === 'Administrator', 403);
+        $companyId = $this->currentCompanyId($request);
 
         $validated = $request->validate([
             'content'          => ['required', 'string'],
             'business_unit_id' => ['required', 'integer', 'exists:business_units,id'],
         ]);
 
+        $businessUnit = BusinessUnit::query()
+            ->where('company_id', $companyId)
+            ->findOrFail($validated['business_unit_id']);
+        $this->quotaService->assertCanInsertChunks($companyId, 1);
         $embedding = $this->embedKnowledgeContent($validated['content']);
         $chunk = BusinessKnowledge::query()->create([
-            'business_unit_id' => $validated['business_unit_id'],
+            'company_id' => $companyId,
+            'business_unit_id' => $businessUnit->id,
             'content' => $validated['content'],
             'embedding' => $embedding,
         ]);
@@ -63,9 +79,10 @@ class AdminController extends Controller
         ], 201);
     }
 
-    public function destroyChunk(BusinessKnowledge $knowledge): JsonResponse
+    public function destroyChunk(Request $request, BusinessKnowledge $knowledge): JsonResponse
     {
         abort_unless(session('user_role') === 'Administrator', 403);
+        $this->ensureKnowledgeCompanyScope($request, $knowledge);
 
         $knowledge->delete();
         ActivityLog::record(Auth::id(), 'Deleted', 'Done');
@@ -76,6 +93,7 @@ class AdminController extends Controller
     public function updateChunk(Request $request, BusinessKnowledge $knowledge): JsonResponse
     {
         abort_unless(session('user_role') === 'Administrator', 403);
+        $this->ensureKnowledgeCompanyScope($request, $knowledge);
 
         $validated = $request->validate([
             'content' => ['required', 'string'],
@@ -98,8 +116,10 @@ class AdminController extends Controller
     public function stagedKnowledge(): JsonResponse
     {
         abort_unless(session('user_role') === 'Administrator', 403);
+        $companyId = $this->currentCompanyId(request());
 
         $documents = StagedKnowledgeDocument::query()
+            ->whereHas('businessUnit', fn ($query) => $query->where('company_id', $companyId))
             ->whereIn('status', ['staged', 'queued', 'processing'])
             ->latest()
             ->get()
@@ -118,6 +138,7 @@ class AdminController extends Controller
     public function uploadKnowledge(Request $request): JsonResponse
     {
         abort_unless(session('user_role') === 'Administrator', 403);
+        $companyId = $this->currentCompanyId($request);
 
         $validated = $request->validate([
             'file' => ['required', 'file', 'mimes:pdf,csv', 'max:25600'],
@@ -130,9 +151,10 @@ class AdminController extends Controller
         $ingestionMode = $validated['ingestion_mode'] ?? 'append';
 
         $businessUnit = isset($validated['business_unit_id'])
-            ? BusinessUnit::query()->findOrFail($validated['business_unit_id'])
-            : BusinessUnit::query()->firstOrFail();
+            ? BusinessUnit::query()->where('company_id', $companyId)->findOrFail($validated['business_unit_id'])
+            : BusinessUnit::query()->where('company_id', $companyId)->firstOrFail();
         $file = $request->file('file');
+        $this->quotaService->assertCanAcceptUpload($companyId, (int) $file->getSize());
         $storedPath = $file->storeAs(
             'knowledge-ingestions',
             Str::uuid()->toString().'.'.$file->getClientOriginalExtension(),
@@ -174,10 +196,15 @@ class AdminController extends Controller
         ], 201);
     }
 
-    public function approveStagedKnowledge(StagedKnowledgeDocument $stagedDocument): JsonResponse
+    public function approveStagedKnowledge(Request $request, StagedKnowledgeDocument $stagedDocument): JsonResponse
     {
         abort_unless(session('user_role') === 'Administrator', 403);
+        $this->ensureStagedDocumentCompanyScope($request, $stagedDocument);
         abort_unless($stagedDocument->status === 'staged', 409, 'This file has already been processed.');
+        $this->quotaService->assertCanAcceptUpload(
+            $this->currentCompanyId($request),
+            0,
+        );
 
         $stagedDocument->update(['status' => 'processing']);
 
@@ -209,9 +236,10 @@ class AdminController extends Controller
         ]);
     }
 
-    public function discardStagedKnowledge(StagedKnowledgeDocument $stagedDocument): JsonResponse
+    public function discardStagedKnowledge(Request $request, StagedKnowledgeDocument $stagedDocument): JsonResponse
     {
         abort_unless(session('user_role') === 'Administrator', 403);
+        $this->ensureStagedDocumentCompanyScope($request, $stagedDocument);
         abort_unless($stagedDocument->status === 'staged', 409, 'Only staged files can be discarded.');
 
         \Illuminate\Support\Facades\Storage::disk('local')->delete($stagedDocument->stored_path);
@@ -229,11 +257,13 @@ class AdminController extends Controller
 
     public function index(Request $request): View
     {
+        $companyId = $this->currentCompanyId($request);
         $user = $request->user();
         $isAdministrator = $user?->isAdministrator() ?? false;
 
         if ($isAdministrator) {
             $companies = Company::query()
+                ->whereKey($companyId)
                 ->with([
                     'businessUnits' => function (HasMany $query): void {
                         $query->withCount('businessKnowledge')->orderBy('name');
@@ -249,14 +279,20 @@ class AdminController extends Controller
         } else {
             abort_unless($user && $user->company_id && $user->business_unit_id, 403);
 
-            $selectedBusinessUnit = BusinessUnit::query()->with('company')->find($user->business_unit_id);
+            $selectedBusinessUnit = BusinessUnit::query()
+                ->where('company_id', $companyId)
+                ->with('company')
+                ->find($user->business_unit_id);
             $selectedCompany = $selectedBusinessUnit?->company ?? Company::query()->find($user->company_id);
             $businessUnits = $selectedBusinessUnit ? collect([$selectedBusinessUnit]) : collect();
             $companies = $selectedCompany ? collect([$selectedCompany]) : collect();
         }
 
         $knowledgeSnippets = $selectedBusinessUnit
-            ? $selectedBusinessUnit->businessKnowledge()->latest()->get()
+            ? $selectedBusinessUnit->businessKnowledge()
+                ->where('company_id', $companyId)
+                ->latest()
+                ->get()
             : collect();
 
         return view('admin', [
@@ -294,17 +330,26 @@ class AdminController extends Controller
 
     public function storeBusinessKnowledge(Request $request, BusinessUnit $businessUnit): RedirectResponse
     {
+        $companyId = $this->currentCompanyId($request);
+        abort_unless((int) $businessUnit->company_id === $companyId, 404);
+
         $validated = $request->validate([
             'content' => ['required', 'string'],
         ]);
 
-        $businessUnit->businessKnowledge()->create($validated);
+        $businessUnit->businessKnowledge()->create([
+            'company_id' => $companyId,
+            'content' => $validated['content'],
+        ]);
 
         return $this->redirectToAdmin($businessUnit->company_id, $businessUnit->id, 'Knowledge snippet added successfully.');
     }
 
     public function uploadPdf(Request $request, BusinessUnit $businessUnit): RedirectResponse
     {
+        $companyId = $this->currentCompanyId($request);
+        abort_unless((int) $businessUnit->company_id === $companyId, 404);
+
         $validated = $request->validate([
             'pdf' => ['required', 'file', 'mimetypes:application/pdf,application/x-pdf', 'mimes:pdf', 'max:10000'],
             'ingestion_mode' => ['nullable', 'in:append,overwrite'],
@@ -313,6 +358,7 @@ class AdminController extends Controller
         $ingestionMode = $validated['ingestion_mode'] ?? 'append';
 
         $uploadedFile = $request->file('pdf');
+    $this->quotaService->assertCanAcceptUpload($companyId, (int) $uploadedFile->getSize());
         $storedPath = $uploadedFile->storeAs(
             'pdf-ingestions',
             Str::uuid()->toString().'.pdf',
@@ -341,7 +387,13 @@ class AdminController extends Controller
 
     public function updateBusinessKnowledge(Request $request, BusinessUnit $businessUnit, BusinessKnowledge $businessKnowledge): RedirectResponse
     {
-        abort_unless($businessKnowledge->business_unit_id === $businessUnit->id, 404);
+        $companyId = $this->currentCompanyId($request);
+        abort_unless(
+            (int) $businessUnit->company_id === $companyId
+                && (int) $businessKnowledge->company_id === $companyId
+                && $businessKnowledge->business_unit_id === $businessUnit->id,
+            404,
+        );
 
         $validated = $request->validate([
             'content' => ['required', 'string'],
@@ -354,7 +406,13 @@ class AdminController extends Controller
 
     public function destroyBusinessKnowledge(BusinessUnit $businessUnit, BusinessKnowledge $businessKnowledge): RedirectResponse
     {
-        abort_unless($businessKnowledge->business_unit_id === $businessUnit->id, 404);
+        $companyId = $this->currentCompanyId(request());
+        abort_unless(
+            (int) $businessUnit->company_id === $companyId
+                && (int) $businessKnowledge->company_id === $companyId
+                && $businessKnowledge->business_unit_id === $businessUnit->id,
+            404,
+        );
 
         $businessKnowledge->delete();
 
@@ -366,14 +424,16 @@ class AdminController extends Controller
         $selectedCompanyId = $request->integer('company_id');
 
         if ($selectedCompanyId) {
-            return $companies->firstWhere('id', $selectedCompanyId)
-                ?? Company::query()->find($selectedCompanyId);
+            return $companies->firstWhere('id', $selectedCompanyId);
         }
 
         $selectedBusinessUnitId = $request->integer('business_unit_id');
 
         if ($selectedBusinessUnitId) {
-            return BusinessUnit::query()->with('company')->find($selectedBusinessUnitId)?->company;
+            return BusinessUnit::query()
+                ->where('company_id', $this->currentCompanyId($request))
+                ->with('company')
+                ->find($selectedBusinessUnitId)?->company;
         }
 
         return $companies->first();
@@ -385,7 +445,10 @@ class AdminController extends Controller
 
         if ($selectedBusinessUnitId) {
             $selectedBusinessUnit = $businessUnits->firstWhere('id', $selectedBusinessUnitId)
-                ?? BusinessUnit::query()->with('company')->find($selectedBusinessUnitId);
+                ?? BusinessUnit::query()
+                    ->where('company_id', $selectedCompany?->id)
+                    ->with('company')
+                    ->find($selectedBusinessUnitId);
 
             if ($selectedCompany && $selectedBusinessUnit && $selectedBusinessUnit->company_id !== $selectedCompany->id) {
                 return $businessUnits->first();
@@ -405,6 +468,28 @@ class AdminController extends Controller
                 'business_unit_id' => $businessUnitId,
             ]))
             ->with('status', $status);
+    }
+
+    private function currentCompanyId(Request $request): int
+    {
+        $companyId = $request->user()?->company_id ?? $request->integer('company_id');
+
+        abort_unless($companyId, 403);
+
+        return (int) $companyId;
+    }
+
+    private function ensureKnowledgeCompanyScope(Request $request, BusinessKnowledge $knowledge): void
+    {
+        abort_unless((int) $knowledge->company_id === $this->currentCompanyId($request), 404);
+    }
+
+    private function ensureStagedDocumentCompanyScope(Request $request, StagedKnowledgeDocument $document): void
+    {
+        abort_unless(
+            (int) $document->businessUnit?->company_id === $this->currentCompanyId($request),
+            404,
+        );
     }
 
     private function embedKnowledgeContent(string $content): string
