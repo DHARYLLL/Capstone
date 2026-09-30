@@ -323,7 +323,7 @@ class ChatbotController extends Controller
 
             $response = retry(
                 [200, 400, 800],
-                fn () => Gemini::generativeModel('gemini-2.0-flash')->generateContent($fullPrompt),
+                fn () => Gemini::generativeModel('gemini-3.6-flash')->generateContent($fullPrompt),
                 when: fn (Throwable $exception): bool => $this->shouldRetryGemini($exception),
             );
             $rawResponse = trim((string) $response->text());
@@ -354,12 +354,21 @@ class ChatbotController extends Controller
                 'low_confidence_flag' => $lowConfidenceFlag,
             ]);
         } catch (\Throwable $e) {
-            Log::error('Gemini API Error: ' . $e->getMessage());
+            logger()->error('Gemini Chat Error', [
+                'business_unit_id' => $businessUnit->id,
+                'session_id' => $session->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            // Show detailed raw exception in UI ONLY if APP_DEBUG=true in .env
+            $responseMessage = config('app.debug') 
+                ? $e->getMessage() 
+                : 'Our assistant is receiving high traffic right now. Please try your request again in a moment.';
 
             return response()->json([
                 'status' => 'bot_active',
                 'message' => $promptText,
-                'response' => $e->getMessage(),
+                'response' => $responseMessage,
                 'session_id' => $session->id,
                 'customer_message_id' => $customerMessage->id,
                 'low_confidence_flag' => $lowConfidenceFlag ?? false,
@@ -535,7 +544,7 @@ class ChatbotController extends Controller
         try {
             $response = retry(
                 [200, 400, 800],
-                fn () => Gemini::generativeModel('gemini-2.0-flash')
+                fn () => Gemini::generativeModel('gemini-3.6-flash')
                     ->generateContent($systemInstructions . "\n\nUSER QUESTION:\n" . $prompt),
                 when: fn (Throwable $exception): bool => $this->shouldRetryGemini($exception),
             );
@@ -663,7 +672,7 @@ class ChatbotController extends Controller
         try {
             $response = retry(
                 [200, 400, 800],
-                fn () => Gemini::generativeModel('gemini-2.0-flash')
+                fn () => Gemini::generativeModel('gemini-3.6-flash')
                     ->generateContent($classificationPrompt),
                 when: fn (Throwable $exception): bool => $this->shouldRetryGemini($exception),
             );
@@ -744,7 +753,7 @@ class ChatbotController extends Controller
 
             $response = retry(
                 [200, 400, 800],
-                fn () => Gemini::generativeModel('gemini-2.0-flash')
+                fn () => Gemini::generativeModel('gemini-3.6-flash')
                     ->generateContent($classificationPrompt),
                 when: fn (Throwable $exception): bool => $this->shouldRetryGemini($exception),
             );
