@@ -53,6 +53,7 @@
                 'iconBg' => 'bg-amber-500 text-white',
                 'icon' => 'widget',
                 'href' => route('chat.demo'),
+                'external' => true,
             ],
             [
                 'title' => 'Staff & Permissions',
@@ -244,6 +245,7 @@
                     <div class="grid gap-3 sm:grid-cols-2">
                         @foreach ($modules as $module)
                             <a href="{{ $module['href'] }}"
+                                @if (!empty($module['external'])) target="_blank" rel="noopener noreferrer" @endif
                                 class="group flex items-center justify-between rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs transition hover:-translate-y-0.5 hover:border-violet-300 hover:shadow-md">
                                 <div class="flex items-center gap-3.5">
                                     <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl {{ $module['iconBg'] }} shadow-xs transition group-hover:scale-105">
@@ -278,9 +280,15 @@
                                     <span class="hidden sm:inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold ring-1 {{ $module['badgeColor'] }}">
                                         {{ $module['badge'] }}
                                     </span>
-                                    <svg class="h-4 w-4 text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-violet-600" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-                                    </svg>
+                                    @if (!empty($module['external']))
+                                        <svg class="h-4 w-4 text-slate-300 transition group-hover:scale-110 group-hover:text-violet-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                                        </svg>
+                                    @else
+                                        <svg class="h-4 w-4 text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-violet-600" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                                        </svg>
+                                    @endif
                                 </div>
                             </a>
                         @endforeach

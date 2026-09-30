@@ -69,6 +69,7 @@
                             'icon'       => 'widget',
                             'active'     => request()->routeIs('chat.demo'),
                             'admin_only' => false,
+                            'external'   => true,
                         ],
                     ]
                 ],
@@ -127,6 +128,7 @@
                         @if (!$item['admin_only'] || $userRole === 'Administrator')
                             <li>
                                 <a href="{{ $item['href'] }}"
+                                   @if (!empty($item['external'])) target="_blank" rel="noopener noreferrer" @endif
                                    class="group flex items-center justify-between rounded-xl px-3 py-2.5 text-xs font-semibold transition-all duration-200
                                           {{ $item['active']
                                               ? 'bg-violet-600 text-white shadow-xs font-bold hover:bg-violet-700'
@@ -164,7 +166,11 @@
                                         <span>{{ $item['label'] }}</span>
                                     </div>
 
-                                    @if (!empty($item['hasBadge']))
+                                    @if (!empty($item['external']))
+                                        <svg class="h-3.5 w-3.5 text-slate-400 opacity-60 transition-transform duration-200 group-hover:scale-110 group-hover:opacity-100 group-hover:text-violet-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                                        </svg>
+                                    @elseif (!empty($item['hasBadge']))
                                         <span id="pending-handoff-badge" class="hidden rounded-full bg-rose-500 px-1.5 py-0.5 text-[10px] font-black text-white transition-transform group-hover:scale-110">0</span>
                                     @endif
                                 </a>
