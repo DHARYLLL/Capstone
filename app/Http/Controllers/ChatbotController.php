@@ -323,7 +323,7 @@ class ChatbotController extends Controller
 
             $response = retry(
                 [200, 400, 800],
-                fn () => Gemini::generativeModel('gemini-3.6-flash')->generateContent($fullPrompt),
+                fn () => Gemini::generativeModel('gemini-2.0-flash')->generateContent($fullPrompt),
                 when: fn (Throwable $exception): bool => $this->shouldRetryGemini($exception),
             );
             $rawResponse = trim((string) $response->text());
@@ -535,7 +535,7 @@ class ChatbotController extends Controller
         try {
             $response = retry(
                 [200, 400, 800],
-                fn () => Gemini::generativeModel('gemini-3.6-flash')
+                fn () => Gemini::generativeModel('gemini-2.0-flash')
                     ->generateContent($systemInstructions . "\n\nUSER QUESTION:\n" . $prompt),
                 when: fn (Throwable $exception): bool => $this->shouldRetryGemini($exception),
             );
@@ -663,7 +663,7 @@ class ChatbotController extends Controller
         try {
             $response = retry(
                 [200, 400, 800],
-                fn () => Gemini::generativeModel('gemini-3.6-flash')
+                fn () => Gemini::generativeModel('gemini-2.0-flash')
                     ->generateContent($classificationPrompt),
                 when: fn (Throwable $exception): bool => $this->shouldRetryGemini($exception),
             );
@@ -744,7 +744,7 @@ class ChatbotController extends Controller
 
             $response = retry(
                 [200, 400, 800],
-                fn () => Gemini::generativeModel('gemini-3.6-flash')
+                fn () => Gemini::generativeModel('gemini-2.0-flash')
                     ->generateContent($classificationPrompt),
                 when: fn (Throwable $exception): bool => $this->shouldRetryGemini($exception),
             );
