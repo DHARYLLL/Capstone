@@ -145,14 +145,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/logs', [ActivityLogController::class, 'index'])->name('logs');
 
     Route::get('/settings', protectRoute('admin.settings', 'Administrator'))->name('settings');
-
-    Route::post('/settings', function () {
-        session([
-            'user_name' => request('name'),
-            'user_email' => request('email')
-        ]);
-        return back()->with('success', 'Profile credentials updated successfully!');
-    })->name('settings.post');
+    Route::post('/settings/profile', [AuthController::class, 'updateProfile'])->name('settings.profile.update');
+    Route::post('/settings/password', [AuthController::class, 'updatePassword'])->name('settings.password.update');
+    Route::post('/settings', [AuthController::class, 'updateProfile'])->name('settings.post');
 
 });
 
@@ -168,14 +163,9 @@ Route::prefix('staff')->name('staff.')->middleware('auth')->group(function () {
     Route::post('/chats/{session}/resolve', [StaffChatController::class, 'resolveSession'])->name('chats.resolve');
 
     Route::get('/settings', protectRoute('staff.settings', 'Lead Operator'))->name('settings');
-
-    Route::post('/settings', function () {
-        session([
-            'user_name' => request('name'),
-            'user_email' => request('email')
-        ]);
-        return back()->with('success', 'Profile credentials updated successfully!');
-    })->name('settings.post');
+    Route::post('/settings/profile', [AuthController::class, 'updateProfile'])->name('settings.profile.update');
+    Route::post('/settings/password', [AuthController::class, 'updatePassword'])->name('settings.password.update');
+    Route::post('/settings', [AuthController::class, 'updateProfile'])->name('settings.post');
 
 });
 

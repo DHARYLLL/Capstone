@@ -167,6 +167,55 @@ class AuthController extends Controller
     //         ->with('status', 'Account created successfully.');
     // }
 
+    public function updateProfile(Request $request): RedirectResponse
+    {
+        $user = Auth::user();
+
+        $validated = $request->validate([
+            'name'  => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user?->id)],
+        ]);
+
+        if ($user instanceof User) {
+            $user->update([
+                'name'  => $validated['name'],
+                'email' => $validated['email'],
+            ]);
+            ActivityLog::record($user->id, 'Updated profile details', 'Done', null, 'DARIV', 'profile');
+        }
+
+        session([
+            'user_name'  => $validated['name'],
+            'user_email' => $validated['email'],
+        ]);
+
+        return back()->with('profile_success', 'Profile information updated successfully!');
+    }
+
+    public function updatePassword(Request $request): RedirectResponse
+    {
+        $user = Auth::user();
+
+        $validated = $request->validate([
+            'current_password' => ['required', 'string', 'current_password'],
+            'password'         => ['required', 'string', 'min:8', 'confirmed', 'different:current_password'],
+        ], [
+            'current_password.current_password' => 'The current password provided does not match your account password.',
+            'password.different'               => 'The new password must be different from your current password.',
+            'password.confirmed'               => 'The password confirmation does not match.',
+            'password.min'                     => 'The new password must be at least 8 characters.',
+        ]);
+
+        if ($user instanceof User) {
+            $user->update([
+                'password' => Hash::make($validated['password']),
+            ]);
+            ActivityLog::record($user->id, 'Changed account password', 'Done', null, 'DARIV', 'security');
+        }
+
+        return back()->with('password_success', 'Password changed successfully!');
+    }
+
     public function logout(Request $request): RedirectResponse
     {
         if ($userId = Auth::id()) {
