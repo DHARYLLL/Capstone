@@ -124,6 +124,17 @@
                     </div>
                 @endif
 
+                {{-- Success status (e.g. after password reset) --}}
+                @if (session('status'))
+                    <div role="status"
+                         class="flex items-start gap-3 rounded-2xl border border-emerald-200 bg-emerald-50/90 px-4 py-3 text-sm text-emerald-700 shadow-sm">
+                        <svg class="h-4 w-4 shrink-0 mt-0.5 stroke-emerald-500" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span>{{ session('status') }}</span>
+                    </div>
+                @endif
+
                 <form action="{{ route('login.attempt') }}" method="POST" class="space-y-4" novalidate>
                     @csrf
 
@@ -214,7 +225,7 @@
                                 Keep me signed in
                             </span>
                         </label>
-                        <a href="#"
+                        <a href="{{ route('password.request') }}"
                            class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 hover:underline underline-offset-2 transition-colors cursor-pointer">
                             Forgot password?
                         </a>

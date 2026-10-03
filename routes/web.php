@@ -74,6 +74,12 @@ Route::controller(AuthController::class)->group(function (): void {
     Route::post('/login', 'login')->name('login.attempt');
     Route::get('/register', 'showRegister')->name('register');
     Route::post('/register', 'register')->name('register.store');
+
+    // Forgot / Reset Password
+    Route::get('/forgot-password', 'showForgotPassword')->name('password.request');
+    Route::post('/forgot-password', 'sendResetLink')->name('password.email');
+    Route::get('/reset-password/{token}', 'showResetPassword')->name('password.reset');
+    Route::post('/reset-password', 'resetPassword')->name('password.update');
 });
 
 
