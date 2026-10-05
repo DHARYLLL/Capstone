@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
+use App\Notifications\ResetPasswordNotification;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -110,5 +111,13 @@ class User extends Authenticatable
     public function isTenantUser(): bool
     {
         return in_array($this->role, [self::ROLE_BUSINESS_OWNER, self::ROLE_OPERATOR], true);
+    }
+
+    /**
+     * Send the password reset notification via Resend.
+     */
+    public function sendPasswordResetNotification(#[\SensitiveParameter] $token): void
+    {
+        $this->notify(new ResetPasswordNotification($token));
     }
 }
