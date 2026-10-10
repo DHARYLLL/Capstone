@@ -337,10 +337,10 @@ class ChatbotController extends Controller
                 fn () => Gemini::generativeModel('gemini-3.6-flash')->generateContent($fullPrompt),
                 when: fn (Throwable $exception): bool => $this->shouldRetryGemini($exception),
             );
-            $rawResponse = trim((string) $response->text());
+            $rawResponse = $this->extractGeminiText($response);
 
             if ($rawResponse === '') {
-                $rawResponse = "I couldn't find enough information to answer that clearly. Could you rephrase your question?";
+                return $this->fallbackChatResponse($session, $customerMessage, $businessUnit, $promptText);
             }
 
             $session->update(['status' => 'bot_active']);
@@ -371,19 +371,7 @@ class ChatbotController extends Controller
                 'error' => $e->getMessage(),
             ]);
 
-            // Show detailed raw exception in UI ONLY if APP_DEBUG=true in .env
-            $responseMessage = config('app.debug') 
-                ? $e->getMessage() 
-                : 'Our assistant is receiving high traffic right now. Please try your request again in a moment.';
-
-            return response()->json([
-                'status' => 'bot_active',
-                'message' => $promptText,
-                'response' => $responseMessage,
-                'session_id' => $session->id,
-                'customer_message_id' => $customerMessage->id,
-                'low_confidence_flag' => $lowConfidenceFlag ?? false,
-            ]);
+            return $this->fallbackChatResponse($session, $customerMessage, $businessUnit, $promptText);
         }
     }
 
@@ -418,6 +406,85 @@ class ChatbotController extends Controller
                     'created_at' => $message->created_at?->toISOString(),
                 ];
             })->values(),
+        ]);
+    }
+
+    private function extractGeminiText(mixed $response): string
+    {
+        try {
+            $text = trim((string) $response->text());
+
+            if ($text !== '') {
+                return $text;
+            }
+        } catch (Throwable $exception) {
+            logger()->warning('Gemini response text extraction failed; inspecting response parts.', [
+                'error' => $exception->getMessage(),
+            ]);
+        }
+
+        try {
+            $parts = [];
+
+            foreach (data_get($response, 'candidates', []) as $candidate) {
+                foreach (data_get($candidate, 'content.parts', []) as $part) {
+                    $partText = trim((string) data_get($part, 'text', ''));
+
+                    if ($partText !== '') {
+                        $parts[] = $partText;
+                    }
+                }
+            }
+
+            return trim(implode("\n", $parts));
+        } catch (Throwable $exception) {
+            logger()->warning('Gemini response parts extraction failed.', [
+                'error' => $exception->getMessage(),
+            ]);
+
+            return '';
+        }
+    }
+
+    private function fallbackChatResponse(
+        ChatSession $session,
+        ChatMessage $customerMessage,
+        BusinessUnit $businessUnit,
+        string $promptText,
+    ): JsonResponse {
+        $company = $businessUnit->company()->first(['contact_email', 'contact_phone', 'contact_address']);
+        $contactLines = collect([
+            $company?->contact_email ? 'Email: ' . $company->contact_email : null,
+            $company?->contact_phone ? 'Phone: ' . $company->contact_phone : null,
+            $company?->contact_address ? 'Address: ' . $company->contact_address : null,
+        ])->filter()->implode("\n");
+
+        $fallbackMessage = "I’m sorry, I couldn’t complete that request right now. "
+            . "You can contact our support team directly, or connect with a human staff member for help.";
+
+        if ($contactLines !== '') {
+            $fallbackMessage .= "\n\n" . $contactLines;
+        }
+
+        $session->update(['status' => 'bot_active']);
+
+        $botMessage = $session->chatMessages()->create([
+            'sender_type' => 'bot',
+            'message_text' => $fallbackMessage,
+        ]);
+
+        return response()->json([
+            'status' => 'bot_active',
+            'message' => $promptText,
+            'response' => Str::markdown($fallbackMessage),
+            'session_id' => $session->id,
+            'message_id' => $botMessage->id,
+            'customer_message_id' => $customerMessage->id,
+            'trigger_handoff_prompt' => true,
+            'contact_email' => $company?->contact_email,
+            'contact_phone' => $company?->contact_phone,
+            'contact_address' => $company?->contact_address,
+            'low_confidence_flag' => true,
         ]);
     }
 
@@ -560,7 +627,7 @@ class ChatbotController extends Controller
                 when: fn (Throwable $exception): bool => $this->shouldRetryGemini($exception),
             );
 
-            $rawResponse = trim((string) $response->text());
+            $rawResponse = $this->extractGeminiText($response);
             
             // Additional fallback: filter response if it contains pricing/warranty keywords
             if (stripos($systemInstructions, 'contact information') !== false) {
@@ -688,7 +755,7 @@ class ChatbotController extends Controller
                 when: fn (Throwable $exception): bool => $this->shouldRetryGemini($exception),
             );
 
-            $json = $this->parseJsonObject(trim((string) $response->text()));
+            $json = $this->parseJsonObject($this->extractGeminiText($response));
             $businessUnitId = filter_var($json['business_unit_id'] ?? null, FILTER_VALIDATE_INT);
             $confidence = filter_var($json['confidence'] ?? null, FILTER_VALIDATE_FLOAT);
 
@@ -769,7 +836,7 @@ class ChatbotController extends Controller
                 when: fn (Throwable $exception): bool => $this->shouldRetryGemini($exception),
             );
 
-            $rawResponse = trim((string) $response->text());
+            $rawResponse = $this->extractGeminiText($response);
             $json = $this->parseJsonObject($rawResponse);
 
             if (is_array($json) && array_key_exists('needs_human_agent', $json)) {

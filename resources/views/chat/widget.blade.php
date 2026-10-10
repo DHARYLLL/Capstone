@@ -670,7 +670,7 @@
         }
 
         // Helper function to append bubbles to the DOM
-        function appendBubble(message, isUser = false, senderType = 'bot', messageId = null) {
+        function appendBubble(message, isUser = false, senderType = 'bot', messageId = null, options = {}) {
             const wrapper = document.createElement('div');
             wrapper.className = isUser ? 'chat chat-end' : 'chat chat-start';
             if (messageId !== null) {
@@ -695,7 +695,15 @@
                         : 'chat-bubble bot bg-white text-gray-800 border border-gray-200/80 shadow-sm text-sm leading-relaxed max-w-[85%]'));
 
             const isBotMessage = !isUser && senderType === 'bot' && messageId !== null;
-            bubble.innerHTML = `${message}${isBotMessage ? `
+            const handoffPrompt = options.triggerHandoffPrompt ? `
+                <div class="mt-3">
+                    <button type="button" class="btn btn-sm bg-violet-600 text-white border-0 hover:bg-violet-700 rounded-lg px-4 py-2 text-xs font-semibold normal-case transition-all" data-handoff-prompt>
+                        Connect with Human Staff
+                    </button>
+                </div>
+            ` : '';
+
+            bubble.innerHTML = `${message}${handoffPrompt}${isBotMessage ? `
                 <div class="mt-2 flex items-center gap-2 text-xs text-gray-400" data-feedback-actions>
                     <span>Was this helpful?</span>
                     <button type="button" class="btn-feedback hover:text-emerald-600 transition" data-message-id="${messageId}" data-rating="like" aria-label="Helpful">
@@ -711,6 +719,12 @@
             wrapper.appendChild(avatarWrapper);
             wrapper.appendChild(bubble);
             messageContainer.appendChild(wrapper);
+
+            const handoffButton = bubble.querySelector('[data-handoff-prompt]');
+            handoffButton?.addEventListener('click', () => {
+                promptField.value = 'I would like to speak with a human staff member.';
+                chatForm.dispatchEvent(new Event('submit', { cancelable: true }));
+            });
 
             scrollToBottom();
             return wrapper;
@@ -834,7 +848,13 @@
                     startMessagePolling(payload.session_id);
                     chatStatus.textContent = 'Your message was sent to staff.';
                 } else {
-                    appendBubble(payload.response ?? 'No response was returned.', false, 'bot', payload.message_id);
+                    appendBubble(
+                        payload.response ?? 'No response was returned.',
+                        false,
+                        'bot',
+                        payload.message_id,
+                        { triggerHandoffPrompt: payload.trigger_handoff_prompt === true },
+                    );
                     lastKnownSessionStatus = 'bot_active';
                     handleSessionStatusChange('bot_active');
                     chatStatus.textContent = 'Response generated.';
