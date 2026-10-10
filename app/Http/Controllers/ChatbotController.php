@@ -158,25 +158,34 @@ class ChatbotController extends Controller
             'prompt' => ['required', 'string', 'max:5000'],
             'user_identifier' => ['nullable', 'string', 'max:255'],
             'user_id' => ['nullable', 'string', 'max:255'],
+            'session_id' => ['nullable', 'integer'],
         ]);
 
         $promptText = trim($validated['prompt']);
         $userIdentifier = trim((string) ($validated['user_identifier'] ?? $validated['user_id'] ?? 'guest'));
 
-        if ($userIdentifier === '' || $userIdentifier === 'guest') {
-            $userIdentifier = 'guest_' . Str::uuid()->toString();
-        }
+        if ($validated['session_id'] ?? null) {
+            $session = ChatSession::query()
+                ->whereKey($validated['session_id'])
+                ->where('company_id', $businessUnit->company_id)
+                ->where('business_unit_id', $businessUnit->id)
+                ->firstOrFail();
+        } else {
+            if ($userIdentifier === '' || $userIdentifier === 'guest') {
+                $userIdentifier = 'guest_' . Str::uuid()->toString();
+            }
 
-        $session = ChatSession::firstOrCreate(
-            [
-                'company_id' => $businessUnit->company_id,
-                'business_unit_id' => $businessUnit->id,
-                'user_identifier' => $userIdentifier,
-            ],
-            [
-                'status' => 'bot_active',
-            ]
-        );
+            $session = ChatSession::firstOrCreate(
+                [
+                    'company_id' => $businessUnit->company_id,
+                    'business_unit_id' => $businessUnit->id,
+                    'user_identifier' => $userIdentifier,
+                ],
+                [
+                    'status' => 'bot_active',
+                ]
+            );
+        }
 
         $customerMessage = ChatMessage::create([
             'chat_session_id' => $session->id,
@@ -300,7 +309,9 @@ class ChatbotController extends Controller
             $conversationContext = '';
 
             foreach ($historyMessages as $historyMessage) {
-                $speaker = $historyMessage->sender_type === 'user' ? 'User' : 'Assistant';
+                $speaker = in_array($historyMessage->sender_type, ['user', 'customer'], true)
+                    ? 'User'
+                    : 'Assistant';
                 $safeText = str_replace(["\r", "\n"], ' ', trim((string) $historyMessage->message_text));
                 $conversationContext .= "{$speaker}: {$safeText}\n";
             }

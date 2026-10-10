@@ -188,8 +188,7 @@
         const contactInfoUrl = @json(route('chatbot.contact-info'));
         const cancelHandoffUrl = @json(route('chatbot.cancel-handoff'));
         const renderedIds = new Set();
-        const sessionStorageKey = 'session_id';
-        const scopedSessionStorageKey = 'session_id_{{ $businessUnit->id ?? 0 }}';
+        const sessionStorageKey = 'session_id_unit_{{ (int) ($businessUnit->id ?? 0) }}';
         const businessSlug = '{{ $slug ?? ($businessUnit->slug ?? "dariv") }}';
         const companyContactMap = {
             dariv: {
@@ -209,6 +208,8 @@
             },
         };
         let messagePollingInterval = null;
+        let activePollController = null;
+        let messageRequestGeneration = 0;
         let activeSessionId = null;
         let handoffTimeoutId = null;
         let handoffTimeoutNoticeShown = false;
@@ -227,7 +228,6 @@
 
             activeSessionId = String(sessionId);
             localStorage.setItem(sessionStorageKey, activeSessionId);
-            localStorage.setItem(scopedSessionStorageKey, activeSessionId);
         }
 
         function suppressWelcomeMessage() {
@@ -359,6 +359,9 @@
         }
 
         async function performCancelHandoff(sessionId) {
+            const requestedSessionId = String(sessionId);
+            stopMessagePolling();
+
             try {
                 const response = await fetch(cancelHandoffUrl, {
                     method: 'POST',
@@ -376,15 +379,16 @@
                     throw new Error(payload.message || 'Failed to cancel handoff');
                 }
 
-                // Remove the cancel button container
-                const cancelContainer = document.getElementById('cancel-handoff-container');
-                if (cancelContainer) {
-                    cancelContainer.remove();
+                if (String(activeSessionId) !== requestedSessionId) {
+                    return;
                 }
 
-                // Add system message indicating handoff was cancelled
+                // Rebuild from the server after cancellation instead of mixing old handoff
+                // DOM nodes with the post-cancellation session history.
+                messageContainer.innerHTML = '';
+                renderedIds.clear();
+                document.getElementById('cancel-handoff-container')?.remove();
                 removeConnectingNotice();
-                appendSystemBubble('Staff handoff request canceled. You are back in chat with the AI assistant.');
 
                 // Update header status to reflect AI state
                 const headerStatus = document.getElementById('header-status');
@@ -397,9 +401,20 @@
                 clearHandoffTimeout();
                 handoffTimeoutNoticeShown = false;
                 handoffRequestedAt = null;
-                stopMessagePolling();
 
                 chatStatus.textContent = 'Handoff cancelled. Ready to chat with AI.';
+
+                const historyGeneration = messageRequestGeneration;
+                const historyPayload = await fetchSessionMessages(requestedSessionId);
+                if (
+                    !historyPayload
+                    || historyGeneration !== messageRequestGeneration
+                    || String(activeSessionId) !== requestedSessionId
+                ) {
+                    throw new Error('Unable to reload chat history after cancellation.');
+                }
+
+                renderMessageHistory(historyPayload.messages ?? []);
             } catch (error) {
                 console.error('Cancel handoff error:', error);
                 chatStatus.textContent = 'Failed to cancel staff request. Please try again.';
@@ -525,10 +540,11 @@
             });
         }
 
-        async function fetchSessionMessages(sessionId) {
+        async function fetchSessionMessages(sessionId, signal = undefined) {
             try {
                 const response = await fetch(`/get-messages/${encodeURIComponent(sessionId)}`, {
                     headers: { 'Accept': 'application/json' },
+                    signal,
                 });
 
                 if (!response.ok) {
@@ -537,13 +553,17 @@
 
                 return await response.json();
             } catch (error) {
+                if (error.name === 'AbortError') {
+                    return null;
+                }
+
                 console.error('Session history fetch error:', error);
                 return null;
             }
         }
 
         async function hydrateSessionFromStorage() {
-            const storedSessionId = localStorage.getItem(sessionStorageKey) || localStorage.getItem(scopedSessionStorageKey);
+            const storedSessionId = localStorage.getItem(sessionStorageKey);
 
             if (!storedSessionId) {
                 return;
@@ -571,14 +591,26 @@
         }
 
         async function pollAgentMessages(sessionId) {
+            const requestGeneration = messageRequestGeneration;
+            const controller = new AbortController();
+            activePollController = controller;
+
             try {
                 const response = await fetch(`/get-messages/${encodeURIComponent(sessionId)}`, {
                     headers: { 'Accept': 'application/json' },
+                    signal: controller.signal,
                 });
 
                 if (!response.ok) return;
 
                 const payload = await response.json();
+                if (
+                    requestGeneration !== messageRequestGeneration
+                    || String(activeSessionId) !== String(sessionId)
+                ) {
+                    return;
+                }
+
                 const filteredMessages = payload.handed_off_at
                     ? (payload.messages ?? []).filter((message) => new Date(message.created_at || 0) >= new Date(payload.handed_off_at))
                     : (payload.messages ?? []);
@@ -601,15 +633,28 @@
                     chatStatus.textContent = 'Live staff reply received.';
                 }
             } catch (error) {
+                if (error.name === 'AbortError') {
+                    return;
+                }
+
                 console.error('Live message polling error:', error);
+            } finally {
+                if (activePollController === controller) {
+                    activePollController = null;
+                }
             }
         }
 
         function stopMessagePolling() {
-            if (!messagePollingInterval) return;
+            messageRequestGeneration += 1;
 
-            clearInterval(messagePollingInterval);
+            if (messagePollingInterval) {
+                clearInterval(messagePollingInterval);
+            }
             messagePollingInterval = null;
+
+            activePollController?.abort();
+            activePollController = null;
         }
 
         function startMessagePolling(sessionId) {
@@ -754,7 +799,8 @@
                     body: JSON.stringify({ 
                         prompt: prompt,
                         user_id: userId,
-                        user_identifier: userIdentifier
+                        user_identifier: userIdentifier,
+                        session_id: activeSessionId,
                     }),
                 });
 
