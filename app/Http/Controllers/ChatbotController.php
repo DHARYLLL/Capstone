@@ -266,6 +266,10 @@ class ChatbotController extends Controller
             $resolvedBusinessUnit = $routing['business_unit'];
             $lowConfidenceFlag = $routing['low_confidence'];
 
+            if ($lowConfidenceFlag) {
+                return $this->ambiguousChatResponse($session, $customerMessage, $promptText);
+            }
+
             $candidateRows = collect();
             $vectorRows = collect();
             $bestDistance = 1.0;
@@ -484,6 +488,34 @@ class ChatbotController extends Controller
             'contact_email' => $company?->contact_email,
             'contact_phone' => $company?->contact_phone,
             'contact_address' => $company?->contact_address,
+            'low_confidence_flag' => true,
+        ]);
+    }
+
+    private function ambiguousChatResponse(
+        ChatSession $session,
+        ChatMessage $customerMessage,
+        string $promptText,
+    ): JsonResponse {
+        $message = "I want to make sure I understand you correctly. "
+            . "Could you rephrase your question with a little more detail? "
+            . "You can also connect with a human staff member if you prefer.";
+
+        $session->update(['status' => 'bot_active']);
+
+        $botMessage = $session->chatMessages()->create([
+            'sender_type' => 'bot',
+            'message_text' => $message,
+        ]);
+
+        return response()->json([
+            'status' => 'bot_active',
+            'message' => $promptText,
+            'response' => Str::markdown($message),
+            'session_id' => $session->id,
+            'message_id' => $botMessage->id,
+            'customer_message_id' => $customerMessage->id,
+            'trigger_handoff_prompt' => true,
             'low_confidence_flag' => true,
         ]);
     }
@@ -818,53 +850,16 @@ class ChatbotController extends Controller
             return false;
         }
 
-        try {
-            $classificationPrompt = <<<'PROMPT'
-            Classify whether the customer wants to be transferred to a live human agent.
-            Return valid JSON only in this exact shape:
-            {"needs_human_agent": true|false}
-
-            Customer message:
-            PROMPT;
-
-            $classificationPrompt .= "\n\n" . $normalized;
-
-            $response = retry(
-                [200, 400, 800],
-                fn () => Gemini::generativeModel('gemini-3.6-flash')
-                    ->generateContent($classificationPrompt),
-                when: fn (Throwable $exception): bool => $this->shouldRetryGemini($exception),
-            );
-
-            $rawResponse = $this->extractGeminiText($response);
-            $json = $this->parseJsonObject($rawResponse);
-
-            if (is_array($json) && array_key_exists('needs_human_agent', $json)) {
-                return (bool) $json['needs_human_agent'];
-            }
-        } catch (\Throwable $e) {
-            logger()->warning('AI handoff intent check failed; using human-language fallback.', [
-                'error' => $e->getMessage(),
-                'message' => $normalized,
-            ]);
-        }
-
         $lowerMessage = mb_strtolower($normalized);
-        $transferIntent = preg_match(
-            '/\b(?:want|need|must|require|ask|speak|talk|chat|contact|connect|get|reach|help me with)\b/i',
-            $lowerMessage
-        );
-        $humanTarget = preg_match(
-            '/\b(?:human|agent|live|support|staff|representative|person|operator|someone|customer service)\b/i',
-            $lowerMessage
-        );
-
-        if ($transferIntent && $humanTarget) {
-            return true;
-        }
 
         return (bool) preg_match(
-            '/(?:speak|talk|chat|contact|connect|get|reach)\s+(?:to\s+)?(?:a\s+)?(?:human|agent|live|support|staff|representative|person|operator|someone|customer service)/i',
+            '/\b(?:talk|speak|chat|connect|be connected|transfer me|put me in touch|want|need|would like|request|ask for)\b.{0,40}\b(?:to\s+)?(?:a\s+)?(?:human|live agent|agent|staff member|representative|operator|person|customer service)\b/ui',
+            $lowerMessage
+        ) || (bool) preg_match(
+            '/\b(?:human|live agent|agent|staff member|representative|operator|customer service)\b.{0,40}\b(?:please\s+)?(?:help|connect|talk|speak|chat|contact|requested|request)\b/ui',
+            $lowerMessage
+        ) || (bool) preg_match(
+            '/\b(?:human agent|live agent|live representative)\b/ui',
             $lowerMessage
         );
     }
