@@ -300,8 +300,8 @@ private function batchEmbedChunks(array $chunks): array
                 },
             )
             ->withQueryParameters(['key' => $apiKey])
-            ->post('models/gemini-embedding-001:embedContent', [ // 👈 Updated model name
-                'model' => 'models/gemini-embedding-001',       // 👈 Updated model name
+            ->post('models/gemini-embedding-001:embedContent', [ 
+                'model' => 'models/gemini-embedding-001',       
                 'content' => [
                     'parts' => [
                         ['text' => $chunk],

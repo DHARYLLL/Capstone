@@ -166,16 +166,17 @@ class CsvIngestionService
                 },
             )
             ->withQueryParameters(['key' => (string) config('gemini.api_key')])
-            ->post('models/text-embedding-004:batchEmbedContents', [
+            ->post('models/gemini-embedding-001:batchEmbedContents', [
                 'requests' => array_map(
                     static fn (string $chunk): array => [
+                        'model' => 'models/gemini-embedding-001',
                         'content' => [
                             'parts' => [
                                 ['text' => $chunk],
                             ],
                         ],
-                        'task_type' => 'RETRIEVAL_DOCUMENT',
-                        'output_dimensionality' => 768,
+                        'taskType' => 'RETRIEVAL_DOCUMENT',
+                        'outputDimensionality' => 768,
                     ],
                     $chunks
                 ),
@@ -203,6 +204,15 @@ class CsvIngestionService
             $values = $embeddingRow['values'] ?? $embeddingRow['embedding']['values'] ?? null;
 
             if (! is_array($values) || $values === []) {
+                continue;
+            }
+
+            if (count($values) !== 768 || ! $this->containsOnlyNumericValues($values)) {
+                Log::warning('Gemini batch embedding returned an invalid vector for CSV ingestion.', [
+                    'embedding_index' => $index,
+                    'dimensions' => count($values),
+                ]);
+
                 continue;
             }
 
@@ -249,8 +259,25 @@ class CsvIngestionService
      */
     private function formatVectorLiteral(array $values): string
     {
-        $normalizedValues = array_map(static fn (float|int|string $value): string => (string) $value, $values);
+        $normalizedValues = array_map(
+            static fn (float|int|string $value): string => (string) (float) $value,
+            $values,
+        );
 
         return '['.implode(',', $normalizedValues).']';
+    }
+
+    /**
+     * @param  array<int, mixed>  $values
+     */
+    private function containsOnlyNumericValues(array $values): bool
+    {
+        foreach ($values as $value) {
+            if (! is_float($value) && ! is_int($value) && ! (is_string($value) && is_numeric($value))) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
