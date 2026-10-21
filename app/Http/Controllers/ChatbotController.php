@@ -325,10 +325,10 @@ class ChatbotController extends Controller
                 "Use BUSINESS FACTS as your primary source of truth.\n\n" .
                 "RULES:\n" .
                 "1. If user asks a greeting/small-talk, reply politely.\n" .
-                "2. For business-specific questions, answer from BUSINESS FACTS.\n" .
+                "2. For business-specific questions, answer directly from BUSINESS FACTS in 1–3 sentences.\n" .
                 "3. If facts are missing, clearly say you do not have enough information.\n" .
-                "4. Keep responses concise and customer-friendly.\n\n" .
-                "5. Mirror the user's language/dialect and format responses clearly with bullet points where appropriate.\n\n" .
+                "4. When answering questions or follow-ups, look strictly at the immediate question asked. Do not dump the entire pricing list, full metadata, or knowledge base unless explicitly asked for a full overview.\n" .
+                "5. Mirror the user's language/dialect and keep responses targeted, conversational, and customer-friendly.\n\n" .
                 "BUSINESS FACTS:\n{$knowledgeBase}";
 
             $fullPrompt =
