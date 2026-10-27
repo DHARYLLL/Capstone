@@ -23,6 +23,9 @@ RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/conf-ava
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
+# Apply application-specific PHP limits for uploads and PDF processing.
+COPY docker/php.ini /usr/local/etc/php/conf.d/99-capstone.ini
+
 # Copy application files
 COPY . /var/www/html
 
