@@ -49,6 +49,9 @@ class ProcessPdfIngestion implements ShouldQueue
      */
     public function handle(OrganizationQuotaService $quotaService): void
     {
+        set_time_limit(300);
+        ini_set('memory_limit', '512M');
+
         $stagedDocument = $this->stagedDocumentId
             ? StagedKnowledgeDocument::query()->find($this->stagedDocumentId)
             : null;
@@ -283,46 +286,65 @@ class ProcessPdfIngestion implements ShouldQueue
 // }
 private function batchEmbedChunks(array $chunks): array
 {
-    $baseUrl = $this->geminiBaseUrl(); // e.g. https://generativelanguage.googleapis.com/v1beta
+    $baseUrl = $this->geminiBaseUrl();
     $apiKey = (string) config('gemini.api_key');
+    $response = Http::baseUrl($baseUrl)
+        ->acceptJson()
+        ->timeout((int) config('gemini.request_timeout', 30))
+        ->retry(
+            [200, 400, 800],
+            when: static function ($exception): bool {
+                return $exception instanceof \Illuminate\Http\Client\ConnectionException
+                    || ($exception instanceof \Illuminate\Http\Client\RequestException
+                        && in_array($exception->response->status(), [429, 500, 503], true));
+            },
+        )
+        ->withQueryParameters(['key' => $apiKey])
+        ->post('models/gemini-embedding-001:batchEmbedContents', [
+            'requests' => array_map(
+                static fn (string $chunk): array => [
+                    'model' => 'models/gemini-embedding-001',
+                    'content' => [
+                        'parts' => [
+                            ['text' => $chunk],
+                        ],
+                    ],
+                    'taskType' => 'RETRIEVAL_DOCUMENT',
+                    'outputDimensionality' => 768,
+                ],
+                $chunks
+            ),
+        ]);
+
+    if (! $response->successful()) {
+        Log::error('Gemini Batch Embed Contents Failed', [
+            'business_unit_id' => $this->businessUnitId,
+            'stored_path' => $this->storedPath,
+            'status' => $response->status(),
+            'body' => $response->body(),
+        ]);
+
+        return [];
+    }
+
+    $embeddingRows = $response->json('embeddings');
+
+    if (! is_array($embeddingRows)) {
+        Log::error('Gemini Batch Embed Contents returned an invalid response.', [
+            'business_unit_id' => $this->businessUnitId,
+            'stored_path' => $this->storedPath,
+        ]);
+
+        return [];
+    }
+
     $vectors = [];
 
-    foreach ($chunks as $index => $chunk) {
-        $response = Http::baseUrl($baseUrl)
-            ->acceptJson()
-            ->timeout(15)
-            ->retry(
-                [200, 400, 800],
-                when: static function ($exception): bool {
-                    return $exception instanceof \Illuminate\Http\Client\ConnectionException
-                        || ($exception instanceof \Illuminate\Http\Client\RequestException
-                            && in_array($exception->response->status(), [429, 500, 503], true));
-                },
-            )
-            ->withQueryParameters(['key' => $apiKey])
-            ->post('models/gemini-embedding-001:embedContent', [ 
-                'model' => 'models/gemini-embedding-001',       
-                'content' => [
-                    'parts' => [
-                        ['text' => $chunk],
-                    ],
-                ],
-                'taskType' => 'RETRIEVAL_DOCUMENT',
-                'outputDimensionality' => 768,
-            ]);
+    foreach ($embeddingRows as $index => $embeddingRow) {
+        $values = $embeddingRow['values'] ?? $embeddingRow['embedding']['values'] ?? null;
 
-        if ($response->successful()) {
-            $values = $response->json('embedding.values');
-            if (is_array($values) && count($values) > 0) {
-                // Convert array [0.1, 0.2, ...] to PGvector string "[0.1,0.2,...]"
-                $vectors[$index] = '[' . implode(',', $values) . ']';
-            }
-        } else {
-            Log::error('Gemini Embed Content Failed', [
-                'status' => $response->status(),
-                'body' => $response->body(),
-                'chunk_index' => $index,
-            ]);
+        if (is_array($values) && $values !== []) {
+            $vectors[$index] = $this->formatVectorLiteral($values);
         }
     }
 
