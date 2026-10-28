@@ -6,14 +6,14 @@
 
 @section('content')
     @php
-        $tenantName = 'DARIV Waterproofing';
-        $tenantType = 'Residential & Commercial';
+        $tenantName = $tenantName ?? 'DARIV';
+        $tenantType = $tenantType ?? 'Customer Support & AI Operations';
         
         $answeredNum = (int) str_replace(',', '', $kpis[0]['value'] ?? '0');
         $unansweredNum = (int) str_replace(',', '', $kpis[1]['value'] ?? '0');
         $humanRoutedNum = (int) str_replace(',', '', $kpis[2]['value'] ?? '0');
         $totalQueries = $answeredNum + $unansweredNum + $humanRoutedNum;
-        $aiRate = $totalQueries > 0 ? round(($answeredNum / $totalQueries) * 100, 1) : 100;
+        $aiRate = $totalQueries > 0 ? round(($answeredNum / $totalQueries) * 100, 1) : 0;
         $humanRate = $totalQueries > 0 ? round(($humanRoutedNum / $totalQueries) * 100, 1) : 0;
         $unansweredRate = $totalQueries > 0 ? max(0, 100 - $aiRate - $humanRate) : 0;
 
@@ -198,7 +198,7 @@
                             <p class="text-xs text-slate-400 mt-0.5">Automated AI vs human operator routing</p>
                         </div>
                         <span class="inline-flex items-center gap-1 rounded-xl bg-violet-50 px-2.5 py-1 text-xs font-bold text-violet-700">
-                            {{ $aiRate }}% AI Automated
+                            {{ $totalQueries > 0 ? $aiRate . '% AI Automated' : '0 Queries Recorded' }}
                         </span>
                     </div>
 
@@ -303,24 +303,28 @@
                 <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs">
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-bold uppercase tracking-wider text-slate-400">System Status</span>
-                        <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600">
-                            <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
-                            All Systems Optimal
+                        <span class="inline-flex items-center gap-1.5 text-xs font-semibold {{ ($systemHealth['ai_engine_ok'] ?? true) ? 'text-emerald-600' : 'text-amber-600' }}">
+                            <span class="h-2 w-2 rounded-full {{ ($systemHealth['ai_engine_ok'] ?? true) ? 'bg-emerald-500' : 'bg-amber-500' }}"></span>
+                            {{ ($systemHealth['ai_engine_ok'] ?? true) ? 'All Systems Optimal' : 'Attention Needed' }}
                         </span>
                     </div>
 
                     <div class="mt-4 space-y-2.5 text-xs">
                         <div class="flex items-center justify-between py-1 border-b border-slate-100">
                             <span class="text-slate-500">AI Assistant Engine</span>
-                            <span class="font-semibold text-slate-800">Online · RAG Active</span>
+                            <span class="font-semibold text-slate-800">{{ $systemHealth['ai_engine'] ?? 'Online · RAG Active' }}</span>
                         </div>
                         <div class="flex items-center justify-between py-1 border-b border-slate-100">
                             <span class="text-slate-500">Knowledge Ingestion</span>
-                            <span class="font-semibold text-slate-800">Synchronized</span>
+                            <span class="font-semibold {{ $systemHealth['ingestion_badge'] ?? 'text-slate-800' }}">{{ $systemHealth['ingestion'] ?? 'Synchronized' }}</span>
+                        </div>
+                        <div class="flex items-center justify-between py-1 border-b border-slate-100">
+                            <span class="text-slate-500">Avg Response Time</span>
+                            <span class="font-semibold text-emerald-600">{{ $systemHealth['avg_response'] ?? '< 1.5s' }}</span>
                         </div>
                         <div class="flex items-center justify-between py-1">
-                            <span class="text-slate-500">Avg Response Time</span>
-                            <span class="font-semibold text-emerald-600">&lt; 1.2s</span>
+                            <span class="text-slate-500">Active Staff Online</span>
+                            <span class="font-semibold text-slate-800">{{ $systemHealth['online_staff'] ?? 0 }} Staff Active</span>
                         </div>
                     </div>
                 </div>
