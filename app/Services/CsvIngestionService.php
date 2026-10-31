@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Models\BusinessUnit;
 use InvalidArgumentException;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\LazyCollection;
@@ -16,6 +15,11 @@ class CsvIngestionService
     private const EMBEDDING_BATCH_SIZE = 75;
 
     private const MINIMUM_ROW_LENGTH = 1;
+
+    public function __construct(
+        private readonly GeminiEmbeddingService $embeddingService,
+    ) {
+    }
 
     /**
      * Parse a CSV file, format each row for embeddings, and prepare Supabase-ready payloads.
@@ -154,77 +158,9 @@ class CsvIngestionService
      */
     private function batchEmbedChunks(array $chunks): array
     {
-        $response = Http::baseUrl($this->geminiBaseUrl())
-            ->acceptJson()
-            ->timeout((int) config('gemini.request_timeout', 30))
-            ->retry(
-                [200, 400, 800],
-                when: static function ($exception): bool {
-                    return $exception instanceof \Illuminate\Http\Client\ConnectionException
-                        || ($exception instanceof \Illuminate\Http\Client\RequestException
-                            && in_array($exception->response->status(), [429, 500, 503], true));
-                },
-            )
-            ->withQueryParameters(['key' => (string) config('gemini.api_key')])
-            ->post('models/gemini-embedding-001:batchEmbedContents', [
-                'requests' => array_map(
-                    static fn (string $chunk): array => [
-                        'model' => 'models/gemini-embedding-001',
-                        'content' => [
-                            'parts' => [
-                                ['text' => $chunk],
-                            ],
-                        ],
-                        'taskType' => 'RETRIEVAL_DOCUMENT',
-                        'outputDimensionality' => 768,
-                    ],
-                    $chunks
-                ),
-            ]);
-
-        if (! $response->successful()) {
-            Log::warning('Gemini batch embedding request failed for CSV ingestion.', [
-                'status' => $response->status(),
-                'body' => $response->body(),
-            ]);
-
-            return [];
-        }
-
-        $payload = $response->json();
-        $embeddingRows = $payload['embeddings'] ?? [];
-
-        if (! is_array($embeddingRows) || $embeddingRows === []) {
-            return [];
-        }
-
-        $vectors = [];
-
-        foreach ($embeddingRows as $index => $embeddingRow) {
-            $values = $embeddingRow['values'] ?? $embeddingRow['embedding']['values'] ?? null;
-
-            if (! is_array($values) || $values === []) {
-                continue;
-            }
-
-            if (count($values) !== 768 || ! $this->containsOnlyNumericValues($values)) {
-                Log::warning('Gemini batch embedding returned an invalid vector for CSV ingestion.', [
-                    'embedding_index' => $index,
-                    'dimensions' => count($values),
-                ]);
-
-                continue;
-            }
-
-            $vectors[$index] = $this->formatVectorLiteral($values);
-        }
-
-        return $vectors;
-    }
-
-    private function geminiBaseUrl(): string
-    {
-        return rtrim((string) (config('gemini.base_url') ?: 'https://generativelanguage.googleapis.com/v1beta'), '/');
+        return $this->embeddingService->embedDocuments($chunks, [
+            'source' => 'csv',
+        ]);
     }
 
     private function findHeaderKey(array $record, string $expectedHeader): ?string
@@ -254,30 +190,4 @@ class CsvIngestionService
         return trim((string) preg_replace('/\s+/u', ' ', (string) $value));
     }
 
-    /**
-     * @param  array<int, float|int|string>  $values
-     */
-    private function formatVectorLiteral(array $values): string
-    {
-        $normalizedValues = array_map(
-            static fn (float|int|string $value): string => (string) (float) $value,
-            $values,
-        );
-
-        return '['.implode(',', $normalizedValues).']';
-    }
-
-    /**
-     * @param  array<int, mixed>  $values
-     */
-    private function containsOnlyNumericValues(array $values): bool
-    {
-        foreach ($values as $value) {
-            if (! is_float($value) && ! is_int($value) && ! (is_string($value) && is_numeric($value))) {
-                return false;
-            }
-        }
-
-        return true;
-    }
 }

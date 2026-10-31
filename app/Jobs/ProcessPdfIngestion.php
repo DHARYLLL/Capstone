@@ -2,29 +2,38 @@
 
 namespace App\Jobs;
 
+use App\Exceptions\NonRetryableIngestionException;
 use App\Models\BusinessKnowledge;
 use App\Models\BusinessUnit;
 use App\Models\ActivityLog;
 use App\Models\StagedKnowledgeDocument;
 use App\Services\TextChunker;
+use App\Services\GeminiEmbeddingService;
 use App\Services\OrganizationQuotaService;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Bus\Queueable;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 use Smalot\PdfParser\Parser;
 
 class ProcessPdfIngestion implements ShouldQueue
 {
     use Dispatchable;
     use Queueable;
+    use InteractsWithQueue;
 
     public int $timeout = 300;
 
     public int $tries = 3;
+
+    public function backoff(): array
+    {
+        return [10, 30, 60];
+    }
 
     /**
      * Create a new job instance.
@@ -40,6 +49,7 @@ class ProcessPdfIngestion implements ShouldQueue
         public ?string $fileName = null,
         public string $division = 'DARIV',
         public ?int $userId = null,
+        public bool $preserveForensics = false,
     ) {
         $this->onQueue('imports');
     }
@@ -47,7 +57,10 @@ class ProcessPdfIngestion implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(OrganizationQuotaService $quotaService): void
+    public function handle(
+        OrganizationQuotaService $quotaService,
+        GeminiEmbeddingService $embeddingService,
+    ): void
     {
         set_time_limit(300);
         ini_set('memory_limit', '512M');
@@ -62,307 +75,141 @@ class ProcessPdfIngestion implements ShouldQueue
                 'business_unit_id' => $this->businessUnitId,
                 'stored_path' => $this->storedPath,
             ]);
-            $stagedDocument?->update(['status' => 'failed']);
-            $this->recordFailure();
+            $this->markFailed('Business unit no longer exists.');
 
             return;
         }
 
-        $quotaService->assertCanAcceptUpload(
-            (int) $businessUnit->company_id,
-            $stagedDocument ? 0 : (int) Storage::disk($this->storageDisk)->size($this->storedPath),
-        );
+        try {
+            $quotaService->assertCanAcceptUpload(
+                (int) $businessUnit->company_id,
+                $stagedDocument ? 0 : (int) Storage::disk($this->storageDisk)->size($this->storedPath),
+            );
 
-        $extractedText = $this->editedContent;
+            $extractedText = $this->editedContent;
 
-        if ($extractedText === null || trim($extractedText) === '') {
-            if (str_contains((string) $this->mimeType, 'csv')) {
-                $extractedText = Storage::disk($this->storageDisk)->get($this->storedPath);
-            } else {
-                $pdfPath = Storage::disk($this->storageDisk)->path($this->storedPath);
-                $parser = new Parser;
-                $pdf = $parser->parseFile($pdfPath);
-                $extractedText = (string) $pdf->getText();
+            if ($extractedText === null || trim($extractedText) === '') {
+                if (str_contains((string) $this->mimeType, 'csv')) {
+                    $extractedText = Storage::disk($this->storageDisk)->get($this->storedPath);
+                } else {
+                    $pdfPath = Storage::disk($this->storageDisk)->path($this->storedPath);
+                    $parser = new Parser;
+                    $pdf = $parser->parseFile($pdfPath);
+                    $extractedText = (string) $pdf->getText();
+                }
             }
-        }
 
-        $extractedText = TextChunker::cleanExtractedText((string) $extractedText);
+            $extractedText = TextChunker::cleanExtractedText((string) $extractedText);
 
-        if ($extractedText === '') {
-            Log::warning('PDF ingestion produced no readable text after cleaning.', [
-                'business_unit_id' => $businessUnit->id,
-                'stored_path' => $this->storedPath,
-            ]);
-            $stagedDocument?->update(['status' => 'failed']);
-            $this->recordFailure();
+            if ($extractedText === '') {
+                $this->markFailed('No readable text remained after extraction and cleaning.');
 
-            return;
-        }
+                return;
+            }
 
-        $chunks = TextChunker::chunk($extractedText);
-        $chunks = array_values(array_filter($chunks, static fn (string $chunk): bool => mb_strlen(trim($chunk)) >= 50));
+            $chunks = TextChunker::chunk($extractedText);
+            $chunks = array_values(array_filter($chunks, static fn (string $chunk): bool => mb_strlen(trim($chunk)) >= 50));
 
-        if ($chunks === []) {
-            Log::warning('PDF ingestion produced no chunks large enough for embedding.', [
-                'business_unit_id' => $businessUnit->id,
-                'stored_path' => $this->storedPath,
-            ]);
-            $stagedDocument?->update(['status' => 'failed']);
-            $this->recordFailure();
+            if ($chunks === []) {
+                $this->markFailed('No chunks met the minimum embedding length.');
 
-            return;
-        }
+                return;
+            }
 
-        $quotaService->assertCanInsertChunks(
-            (int) $businessUnit->company_id,
-            count($chunks),
-            $businessUnit->id,
-            $this->ingestionMode === 'overwrite',
-        );
+            $quotaService->assertCanInsertChunks(
+                (int) $businessUnit->company_id,
+                count($chunks),
+                $businessUnit->id,
+                $this->ingestionMode === 'overwrite',
+            );
 
-        $rows = [];
+            $rows = [];
 
-        foreach (array_chunk($chunks, 75) as $chunkBatch) {
-            $embeddings = $this->batchEmbedChunks($chunkBatch);
+            foreach (array_chunk($chunks, 75) as $chunkBatch) {
+                $embeddings = $this->batchEmbedChunks($chunkBatch, $embeddingService);
 
-            foreach ($chunkBatch as $index => $chunk) {
-                $embedding = $embeddings[$index] ?? null;
+                foreach ($chunkBatch as $index => $chunk) {
+                    $embedding = $embeddings[$index] ?? null;
 
-                if ($embedding === null) {
-                    continue;
+                    if ($embedding === null) {
+                        throw new NonRetryableIngestionException(
+                            "Gemini returned no embedding for chunk {$index}.",
+                        );
+                    }
+
+                    $rows[] = [
+                        'company_id' => $businessUnit->company_id,
+                        'business_unit_id' => $businessUnit->id,
+                        'content' => $chunk,
+                        'embedding' => $embedding,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                }
+            }
+
+            if ($rows === []) {
+                throw new NonRetryableIngestionException('No embeddings were generated.');
+            }
+
+            // Replace only when explicitly requested; append preserves existing knowledge.
+            DB::transaction(function () use ($businessUnit, $rows): void {
+                if ($this->ingestionMode === 'overwrite') {
+                    BusinessKnowledge::query()
+                        ->where('company_id', $businessUnit->company_id)
+                        ->where('business_unit_id', $businessUnit->id)
+                        ->delete();
                 }
 
-                $rows[] = [
-                    'company_id' => $businessUnit->company_id,
-                    'business_unit_id' => $businessUnit->id,
-                    'content' => $chunk,
-                    'embedding' => $embedding,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ];
-            }
+                BusinessKnowledge::query()->insert($rows);
+            });
+
+            Storage::disk($this->storageDisk)->delete($this->storedPath);
+            $stagedDocument?->update(['status' => 'indexed']);
+            ActivityLog::record($this->userId, 'Indexed', 'Done', $this->fileName, $this->division);
+        } catch (NonRetryableIngestionException|ValidationException $exception) {
+            $this->markFailed($exception->getMessage(), $exception);
         }
-
-        if ($rows === []) {
-            Log::warning('PDF ingestion completed but no embeddings were generated.', [
-                'business_unit_id' => $businessUnit->id,
-                'stored_path' => $this->storedPath,
-            ]);
-            $stagedDocument?->update(['status' => 'failed']);
-            $this->recordFailure();
-
-            return;
-        }
-
-        // Replace only when explicitly requested; append preserves existing knowledge.
-        DB::transaction(function () use ($businessUnit, $rows): void {
-            if ($this->ingestionMode === 'overwrite') {
-                BusinessKnowledge::query()
-                    ->where('company_id', $businessUnit->company_id)
-                    ->where('business_unit_id', $businessUnit->id)
-                    ->delete();
-            }
-
-            BusinessKnowledge::query()->insert($rows);
-        });
-
-        Storage::disk($this->storageDisk)->delete($this->storedPath);
-        $stagedDocument?->update(['status' => 'indexed']);
-        ActivityLog::record($this->userId, 'Indexed', 'Done', $this->fileName, $this->division);
     }
 
     public function failed(\Throwable $exception): void
     {
+        $this->markFailed('Queue retries exhausted.', $exception);
+    }
+
+    private function markFailed(string $reason, ?\Throwable $exception = null): void
+    {
         StagedKnowledgeDocument::query()
             ->whereKey($this->stagedDocumentId)
             ->update(['status' => 'failed']);
-        $this->recordFailure();
-    }
 
-    private function recordFailure(): void
-    {
+        if (! $this->preserveForensics) {
+            Storage::disk($this->storageDisk)->delete($this->storedPath);
+        }
+
+        Log::error('PDF ingestion failed.', [
+            'reason' => $reason,
+            'exception' => $exception?->getMessage(),
+            'trace' => $exception?->getTraceAsString(),
+            'business_unit_id' => $this->businessUnitId,
+            'staged_document_id' => $this->stagedDocumentId,
+            'stored_path' => $this->storedPath,
+            'file_name' => $this->fileName,
+            'attempts' => method_exists($this, 'attempts') ? $this->attempts() : null,
+        ]);
         ActivityLog::record($this->userId, 'Upload failed', 'Failed', $this->fileName, $this->division);
     }
 
     /**
-     * Batch Gemini embeddings so we make far fewer API calls for large PDFs.
-     *
      * @param  array<int, string>  $chunks
      * @return array<int, string>
      */
-    // private function batchEmbedChunks(array $chunks): array
-    // {
-    //     $response = Http::baseUrl($this->geminiBaseUrl())
-    //         ->acceptJson()
-    //         ->timeout((int) config('gemini.request_timeout', 30))
-    //         ->retry(2, 1000)
-    //         ->withQueryParameters(['key' => (string) config('gemini.api_key')])
-    //         ->post('models/text-embedding-004:batchEmbedContents', [
-    //             'requests' => array_map(
-    //                 static fn (string $chunk): array => [
-    //                     'content' => [
-    //                         'parts' => [
-    //                             ['text' => $chunk],
-    //                         ],
-    //                     ],
-    //                     'task_type' => 'RETRIEVAL_DOCUMENT',
-    //                     'output_dimensionality' => 768,
-    //                 ],
-    //                 $chunks
-    //             ),
-    //         ]);
-
-    //     if (! $response->successful()) {
-    //         Log::warning('Gemini batch embedding request failed.', [
-    //             'business_unit_id' => $this->businessUnitId,
-    //             'stored_path' => $this->storedPath,
-    //             'status' => $response->status(),
-    //             'body' => $response->body(),
-    //         ]);
-
-    //         return [];
-    //     }
-
-    //     $payload = $response->json();
-    //     $embeddingRows = $payload['embeddings'] ?? [];
-
-    //     if (! is_array($embeddingRows) || $embeddingRows === []) {
-    //         return [];
-    //     }
-
-    //     $vectors = [];
-
-    //     foreach ($embeddingRows as $index => $embeddingRow) {
-    //         $values = $embeddingRow['values'] ?? $embeddingRow['embedding']['values'] ?? null;
-
-    //         if (! is_array($values) || $values === []) {
-    //             continue;
-    //         }
-
-    //         $vectors[$index] = $this->formatVectorLiteral($values);
-    //     }
-
-    //     return $vectors;
-    // }
-
-// private function batchEmbedChunks(array $chunks): array
-// {
-//     $baseUrl = $this->geminiBaseUrl(); // e.g. https://generativelanguage.googleapis.com/v1beta
-//     $apiKey = (string) config('gemini.api_key');
-//     $vectors = [];
-
-//     foreach ($chunks as $index => $chunk) {
-//         $response = Http::baseUrl($baseUrl)
-//             ->acceptJson()
-//             ->timeout(15)
-//             ->withQueryParameters(['key' => $apiKey])
-//             ->post('models/text-embedding-004:embedContent', [
-//                 'model' => 'models/text-embedding-004',
-//                 'content' => [
-//                     'parts' => [
-//                         ['text' => $chunk],
-//                     ],
-//                 ],
-//                 'taskType' => 'RETRIEVAL_DOCUMENT',
-//                 'outputDimensionality' => 768,
-//             ]);
-
-//         if ($response->successful()) {
-//             $values = $response->json('embedding.values');
-//             if (is_array($values) && count($values) > 0) {
-//                 // Convert array [0.1, 0.2, ...] to PGvector array string "[0.1,0.2,...]"
-//                 $vectors[$index] = '[' . implode(',', $values) . ']';
-//             }
-//         } else {
-//             Log::error('Gemini Embed Content Failed', [
-//                 'status' => $response->status(),
-//                 'body' => $response->body(),
-//                 'chunk_index' => $index,
-//             ]);
-//         }
-//     }
-
-//     return $vectors;
-// }
-private function batchEmbedChunks(array $chunks): array
-{
-    $baseUrl = $this->geminiBaseUrl();
-    $apiKey = (string) config('gemini.api_key');
-    $response = Http::baseUrl($baseUrl)
-        ->acceptJson()
-        ->timeout((int) config('gemini.request_timeout', 30))
-        ->retry(
-            [200, 400, 800],
-            when: static function ($exception): bool {
-                return $exception instanceof \Illuminate\Http\Client\ConnectionException
-                    || ($exception instanceof \Illuminate\Http\Client\RequestException
-                        && in_array($exception->response->status(), [429, 500, 503], true));
-            },
-        )
-        ->withQueryParameters(['key' => $apiKey])
-        ->post('models/gemini-embedding-001:batchEmbedContents', [
-            'requests' => array_map(
-                static fn (string $chunk): array => [
-                    'model' => 'models/gemini-embedding-001',
-                    'content' => [
-                        'parts' => [
-                            ['text' => $chunk],
-                        ],
-                    ],
-                    'taskType' => 'RETRIEVAL_DOCUMENT',
-                    'outputDimensionality' => 768,
-                ],
-                $chunks
-            ),
-        ]);
-
-    if (! $response->successful()) {
-        Log::error('Gemini Batch Embed Contents Failed', [
+    private function batchEmbedChunks(array $chunks, GeminiEmbeddingService $embeddingService): array
+    {
+        return $embeddingService->embedDocuments($chunks, [
             'business_unit_id' => $this->businessUnitId,
             'stored_path' => $this->storedPath,
-            'status' => $response->status(),
-            'body' => $response->body(),
+            'source' => 'pdf',
         ]);
-
-        return [];
-    }
-
-    $embeddingRows = $response->json('embeddings');
-
-    if (! is_array($embeddingRows)) {
-        Log::error('Gemini Batch Embed Contents returned an invalid response.', [
-            'business_unit_id' => $this->businessUnitId,
-            'stored_path' => $this->storedPath,
-        ]);
-
-        return [];
-    }
-
-    $vectors = [];
-
-    foreach ($embeddingRows as $index => $embeddingRow) {
-        $values = $embeddingRow['values'] ?? $embeddingRow['embedding']['values'] ?? null;
-
-        if (is_array($values) && $values !== []) {
-            $vectors[$index] = $this->formatVectorLiteral($values);
-        }
-    }
-
-    return $vectors;
-}
-
-    private function geminiBaseUrl(): string
-    {
-        return rtrim((string) (config('gemini.base_url') ?: 'https://generativelanguage.googleapis.com/v1beta'), '/');
-    }
-
-    /**
-     * @param  array<int, float|int|string>  $values
-     */
-    private function formatVectorLiteral(array $values): string
-    {
-        $normalizedValues = array_map(static fn (float|int|string $value): string => (string) $value, $values);
-
-        return '['.implode(',', $normalizedValues).']';
     }
 }
