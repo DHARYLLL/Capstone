@@ -239,7 +239,8 @@
             reply: @json(route('admin.chat.reply', ['session' => '__SESSION__'])),
             resolve: @json(route('admin.chat.resolve', ['session' => '__SESSION__']))
         };
-        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}';
+        const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+        const csrfToken = csrfMeta?.getAttribute('content') || '{{ csrf_token() }}';
         let activeId = null;
         let activeSession = null;
         let allSessions = [];
@@ -251,11 +252,31 @@
         async function requestJson(url, options = {}) {
             const response = await fetch(url, {
                 ...options,
-                headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken, ...(options.headers || {}) }
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    ...(options.headers || {})
+                }
             });
             if (!response.ok) {
-                const payload = await response.json().catch(() => ({}));
-                throw new Error(payload.message || 'Chat request failed.');
+                const responseText = await response.text();
+                let payload = {};
+
+                try {
+                    payload = responseText ? JSON.parse(responseText) : {};
+                } catch {
+                    payload = { raw_response: responseText };
+                }
+
+                console.error('Chat request failed', {
+                    url,
+                    status: response.status,
+                    statusText: response.statusText,
+                    response: payload
+                });
+
+                throw new Error(payload.message || `Chat request failed (${response.status}).`);
             }
             return response.json();
         }
@@ -486,7 +507,10 @@
         async function claimActiveChat() {
             if (!activeId) return;
             try {
-                await requestJson(sessionUrl(chatRoutes.claim, activeId), { method: 'POST' });
+                await requestJson(sessionUrl(chatRoutes.claim, activeId), {
+                    method: 'POST',
+                    body: JSON.stringify({ session_id: activeId })
+                });
                 await selectChat(activeId);
             } catch (error) {
                 console.error('Claim session failed:', error);

@@ -38,7 +38,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $isJsonEndpoint = static fn (Request $request): bool => $request->is('chat/*/ask')
             || $request->is('chat/feedback')
             || $request->is('get-messages/*')
-            || $request->is('api/chatbot/*');
+            || $request->is('api/chatbot/*')
+            || $request->is('admin/chat/*')
+            || $request->is('staff/chats/*');
 
         $exceptions->shouldRenderJsonWhen($isJsonEndpoint);
         $exceptions->render(function (\Throwable $exception, Request $request) use ($isJsonEndpoint) {

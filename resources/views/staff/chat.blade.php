@@ -446,11 +446,26 @@
         async function claimActiveChat() {
             if (!activeSessionId) return;
             try {
-                await axios.post(chatEndpoints.claim(activeSessionId));
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                await axios.post(
+                    chatEndpoints.claim(activeSessionId),
+                    { session_id: activeSessionId },
+                    {
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        }
+                    }
+                );
                 await loadSessions();
                 await selectChat(activeSessionId);
             } catch (error) {
                 const message = error.response?.data?.message || 'Unable to claim this conversation.';
+                console.error('Claim conversation failed', {
+                    status: error.response?.status,
+                    response: error.response?.data || error.message
+                });
                 console.error('Claim conversation failed:', error);
                 alert(message);
             }

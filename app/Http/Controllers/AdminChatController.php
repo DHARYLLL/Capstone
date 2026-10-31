@@ -9,7 +9,9 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
+use Throwable;
 
 class AdminChatController extends Controller
 {
@@ -60,32 +62,50 @@ class AdminChatController extends Controller
 
     public function claim(ChatSession $session): JsonResponse
     {
-        abort_unless($session->company_id === Auth::user()->company_id, 404);
+        $user = Auth::user();
 
-        [$claimedSession, $wasAssigned] = DB::transaction(function () use ($session): array {
-            $lockedSession = ChatSession::query()->lockForUpdate()->findOrFail($session->id);
-            abort_unless($this->isActiveSession($lockedSession), 422, 'This chat is no longer active.');
-            $wasAssigned = filled($lockedSession->assigned_user_id);
+        try {
+            abort_unless($this->canAccessSession($session, $user), 404);
 
-            $lockedSession->update([
-                'status' => 'human_active',
-                'assigned_user_id' => Auth::id(),
-                'handed_off_at' => $lockedSession->handed_off_at ?? now(),
+            [$claimedSession, $wasAssigned] = DB::transaction(function () use ($session, $user): array {
+                $lockedSession = ChatSession::query()->lockForUpdate()->findOrFail($session->id);
+                abort_unless($this->canAccessSession($lockedSession, $user), 404);
+                abort_unless($this->isActiveSession($lockedSession), 422, 'This chat is no longer active.');
+                $wasAssigned = filled($lockedSession->assigned_user_id);
+
+                $lockedSession->update([
+                    'status' => 'human_active',
+                    'assigned_user_id' => $user->id,
+                    'handed_off_at' => $lockedSession->handed_off_at ?? now(),
+                ]);
+
+                return [$lockedSession->fresh(['lastMessage']), $wasAssigned];
+            });
+
+            ActivityLog::record(
+                $user->id,
+                $wasAssigned ? 'Admin took over chat from Operator' : 'Human handoff accepted',
+                'Done',
+                null,
+                'DARIV',
+                'auth',
+            );
+
+            return response()->json(['success' => true, 'data' => $this->sessionPayload($claimedSession)]);
+        } catch (Throwable $exception) {
+            Log::error('Chat claim failed', [
+                'error' => $exception->getMessage(),
+                'trace' => $exception->getTraceAsString(),
+                'session_id' => $session->id,
+                'user_id' => $user?->id,
+                'user_role' => $user?->role,
+                'user_company_id' => $user?->company_id,
+                'session_company_id' => $session->company_id,
+                'session_business_unit_id' => $session->business_unit_id,
             ]);
 
-            return [$lockedSession->fresh(['lastMessage']), $wasAssigned];
-        });
-
-        ActivityLog::record(
-            Auth::id(),
-            $wasAssigned ? 'Admin took over chat from Operator' : 'Human handoff accepted',
-            'Done',
-            null,
-            'DARIV',
-            'auth',
-        );
-
-        return response()->json(['success' => true, 'data' => $this->sessionPayload($claimedSession)]);
+            throw $exception;
+        }
     }
 
     public function reply(Request $request, ChatSession $session): JsonResponse
@@ -148,6 +168,30 @@ class AdminChatController extends Controller
         return in_array($session->status, [
             'waiting', 'pending', 'queued', 'handed_off', 'active', 'in_progress',
         ], true);
+    }
+
+    private function canAccessSession(ChatSession $session, ?\App\Models\User $user): bool
+    {
+        $companyMatches = $user?->company_id !== null
+            && $session->company_id !== null
+            && (int) $session->company_id === (int) $user->company_id;
+
+        $businessUnitMatches = $user?->business_unit_id === null
+            || ($session->business_unit_id !== null
+                && (int) $session->business_unit_id === (int) $user->business_unit_id);
+
+        if (! $companyMatches || ! $businessUnitMatches) {
+            Log::warning('Chat claim tenant mismatch', [
+                'session_id' => $session->id,
+                'session_company_id' => $session->company_id,
+                'session_business_unit_id' => $session->business_unit_id,
+                'user_id' => $user?->id,
+                'user_company_id' => $user?->company_id,
+                'user_business_unit_id' => $user?->business_unit_id,
+            ]);
+        }
+
+        return $companyMatches && $businessUnitMatches;
     }
 
     private function pendingSessionsQuery()
