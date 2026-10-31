@@ -8,7 +8,7 @@ use App\Models\BusinessUnit;
 use App\Models\ActivityLog;
 use App\Models\StagedKnowledgeDocument;
 use App\Services\TextChunker;
-use App\Services\GeminiEmbeddingService;
+use App\Services\EmbeddingService;
 use App\Services\OrganizationQuotaService;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Bus\Queueable;
@@ -66,7 +66,7 @@ class ProcessPdfIngestion implements ShouldQueue
      */
     public function handle(
         OrganizationQuotaService $quotaService,
-        GeminiEmbeddingService $embeddingService,
+        EmbeddingService $embeddingService,
     ): void
     {
         set_time_limit(300);
@@ -267,7 +267,7 @@ class ProcessPdfIngestion implements ShouldQueue
         array $chunks,
         BusinessUnit $businessUnit,
         OrganizationQuotaService $quotaService,
-        GeminiEmbeddingService $embeddingService,
+        EmbeddingService $embeddingService,
         bool $isFirstBatch,
     ): int {
         $quotaService->assertCanInsertChunks(
@@ -309,7 +309,7 @@ class ProcessPdfIngestion implements ShouldQueue
      * @param  array<int, string>  $chunks
      * @return array<int, string>
      */
-    private function batchEmbedChunks(array $chunks, GeminiEmbeddingService $embeddingService): array
+    private function batchEmbedChunks(array $chunks, EmbeddingService $embeddingService): array
     {
         return $embeddingService->embedDocuments($chunks, [
             'business_unit_id' => $this->businessUnitId,

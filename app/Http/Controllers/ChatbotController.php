@@ -7,6 +7,7 @@ use App\Models\BusinessKnowledge;
 use App\Models\ChatMessage;
 use App\Models\ChatSession;
 use App\Models\ActivityLog;
+use App\Services\EmbeddingService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Client\ConnectionException;
@@ -21,6 +22,9 @@ use Throwable;
 
 class ChatbotController extends Controller
 {
+    public function __construct(private readonly EmbeddingService $embeddingService)
+    {
+    }
     // public function chat(BusinessUnit $businessUnit): View
     // {
     //     // Hardcode business unit ID = 1 for testing
@@ -275,12 +279,17 @@ class ChatbotController extends Controller
             $bestDistance = 1.0;
 
             if (! empty($queryEmbedding)) {
+                $distanceThreshold = (float) config('rag.retrieval_distance_threshold', 0.40);
                 $vectorRows = $resolvedBusinessUnit->businessKnowledge()
                     ->select(['content', 'embedding'])
                     ->selectRaw('embedding::extensions.vector <=> ?::extensions.vector AS distance', [$queryEmbedding])
                     ->where('company_id', $resolvedBusinessUnit->company_id)
                     ->where('business_unit_id', $resolvedBusinessUnit->id)
                     ->whereNotNull('embedding')
+                    ->whereRaw(
+                        'embedding::extensions.vector <=> ?::extensions.vector <= ?',
+                        [$queryEmbedding, $distanceThreshold],
+                    )
                     ->orderByRaw('embedding::extensions.vector <=> ?::extensions.vector ASC', [$queryEmbedding])
                     ->limit(5)
                     ->get();
@@ -295,19 +304,10 @@ class ChatbotController extends Controller
             $candidateRows = $vectorRows;
 
             if ($candidateRows->isEmpty()) {
-                $candidateRows = $resolvedBusinessUnit->businessKnowledge()
-                    ->select('content')
-                    ->where('company_id', $resolvedBusinessUnit->company_id)
-                    ->where('business_unit_id', $resolvedBusinessUnit->id)
-                    ->whereNotNull('content')
-                    ->latest()
-                    ->limit(5)
-                    ->get();
+                return $this->insufficientKnowledgeResponse($session, $customerMessage, $promptText);
             }
 
-            $knowledgeBase = $candidateRows->isNotEmpty()
-                ? $candidateRows->pluck('content')->implode("\n\n")
-                : 'No relevant knowledge snippets were found in the business knowledge base.';
+            $knowledgeBase = $candidateRows->pluck('content')->implode("\n\n");
 
             $historyMessages = $session->chatMessages()->latest()->limit(8)->get()->reverse();
             $conversationContext = '';
@@ -498,6 +498,32 @@ class ChatbotController extends Controller
         ]);
     }
 
+    private function insufficientKnowledgeResponse(
+        ChatSession $session,
+        ChatMessage $customerMessage,
+        string $promptText,
+    ): JsonResponse {
+        $message = 'I do not have enough relevant information in the knowledge base to answer that question. '
+            .'Please rephrase your question or connect with a human staff member for help.';
+
+        $session->update(['status' => 'bot_active']);
+        $botMessage = $session->chatMessages()->create([
+            'sender_type' => 'bot',
+            'message_text' => $message,
+        ]);
+
+        return response()->json([
+            'status' => 'bot_active',
+            'message' => $promptText,
+            'response' => Str::markdown($message),
+            'session_token' => $session->token,
+            'message_id' => $botMessage->id,
+            'customer_message_id' => $customerMessage->id,
+            'low_confidence_flag' => true,
+            'insufficient_knowledge' => true,
+        ]);
+    }
+
     private function ambiguousChatResponse(
         ChatSession $session,
         ChatMessage $customerMessage,
@@ -624,6 +650,7 @@ class ChatbotController extends Controller
     {
         $embedding = $this->embedUserPrompt($prompt);
         $knowledgeRows = collect();
+        $distanceThreshold = (float) config('rag.retrieval_distance_threshold', 0.40);
 
         if (! empty($embedding)) {
             $knowledgeRows = $businessUnit->businessKnowledge()
@@ -632,20 +659,18 @@ class ChatbotController extends Controller
                 ->where('company_id', $businessUnit->company_id)
                 ->where('business_unit_id', $businessUnit->id)
                 ->whereNotNull('embedding')
+                ->whereRaw(
+                    'embedding::extensions.vector <=> ?::extensions.vector <= ?',
+                    [$embedding, $distanceThreshold],
+                )
                 ->orderByRaw('embedding::extensions.vector <=> ?::extensions.vector ASC', [$embedding])
                 ->limit(5)
                 ->get();
         }
 
-            if ($knowledgeRows->isEmpty()) {
-                $knowledgeRows = $businessUnit->businessKnowledge()
-                ->select('content')
-                ->where('company_id', $businessUnit->company_id)
-                ->where('business_unit_id', $businessUnit->id)
-                ->whereNotNull('content')
-                ->limit(20)
-                ->get();
-            }
+        if ($knowledgeRows->isEmpty()) {
+            return 'I do not have enough relevant information in the knowledge base to answer that question.';
+        }
 
         $knowledgeText = $knowledgeRows->pluck('content')->implode("\n\n");
 
@@ -1032,31 +1057,12 @@ class ChatbotController extends Controller
     private function embedUserPrompt(string $prompt): ?string
     {
         try {
-            $response = retry(
-                [200, 400, 800],
-                fn () => app(\Gemini\Contracts\ClientContract::class)
-                    ->embeddingModel('gemini-embedding-001')
-                    ->embedContent(
-                        $prompt,
-                        \Gemini\Enums\TaskType::RETRIEVAL_QUERY,
-                        null,
-                        768
-                    ),
-                when: fn (Throwable $exception): bool => $this->shouldRetryGemini($exception),
-            );
+            $values = $this->embeddingService->embedQuery($prompt);
 
-            $values = $response->embedding->values ?? null;
-
-            if (! is_array($values) || count($values) === 0) {
-                return null;
-            }
-
-            $floatValues = array_map(
-                static fn ($value): float => (float) $value,
-                $values
-            );
-
-            return '[' . implode(',', $floatValues) . ']';
+            return '[' . implode(',', array_map(
+                static fn (float $value): string => (string) $value,
+                $values,
+            )) . ']';
         } catch (\Throwable $e) {
             logger()->error('Embedding generation failed', [
                 'error' => $e->getMessage(),

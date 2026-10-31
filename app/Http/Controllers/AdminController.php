@@ -9,19 +9,22 @@ use App\Models\Company;
 use App\Models\ActivityLog;
 use App\Models\StagedKnowledgeDocument;
 use App\Services\OrganizationQuotaService;
+use App\Services\EmbeddingService;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class AdminController extends Controller
 {
-    public function __construct(private OrganizationQuotaService $quotaService)
+    public function __construct(
+        private OrganizationQuotaService $quotaService,
+        private EmbeddingService $embeddingService,
+    )
     {
     }
 
@@ -489,22 +492,13 @@ class AdminController extends Controller
 
     private function embedKnowledgeContent(string $content): string
     {
-        $response = Http::baseUrl(rtrim((string) (config('gemini.base_url') ?: 'https://generativelanguage.googleapis.com/v1beta'), '/'))
-            ->acceptJson()
-            ->timeout((int) config('gemini.request_timeout', 30))
-            ->retry([200, 400, 800])
-            ->withQueryParameters(['key' => (string) config('gemini.api_key')])
-            ->post('models/gemini-embedding-001:embedContent', [
-                'model' => 'models/gemini-embedding-001',
-                'content' => ['parts' => [['text' => $content]]],
-                'taskType' => 'RETRIEVAL_DOCUMENT',
-                'outputDimensionality' => 768,
-            ]);
+        try {
+            $values = $this->embeddingService->embedDocument($content);
 
-        $values = $response->json('embedding.values');
-
-        abort_unless($response->successful() && is_array($values) && $values !== [], 502, 'Could not generate an embedding for this knowledge entry.');
-
-        return '['.implode(',', array_map(static fn (float|int|string $value): string => (string) $value, $values)).']';
+            return '['.implode(',', array_map(static fn (float $value): string => (string) $value, $values)).']';
+        } catch (\Throwable $exception) {
+            report($exception);
+            abort(502, 'Could not generate an embedding for this knowledge entry.');
+        }
     }
 }

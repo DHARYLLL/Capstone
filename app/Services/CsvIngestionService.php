@@ -17,7 +17,7 @@ class CsvIngestionService
     private const MINIMUM_ROW_LENGTH = 1;
 
     public function __construct(
-        private readonly GeminiEmbeddingService $embeddingService,
+        private readonly EmbeddingService $embeddingService,
     ) {
     }
 
