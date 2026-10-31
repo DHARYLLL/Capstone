@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y \
     unzip \
     git \
     curl \
+    supervisor \
     && docker-php-ext-install pdo pdo_pgsql
 
 # Enable Apache mod_rewrite for Laravel routing
@@ -25,6 +26,7 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 # Apply application-specific PHP limits for uploads and PDF processing.
 COPY docker/php.ini /usr/local/etc/php/conf.d/99-capstone.ini
+COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Copy application files
 COPY . /var/www/html
