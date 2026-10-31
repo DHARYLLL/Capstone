@@ -19,9 +19,16 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Smalot\PdfParser\Parser;
+use Generator;
 
 class ProcessPdfIngestion implements ShouldQueue
 {
+    private const EMBEDDING_BATCH_SIZE = 75;
+
+    private const MINIMUM_CHUNK_LENGTH = 50;
+
+    private int $extractedTextLength = 0;
+
     use Dispatchable;
     use Queueable;
     use InteractsWithQueue;
@@ -86,86 +93,58 @@ class ProcessPdfIngestion implements ShouldQueue
                 $stagedDocument ? 0 : (int) Storage::disk($this->storageDisk)->size($this->storedPath),
             );
 
-            $extractedText = $this->editedContent;
+            $totalPages = 0;
+            $segments = $this->extractTextSegments($totalPages);
+            $processedChunks = 0;
+            $hasInsertedRows = false;
+            $batch = [];
 
-            if ($extractedText === null || trim($extractedText) === '') {
-                if (str_contains((string) $this->mimeType, 'csv')) {
-                    $extractedText = Storage::disk($this->storageDisk)->get($this->storedPath);
-                } else {
-                    $pdfPath = Storage::disk($this->storageDisk)->path($this->storedPath);
-                    $parser = new Parser;
-                    $pdf = $parser->parseFile($pdfPath);
-                    $extractedText = (string) $pdf->getText();
-                }
-            }
+            foreach ($segments as $segmentData) {
+                $page = $segmentData['page'];
+                $segment = $segmentData['text'];
+                $this->assertTextLimit($segment, $page);
+                $this->updateProgress($page + 1, $totalPages, $processedChunks);
 
-            $extractedText = TextChunker::cleanExtractedText((string) $extractedText);
-
-            if ($extractedText === '') {
-                $this->markFailed('No readable text remained after extraction and cleaning.');
-
-                return;
-            }
-
-            $chunks = TextChunker::chunk($extractedText);
-            $chunks = array_values(array_filter($chunks, static fn (string $chunk): bool => mb_strlen(trim($chunk)) >= 50));
-
-            if ($chunks === []) {
-                $this->markFailed('No chunks met the minimum embedding length.');
-
-                return;
-            }
-
-            $quotaService->assertCanInsertChunks(
-                (int) $businessUnit->company_id,
-                count($chunks),
-                $businessUnit->id,
-                $this->ingestionMode === 'overwrite',
-            );
-
-            $rows = [];
-
-            foreach (array_chunk($chunks, 75) as $chunkBatch) {
-                $embeddings = $this->batchEmbedChunks($chunkBatch, $embeddingService);
-
-                foreach ($chunkBatch as $index => $chunk) {
-                    $embedding = $embeddings[$index] ?? null;
-
-                    if ($embedding === null) {
-                        throw new NonRetryableIngestionException(
-                            "Gemini returned no embedding for chunk {$index}.",
-                        );
+                foreach (TextChunker::chunkSegments([$segment]) as $chunk) {
+                    if (mb_strlen(trim($chunk)) < self::MINIMUM_CHUNK_LENGTH) {
+                        continue;
                     }
 
-                    $rows[] = [
-                        'company_id' => $businessUnit->company_id,
-                        'business_unit_id' => $businessUnit->id,
-                        'content' => $chunk,
-                        'embedding' => $embedding,
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ];
+                    $batch[] = $chunk;
+
+                    if (count($batch) < self::EMBEDDING_BATCH_SIZE) {
+                        continue;
+                    }
+
+                    $processedChunks += $this->insertChunkBatch(
+                        $batch,
+                        $businessUnit,
+                        $quotaService,
+                        $embeddingService,
+                        ! $hasInsertedRows,
+                    );
+                    $hasInsertedRows = true;
+                    $batch = [];
+                    $this->updateProgress($page + 1, $totalPages, $processedChunks);
                 }
             }
 
-            if ($rows === []) {
+            if ($batch !== []) {
+                $processedChunks += $this->insertChunkBatch(
+                    $batch,
+                    $businessUnit,
+                    $quotaService,
+                    $embeddingService,
+                    ! $hasInsertedRows,
+                );
+            }
+
+            if ($processedChunks === 0) {
                 throw new NonRetryableIngestionException('No embeddings were generated.');
             }
 
-            // Replace only when explicitly requested; append preserves existing knowledge.
-            DB::transaction(function () use ($businessUnit, $rows): void {
-                if ($this->ingestionMode === 'overwrite') {
-                    BusinessKnowledge::query()
-                        ->where('company_id', $businessUnit->company_id)
-                        ->where('business_unit_id', $businessUnit->id)
-                        ->delete();
-                }
-
-                BusinessKnowledge::query()->insert($rows);
-            });
-
             Storage::disk($this->storageDisk)->delete($this->storedPath);
-            $stagedDocument?->update(['status' => 'indexed']);
+            $this->updateProgress($totalPages, $totalPages, $processedChunks, 'indexed');
             ActivityLog::record($this->userId, 'Indexed', 'Done', $this->fileName, $this->division);
         } catch (NonRetryableIngestionException|ValidationException $exception) {
             $this->markFailed($exception->getMessage(), $exception);
@@ -198,6 +177,132 @@ class ProcessPdfIngestion implements ShouldQueue
             'attempts' => method_exists($this, 'attempts') ? $this->attempts() : null,
         ]);
         ActivityLog::record($this->userId, 'Upload failed', 'Failed', $this->fileName, $this->division);
+    }
+
+    /**
+     * @return Generator<int, array{page: int, text: string}>
+     */
+    private function extractTextSegments(int &$totalPages): Generator
+    {
+        $this->extractedTextLength = 0;
+
+        if ($this->editedContent !== null && trim($this->editedContent) !== '') {
+            $totalPages = 1;
+            foreach ($this->boundedSegments($this->editedContent) as $segment) {
+                yield ['page' => 0, 'text' => $segment];
+            }
+
+            return;
+        }
+
+        if (str_contains((string) $this->mimeType, 'csv')) {
+            $totalPages = 1;
+            foreach ($this->boundedSegments(Storage::disk($this->storageDisk)->get($this->storedPath)) as $segment) {
+                yield ['page' => 0, 'text' => $segment];
+            }
+
+            return;
+        }
+
+        $pdf = (new Parser)->parseFile(Storage::disk($this->storageDisk)->path($this->storedPath));
+        $pages = $pdf->getPages();
+        $totalPages = count($pages);
+
+        foreach ($pages as $pageNumber => $page) {
+            foreach ($this->boundedSegments((string) $page->getText()) as $segment) {
+                yield ['page' => $pageNumber, 'text' => $segment];
+            }
+        }
+    }
+
+    /**
+     * @return Generator<int, string>
+     */
+    private function boundedSegments(string $text): Generator
+    {
+        $segmentSize = (int) config('ingestion.segment_size', 100000);
+        $length = mb_strlen($text);
+
+        for ($offset = 0; $offset < $length; $offset += $segmentSize) {
+            yield mb_substr($text, $offset, $segmentSize);
+        }
+    }
+
+    private function assertTextLimit(string $segment, int $page): void
+    {
+        $this->extractedTextLength += mb_strlen($segment);
+
+        if ($this->extractedTextLength > (int) config('ingestion.max_extracted_text_length', 5000000)) {
+            throw new NonRetryableIngestionException(
+                "Extracted text exceeded the configured maximum at page {$page}.",
+            );
+        }
+    }
+
+    private function updateProgress(
+        int $currentPage,
+        int $totalPages,
+        int $processedChunks,
+        ?string $status = null,
+    ): void {
+        StagedKnowledgeDocument::query()
+            ->whereKey($this->stagedDocumentId)
+            ->update(array_filter([
+                'current_page' => $currentPage,
+                'total_pages' => $totalPages,
+                'processed_chunks' => $processedChunks,
+                'status' => $status,
+            ], static fn (mixed $value): bool => $value !== null));
+
+        Log::info('PDF ingestion progress.', [
+            'business_unit_id' => $this->businessUnitId,
+            'staged_document_id' => $this->stagedDocumentId,
+            'current_page' => $currentPage,
+            'total_pages' => $totalPages,
+            'processed_chunks' => $processedChunks,
+        ]);
+    }
+
+    private function insertChunkBatch(
+        array $chunks,
+        BusinessUnit $businessUnit,
+        OrganizationQuotaService $quotaService,
+        GeminiEmbeddingService $embeddingService,
+        bool $isFirstBatch,
+    ): int {
+        $quotaService->assertCanInsertChunks(
+            (int) $businessUnit->company_id,
+            count($chunks),
+            $businessUnit->id,
+            $isFirstBatch && $this->ingestionMode === 'overwrite',
+        );
+
+        $embeddings = $this->batchEmbedChunks($chunks, $embeddingService);
+        $rows = [];
+
+        foreach ($chunks as $index => $chunk) {
+            $rows[] = [
+                'company_id' => $businessUnit->company_id,
+                'business_unit_id' => $businessUnit->id,
+                'content' => $chunk,
+                'embedding' => $embeddings[$index],
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        }
+
+        DB::transaction(function () use ($businessUnit, $rows, $isFirstBatch): void {
+            if ($isFirstBatch && $this->ingestionMode === 'overwrite') {
+                BusinessKnowledge::query()
+                    ->where('company_id', $businessUnit->company_id)
+                    ->where('business_unit_id', $businessUnit->id)
+                    ->delete();
+            }
+
+            BusinessKnowledge::query()->insert($rows);
+        });
+
+        return count($rows);
     }
 
     /**

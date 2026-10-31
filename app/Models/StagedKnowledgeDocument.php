@@ -20,6 +20,9 @@ class StagedKnowledgeDocument extends Model
         'edited_content',
         'ingestion_mode',
         'status',
+        'current_page',
+        'total_pages',
+        'processed_chunks',
     ];
 
     public function businessUnit(): BelongsTo
