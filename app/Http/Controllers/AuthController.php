@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\StaffRole;
 use App\Models\BusinessUnit;
 use App\Models\Company;
 use App\Models\ActivityLog;
@@ -156,11 +157,7 @@ class AuthController extends Controller
             ActivityLog::record($user->id, 'Logged in', 'Done', null, 'DARIV', 'auth');
         }
 
-        $roleName = match ($user->role) {
-            'admin', User::ROLE_ADMIN => 'Administrator',
-            'agent', User::ROLE_OPERATOR => 'Lead Operator',
-            default                   => $user->role,
-        };
+        $roleName = StaffRole::normalize($user->role);
 
         session([
             'user_name'  => $user->name,
@@ -168,7 +165,7 @@ class AuthController extends Controller
             'user_role'  => $roleName,
         ]);
 
-        if ($roleName === 'Administrator') {
+        if ($roleName === StaffRole::ADMINISTRATOR->value) {
             return redirect()->route('admin.dashboard');
         }
 

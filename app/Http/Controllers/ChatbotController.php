@@ -344,7 +344,7 @@ class ChatbotController extends Controller
             $rawResponse = $this->extractGeminiText($response);
 
             if ($rawResponse === '') {
-                return $this->fallbackChatResponse($session, $customerMessage, $businessUnit, $promptText);
+                return $this->fallbackChatResponse($session, $customerMessage, $businessUnit, $promptText, true);
             }
 
             $session->update(['status' => 'bot_active']);
@@ -369,13 +369,15 @@ class ChatbotController extends Controller
                 'low_confidence_flag' => $lowConfidenceFlag,
             ]);
         } catch (\Throwable $e) {
+            $correlationId = (string) Str::uuid();
             logger()->error('Gemini Chat Error', [
+                'correlation_id' => $correlationId,
                 'business_unit_id' => $businessUnit->id,
                 'session_token' => $session->token,
                 'error' => $e->getMessage(),
             ]);
 
-            return $this->fallbackChatResponse($session, $customerMessage, $businessUnit, $promptText);
+            return $this->fallbackChatResponse($session, $customerMessage, $businessUnit, $promptText, true);
         }
     }
 
@@ -461,6 +463,7 @@ class ChatbotController extends Controller
         ChatMessage $customerMessage,
         BusinessUnit $businessUnit,
         string $promptText,
+        bool $degraded = false,
     ): JsonResponse {
         $company = $businessUnit->company()->first(['contact_email', 'contact_phone', 'contact_address']);
         $contactLines = collect([
@@ -483,8 +486,11 @@ class ChatbotController extends Controller
             'message_text' => $fallbackMessage,
         ]);
 
+        $correlationId = (string) Str::uuid();
+
         return response()->json([
-            'status' => 'bot_active',
+            'success' => ! $degraded,
+            'status' => $degraded ? 'degraded' : 'bot_active',
             'message' => $promptText,
             'response' => Str::markdown($fallbackMessage),
             'session_token' => $session->token,
@@ -495,7 +501,9 @@ class ChatbotController extends Controller
             'contact_phone' => $company?->contact_phone,
             'contact_address' => $company?->contact_address,
             'low_confidence_flag' => true,
-        ]);
+            'degraded' => $degraded,
+            'correlation_id' => $correlationId,
+        ], $degraded ? 503 : 200);
     }
 
     private function insufficientKnowledgeResponse(
@@ -707,12 +715,16 @@ class ChatbotController extends Controller
 
             return $rawResponse ?: $knowledgeText;
         } catch (\Throwable $e) {
-            logger()->warning('Contact response generation failed; returning retrieved knowledge.', [
+            $correlationId = (string) Str::uuid();
+            logger()->error('AI response generation failed.', [
+                'correlation_id' => $correlationId,
                 'business_unit_id' => $businessUnit->id,
                 'error' => $e->getMessage(),
             ]);
 
-            return $knowledgeText;
+            return "The AI response service is temporarily unavailable. "
+                ."Please try again shortly or connect with a human staff member. "
+                ."(Reference: {$correlationId})";
         }
     }
 
@@ -1064,11 +1076,16 @@ class ChatbotController extends Controller
                 $values,
             )) . ']';
         } catch (\Throwable $e) {
+            $correlationId = (string) Str::uuid();
             logger()->error('Embedding generation failed', [
+                'correlation_id' => $correlationId,
                 'error' => $e->getMessage(),
             ]);
 
-            return null;
+            throw new \RuntimeException(
+                "Embedding generation failed. Correlation ID: {$correlationId}",
+                previous: $e,
+            );
         }
     }
 

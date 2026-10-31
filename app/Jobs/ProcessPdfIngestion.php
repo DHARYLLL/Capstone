@@ -270,13 +270,6 @@ class ProcessPdfIngestion implements ShouldQueue
         EmbeddingService $embeddingService,
         bool $isFirstBatch,
     ): int {
-        $quotaService->assertCanInsertChunks(
-            (int) $businessUnit->company_id,
-            count($chunks),
-            $businessUnit->id,
-            $isFirstBatch && $this->ingestionMode === 'overwrite',
-        );
-
         $embeddings = $this->batchEmbedChunks($chunks, $embeddingService);
         $rows = [];
 
@@ -291,16 +284,22 @@ class ProcessPdfIngestion implements ShouldQueue
             ];
         }
 
-        DB::transaction(function () use ($businessUnit, $rows, $isFirstBatch): void {
-            if ($isFirstBatch && $this->ingestionMode === 'overwrite') {
-                BusinessKnowledge::query()
-                    ->where('company_id', $businessUnit->company_id)
-                    ->where('business_unit_id', $businessUnit->id)
-                    ->delete();
-            }
+        $quotaService->withinVectorQuota(
+            (int) $businessUnit->company_id,
+            count($rows),
+            $businessUnit->id,
+            $isFirstBatch && $this->ingestionMode === 'overwrite',
+            function () use ($businessUnit, $rows, $isFirstBatch): void {
+                if ($isFirstBatch && $this->ingestionMode === 'overwrite') {
+                    BusinessKnowledge::query()
+                        ->where('company_id', $businessUnit->company_id)
+                        ->where('business_unit_id', $businessUnit->id)
+                        ->delete();
+                }
 
-            BusinessKnowledge::query()->insert($rows);
-        });
+                BusinessKnowledge::query()->insert($rows);
+            },
+        );
 
         return count($rows);
     }

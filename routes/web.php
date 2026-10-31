@@ -181,16 +181,20 @@ Route::controller(ChatbotController::class)->group(function (): void {
     // 3. The API endpoint that receives messages and returns Gemini replies
     Route::post('/chat/{businessUnit}/ask', 'ask')
         ->whereNumber('businessUnit')
+        ->middleware('throttle:30,1')
         ->name('chat.ask');
 
     // 4. Public endpoint used by the embedded widget to poll live replies
     Route::get('/get-messages/{sessionToken}', 'getMessages')
         ->where('sessionToken', '[A-Za-z0-9]{64}')
+        ->middleware('throttle:120,1')
         ->name('chat.messages');
     Route::get('/api/chatbot/contact-info', [ChatbotController::class, 'getContactInfo'])->name('chatbot.contact-info');
     
     // 5. Cancel handoff endpoint
-    Route::post('/api/chatbot/cancel-handoff', [ChatbotController::class, 'cancelHandoff'])->name('chatbot.cancel-handoff');
+    Route::post('/api/chatbot/cancel-handoff', [ChatbotController::class, 'cancelHandoff'])
+        ->middleware('throttle:10,1')
+        ->name('chatbot.cancel-handoff');
 });
 
 Route::post('/chat/feedback', [ChatFeedbackController::class, 'store'])

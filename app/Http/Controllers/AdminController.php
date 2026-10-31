@@ -58,14 +58,19 @@ class AdminController extends Controller
         $businessUnit = BusinessUnit::query()
             ->where('company_id', $companyId)
             ->findOrFail($validated['business_unit_id']);
-        $this->quotaService->assertCanInsertChunks($companyId, 1);
         $embedding = $this->embedKnowledgeContent($validated['content']);
-        $chunk = BusinessKnowledge::query()->create([
-            'company_id' => $companyId,
-            'business_unit_id' => $businessUnit->id,
-            'content' => $validated['content'],
-            'embedding' => $embedding,
-        ]);
+        $chunk = $this->quotaService->withinVectorQuota(
+            $companyId,
+            1,
+            $businessUnit->id,
+            false,
+            fn (): BusinessKnowledge => BusinessKnowledge::query()->create([
+                'company_id' => $companyId,
+                'business_unit_id' => $businessUnit->id,
+                'content' => $validated['content'],
+                'embedding' => $embedding,
+            ]),
+        );
         $chunk->load('businessUnit');
         ActivityLog::record(Auth::id(), 'Indexed', 'Done', null, $chunk->businessUnit->name);
 
@@ -357,20 +362,36 @@ class AdminController extends Controller
         $ingestionMode = $validated['ingestion_mode'] ?? 'append';
 
         $uploadedFile = $request->file('pdf');
-    $this->quotaService->assertCanAcceptUpload($companyId, (int) $uploadedFile->getSize());
-        $storedPath = $uploadedFile->storeAs(
-            'pdf-ingestions',
-            Str::uuid()->toString().'.pdf',
-            'local'
-        );
+    $stagedDocument = $this->quotaService->withinUploadQuota(
+        $companyId,
+        (int) $uploadedFile->getSize(),
+        function () use ($uploadedFile, $businessUnit, $ingestionMode): StagedKnowledgeDocument {
+            $storedPath = $uploadedFile->storeAs(
+                'pdf-ingestions',
+                Str::uuid()->toString().'.pdf',
+                'local',
+            );
+
+            return StagedKnowledgeDocument::query()->create([
+                'business_unit_id' => $businessUnit->id,
+                'original_name' => $uploadedFile->getClientOriginalName(),
+                'mime_type' => $uploadedFile->getClientMimeType() ?: $uploadedFile->getMimeType(),
+                'file_size' => $uploadedFile->getSize(),
+                'stored_path' => $storedPath,
+                'ingestion_mode' => $ingestionMode,
+                'status' => 'processing',
+            ]);
+        },
+    );
 
         ActivityLog::record(Auth::id(), 'Uploaded', 'Done', $uploadedFile->getClientOriginalName(), $businessUnit->name);
 
         ProcessPdfIngestion::dispatch(
             businessUnitId: $businessUnit->id,
             storageDisk: 'local',
-            storedPath: $storedPath,
+            storedPath: $stagedDocument->stored_path,
             ingestionMode: $ingestionMode,
+            stagedDocumentId: $stagedDocument->id,
             fileName: $uploadedFile->getClientOriginalName(),
             division: $businessUnit->name,
             userId: Auth::id(),

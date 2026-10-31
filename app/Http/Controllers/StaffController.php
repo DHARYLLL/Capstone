@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\StaffRole;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -30,7 +31,7 @@ class StaffController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'role' => ['required', Rule::in([User::ROLE_ADMIN, 'Staff', User::ROLE_OPERATOR])],
+            'role' => ['required', Rule::in(StaffRole::values())],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
@@ -86,6 +87,6 @@ class StaffController extends Controller
 
     private function staffRoles(): array
     {
-        return [User::ROLE_ADMIN, 'Staff', User::ROLE_OPERATOR, 'agent'];
+        return StaffRole::values();
     }
 }
