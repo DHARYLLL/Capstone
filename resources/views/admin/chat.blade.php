@@ -234,10 +234,10 @@
     <script>
         const chatRoutes = {
             sessions: @json(route('admin.chat.sessions')),
-            messages: @json(route('admin.chat.messages', ['session' => '__SESSION__'])),
-            claim: @json(route('admin.chat.claim', ['session' => '__SESSION__'])),
-            reply: @json(route('admin.chat.reply', ['session' => '__SESSION__'])),
-            resolve: @json(route('admin.chat.resolve', ['session' => '__SESSION__']))
+            messages: @json(route('admin.chat.messages', ['sessionId' => '__SESSION__'])),
+            claim: @json(route('admin.chat.claim', ['sessionId' => '__SESSION__'])),
+            reply: @json(route('admin.chat.reply', ['sessionId' => '__SESSION__'])),
+            resolve: @json(route('admin.chat.resolve', ['sessionId' => '__SESSION__']))
         };
         const csrfMeta = document.querySelector('meta[name="csrf-token"]');
         const csrfToken = csrfMeta?.getAttribute('content') || '{{ csrf_token() }}';

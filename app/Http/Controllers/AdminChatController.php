@@ -48,8 +48,10 @@ class AdminChatController extends Controller
         ]);
     }
 
-    public function messages(ChatSession $session): JsonResponse
+    public function messages(int $sessionId): JsonResponse
     {
+        $session = $this->resolveSessionById($sessionId);
+
         return response()->json([
             'data' => $session->chatMessages()->oldest('created_at')->get()->map(static fn (ChatMessage $message): array => [
                 'id' => $message->id,
@@ -60,11 +62,13 @@ class AdminChatController extends Controller
         ]);
     }
 
-    public function claim(ChatSession $session): JsonResponse
+    public function claim(int $sessionId): JsonResponse
     {
         $user = Auth::user();
+        $session = null;
 
         try {
+            $session = $this->resolveSessionById($sessionId);
             abort_unless($this->canAccessSession($session, $user), 404);
 
             [$claimedSession, $wasAssigned] = DB::transaction(function () use ($session, $user): array {
@@ -96,7 +100,7 @@ class AdminChatController extends Controller
             Log::error('Chat claim failed', [
                 'error' => $exception->getMessage(),
                 'trace' => $exception->getTraceAsString(),
-                'session_id' => $session->id,
+                'session_id' => $session?->id ?? $sessionId,
                 'user_id' => $user?->id,
                 'user_role' => $user?->role,
                 'user_company_id' => $user?->company_id,
@@ -108,8 +112,9 @@ class AdminChatController extends Controller
         }
     }
 
-    public function reply(Request $request, ChatSession $session): JsonResponse
+    public function reply(Request $request, int $sessionId): JsonResponse
     {
+        $session = $this->resolveSessionById($sessionId);
         abort_unless($session->assigned_user_id === Auth::id(), 403);
 
         $validated = $request->validate(['message' => ['required', 'string', 'max:5000']]);
@@ -122,8 +127,9 @@ class AdminChatController extends Controller
         return response()->json(['success' => true]);
     }
 
-    public function resolve(ChatSession $session): JsonResponse
+    public function resolve(int $sessionId): JsonResponse
     {
+        $session = $this->resolveSessionById($sessionId);
         abort_unless($session->assigned_user_id === Auth::id(), 403);
 
         $session->update(['status' => 'bot_active', 'assigned_user_id' => null]);
@@ -204,6 +210,13 @@ class AdminChatController extends Controller
         }
 
         return $query;
+    }
+
+    private function resolveSessionById(int $sessionId): ChatSession
+    {
+        return ChatSession::query()
+            ->whereKey($sessionId)
+            ->firstOrFail();
     }
 
 }

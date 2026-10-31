@@ -123,10 +123,19 @@ Route::prefix('admin')
         Route::get('/chat', 'index')->name('chat');
         Route::get('/chat/sessions', 'sessions')->name('chat.sessions');
         Route::get('/chat/pending-count', 'pendingCount')->name('chat.pending-count');
-        Route::get('/chat/{session}/messages', 'messages')->name('chat.messages');
-        Route::post('/chat/{session}/claim', 'claim')->middleware('throttle:10,1')->name('chat.claim');
-        Route::post('/chat/{session}/reply', 'reply')->name('chat.reply');
-        Route::post('/chat/{session}/resolve', 'resolve')->name('chat.resolve');
+        Route::get('/chat/{sessionId}/messages', 'messages')
+            ->whereNumber('sessionId')
+            ->name('chat.messages');
+        Route::post('/chat/{sessionId}/claim', 'claim')
+            ->whereNumber('sessionId')
+            ->middleware('throttle:10,1')
+            ->name('chat.claim');
+        Route::post('/chat/{sessionId}/reply', 'reply')
+            ->whereNumber('sessionId')
+            ->name('chat.reply');
+        Route::post('/chat/{sessionId}/resolve', 'resolve')
+            ->whereNumber('sessionId')
+            ->name('chat.resolve');
     });
 
     Route::get('/staff', [StaffController::class, 'index'])->name('staff');
