@@ -307,16 +307,32 @@
 
             sessions.forEach(session => {
                 const item = document.createElement('div');
+                const sessionId = session.id;
                 const waiting = ['waiting', 'pending', 'queued'].includes(session.raw_status);
-                const isSelected = String(session.id) === String(activeId);
+                const isSelected = String(sessionId) === String(activeId);
                 const initials = (session.customer_name || 'CL').substring(0, 2).toUpperCase();
 
+                if (sessionId === undefined || sessionId === null || sessionId === '') {
+                    console.error('Skipping queue item without a database session ID.', { session });
+                    return;
+                }
+
+                item.dataset.sessionId = String(sessionId);
                 item.className = `p-3 rounded-xl border transition-all duration-150 cursor-pointer text-left ${
                     isSelected 
                         ? 'bg-violet-50/70 border-violet-300 shadow-xs ring-1 ring-violet-200' 
                         : 'bg-white border-slate-200/80 hover:border-slate-300 hover:bg-slate-50/70'
                 }`;
-                item.addEventListener('click', () => selectChat(session.id));
+                item.addEventListener('click', () => {
+                    const selectedSessionId = item.dataset.sessionId;
+
+                    if (!selectedSessionId) {
+                        console.error('Cannot select queue item without a database session ID.', { session });
+                        return;
+                    }
+
+                    selectChat(selectedSessionId);
+                });
 
                 item.innerHTML = `
                     <div class="flex items-start gap-2.5">
@@ -384,16 +400,23 @@
         }
 
         async function selectChat(id) {
-            activeId = id;
+            const sessionId = String(id ?? '').trim();
+
+            if (!/^\d+$/.test(sessionId) || Number(sessionId) < 1) {
+                console.error('Cannot select chat: invalid database session ID.', { id });
+                return;
+            }
+
+            activeId = sessionId;
             activeSession = null;
             document.getElementById('chat-empty-state').classList.add('hidden');
             try {
                 const [queue, messages] = await Promise.all([
                     requestJson(chatRoutes.sessions),
-                    requestJson(sessionUrl(chatRoutes.messages, id))
+                    requestJson(sessionUrl(chatRoutes.messages, sessionId))
                 ]);
                 allSessions = queue.data || [];
-                activeSession = allSessions.find(session => String(session.id) === String(id));
+                activeSession = allSessions.find(session => String(session.id) === sessionId);
                 renderQueue(allSessions);
                 updateHeader();
                 renderTimeline(messages.data);
