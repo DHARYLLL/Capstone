@@ -391,7 +391,9 @@ class ChatbotController extends Controller
 
         $session = $sessionQuery->firstOrFail();
 
-        $messagesQuery = $session->chatMessages()->orderBy('created_at');
+        $messagesQuery = $session->chatMessages()
+            ->with('chatFeedback')
+            ->orderBy('created_at');
 
         if ($session->handed_off_at) {
             $messagesQuery = $messagesQuery->where('created_at', '>=', $session->handed_off_at);
@@ -408,6 +410,10 @@ class ChatbotController extends Controller
                     'sender_type' => $message->sender_type,
                     'message_text' => $message->message_text,
                     'created_at' => $message->created_at?->toISOString(),
+                    'feedback' => $message->chatFeedback ? [
+                        'rating' => $message->chatFeedback->rating,
+                        'comment' => $message->chatFeedback->comment,
+                    ] : null,
                 ];
             })->values(),
         ]);

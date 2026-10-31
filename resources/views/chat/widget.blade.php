@@ -475,7 +475,13 @@
 
             renderedIds.add(String(messageId));
             const senderType = message.sender_type ?? 'customer';
-            return appendBubble(message.message_text, ['customer', 'user'].includes(senderType), senderType, messageId);
+            return appendBubble(
+                message.message_text,
+                ['customer', 'user'].includes(senderType),
+                senderType,
+                messageId,
+                { feedback: message.feedback },
+            );
         }
 
         function handleSessionStatusChange(status, payload = {}) {
@@ -670,6 +676,25 @@
         }
 
         // Helper function to append bubbles to the DOM
+        function applyFeedbackState(actions, rating) {
+            if (!actions || !['like', 'dislike'].includes(rating)) return;
+
+            const buttons = [...actions.querySelectorAll('.btn-feedback')];
+            const status = actions.querySelector('[data-feedback-status]');
+            buttons.forEach((item) => {
+                item.disabled = true;
+                item.classList.remove('text-emerald-600', 'text-rose-600');
+            });
+
+            const selectedButton = actions.querySelector(`[data-rating="${rating}"]`);
+            selectedButton?.classList.add(rating === 'like' ? 'text-emerald-600' : 'text-rose-600');
+
+            if (status) {
+                status.textContent = 'Thanks for your feedback!';
+                status.classList.remove('hidden');
+            }
+        }
+
         function appendBubble(message, isUser = false, senderType = 'bot', messageId = null, options = {}) {
             const wrapper = document.createElement('div');
             wrapper.className = isUser ? 'chat chat-end' : 'chat chat-start';
@@ -726,6 +751,7 @@
                 chatForm.dispatchEvent(new Event('submit', { cancelable: true }));
             });
 
+            applyFeedbackState(bubble.querySelector('[data-feedback-actions]'), options.feedback?.rating);
             scrollToBottom();
             return wrapper;
         }
@@ -756,9 +782,7 @@
 
                 if (!response.ok) throw new Error('Feedback request failed');
 
-                button.classList.add(button.dataset.rating === 'like' ? 'text-emerald-600' : 'text-rose-600');
-                status.textContent = 'Thanks for your feedback!';
-                status.classList.remove('hidden');
+                applyFeedbackState(actions, button.dataset.rating);
             } catch (error) {
                 buttons.forEach((item) => { item.disabled = false; });
                 status.textContent = 'Unable to record feedback.';

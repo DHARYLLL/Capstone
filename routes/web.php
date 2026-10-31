@@ -194,4 +194,5 @@ Route::controller(ChatbotController::class)->group(function (): void {
 });
 
 Route::post('/chat/feedback', [ChatFeedbackController::class, 'store'])
+    ->middleware('throttle:10,1')
     ->name('chat.feedback.store');
