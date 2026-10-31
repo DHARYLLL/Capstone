@@ -363,7 +363,6 @@ class AdminController extends Controller
 
         ActivityLog::record(Auth::id(), 'Uploaded', 'Done', $uploadedFile->getClientOriginalName(), $businessUnit->name);
 
-        // Persist the upload immediately, then continue indexing in the queue so the response stays fast.
         ProcessPdfIngestion::dispatch(
             businessUnitId: $businessUnit->id,
             storageDisk: 'local',
@@ -372,7 +371,7 @@ class AdminController extends Controller
             fileName: $uploadedFile->getClientOriginalName(),
             division: $businessUnit->name,
             userId: Auth::id(),
-        )->afterResponse();
+        );
 
         return $this->redirectToAdmin(
             $businessUnit->company_id,
