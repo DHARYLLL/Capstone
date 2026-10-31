@@ -318,19 +318,24 @@
                 }
 
                 item.dataset.sessionId = String(sessionId);
+                item.setAttribute('data-session-id', String(sessionId));
                 item.className = `p-3 rounded-xl border transition-all duration-150 cursor-pointer text-left ${
                     isSelected 
                         ? 'bg-violet-50/70 border-violet-300 shadow-xs ring-1 ring-violet-200' 
                         : 'bg-white border-slate-200/80 hover:border-slate-300 hover:bg-slate-50/70'
                 }`;
-                item.addEventListener('click', () => {
-                    const selectedSessionId = item.dataset.sessionId;
+                item.addEventListener('click', (event) => {
+                    const selectedSessionId = event.currentTarget.dataset.sessionId;
 
                     if (!selectedSessionId) {
                         console.error('Cannot select queue item without a database session ID.', { session });
                         return;
                     }
 
+                    console.debug('Selecting chat session from queue card.', {
+                        sessionId: selectedSessionId,
+                        customer: session.customer_name
+                    });
                     selectChat(selectedSessionId);
                 });
 
