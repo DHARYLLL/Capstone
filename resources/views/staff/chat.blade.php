@@ -445,9 +445,15 @@
 
         async function claimActiveChat() {
             if (!activeSessionId) return;
-            await axios.post(chatEndpoints.claim(activeSessionId));
-            await loadSessions();
-            await selectChat(activeSessionId);
+            try {
+                await axios.post(chatEndpoints.claim(activeSessionId));
+                await loadSessions();
+                await selectChat(activeSessionId);
+            } catch (error) {
+                const message = error.response?.data?.message || 'Unable to claim this conversation.';
+                console.error('Claim conversation failed:', error);
+                alert(message);
+            }
         }
 
         async function resolveActiveChat() {

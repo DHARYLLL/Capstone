@@ -253,7 +253,10 @@
                 ...options,
                 headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken, ...(options.headers || {}) }
             });
-            if (!response.ok) throw new Error('Chat request failed.');
+            if (!response.ok) {
+                const payload = await response.json().catch(() => ({}));
+                throw new Error(payload.message || 'Chat request failed.');
+            }
             return response.json();
         }
 
@@ -482,8 +485,13 @@
 
         async function claimActiveChat() {
             if (!activeId) return;
-            await requestJson(sessionUrl(chatRoutes.claim, activeId), { method: 'POST' });
-            await selectChat(activeId);
+            try {
+                await requestJson(sessionUrl(chatRoutes.claim, activeId), { method: 'POST' });
+                await selectChat(activeId);
+            } catch (error) {
+                console.error('Claim session failed:', error);
+                alert(error.message);
+            }
         }
 
         async function resolveActiveChat() {

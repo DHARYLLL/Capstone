@@ -8,6 +8,7 @@ use App\Models\ChatSession;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class AdminChatController extends Controller
@@ -59,14 +60,21 @@ class AdminChatController extends Controller
 
     public function claim(ChatSession $session): JsonResponse
     {
-        abort_unless($this->isActiveSession($session), 422, 'This chat is no longer active.');
-        $wasAssigned = filled($session->assigned_user_id);
+        abort_unless($session->company_id === Auth::user()->company_id, 404);
 
-        $session->update([
-            'status' => 'human_active',
-            'assigned_user_id' => Auth::id(),
-            'handed_off_at' => $session->handed_off_at ?? now(),
-        ]);
+        [$claimedSession, $wasAssigned] = DB::transaction(function () use ($session): array {
+            $lockedSession = ChatSession::query()->lockForUpdate()->findOrFail($session->id);
+            abort_unless($this->isActiveSession($lockedSession), 422, 'This chat is no longer active.');
+            $wasAssigned = filled($lockedSession->assigned_user_id);
+
+            $lockedSession->update([
+                'status' => 'human_active',
+                'assigned_user_id' => Auth::id(),
+                'handed_off_at' => $lockedSession->handed_off_at ?? now(),
+            ]);
+
+            return [$lockedSession->fresh(['lastMessage']), $wasAssigned];
+        });
 
         ActivityLog::record(
             Auth::id(),
@@ -77,7 +85,7 @@ class AdminChatController extends Controller
             'auth',
         );
 
-        return response()->json(['data' => $this->sessionPayload($session->fresh(['lastMessage']))]);
+        return response()->json(['success' => true, 'data' => $this->sessionPayload($claimedSession)]);
     }
 
     public function reply(Request $request, ChatSession $session): JsonResponse

@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class StaffChatController extends Controller
@@ -78,14 +79,36 @@ class StaffChatController extends Controller
     {
         $this->touchLastSeen();
         $this->ensureCompanySession($session);
-        abort_unless(in_array($session->status, ['waiting', 'pending', 'human_active'], true), 422);
 
-        $session->status = 'human_active';
-        $session->handed_off_at = $session->handed_off_at ?? now();
-        $session->assigned_user_id = Auth::id();
-        $session->save();
+        $claimedSession = DB::transaction(function () use ($session): ChatSession {
+            $lockedSession = ChatSession::query()->lockForUpdate()->findOrFail($session->id);
 
-        return response()->json(['data' => $session->fresh(['assignedUser:id,name'])]);
+            abort_unless(
+                $lockedSession->company_id === Auth::user()->company_id,
+                404,
+            );
+            abort_unless(
+                in_array($lockedSession->status, ['waiting', 'pending', 'human_active'], true),
+                422,
+                'This chat is no longer available for claiming.',
+            );
+            abort_unless(
+                $lockedSession->assigned_user_id === null
+                    || $lockedSession->assigned_user_id === Auth::id(),
+                409,
+                'This chat has already been claimed by another operator.',
+            );
+
+            $lockedSession->update([
+                'status' => 'human_active',
+                'handed_off_at' => $lockedSession->handed_off_at ?? now(),
+                'assigned_user_id' => Auth::id(),
+            ]);
+
+            return $lockedSession->fresh(['assignedUser:id,name']);
+        });
+
+        return response()->json(['success' => true, 'data' => $claimedSession]);
     }
 
     public function resolveSession(ChatSession $session): JsonResponse

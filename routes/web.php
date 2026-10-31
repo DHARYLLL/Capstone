@@ -17,7 +17,9 @@ use App\Http\Controllers\AdminChatController;
 use App\Models\ChatSession;
 
 Route::bind('session', function (string $value): ChatSession {
-    return ChatSession::query()->findOrFail($value);
+    abort_unless(ctype_digit($value), 404);
+
+    return ChatSession::query()->whereKey((int) $value)->firstOrFail();
 });
 //gi add ni gar -- end--
 
@@ -122,7 +124,7 @@ Route::prefix('admin')
         Route::get('/chat/sessions', 'sessions')->name('chat.sessions');
         Route::get('/chat/pending-count', 'pendingCount')->name('chat.pending-count');
         Route::get('/chat/{session}/messages', 'messages')->name('chat.messages');
-        Route::post('/chat/{session}/claim', 'claim')->name('chat.claim');
+        Route::post('/chat/{session}/claim', 'claim')->middleware('throttle:10,1')->name('chat.claim');
         Route::post('/chat/{session}/reply', 'reply')->name('chat.reply');
         Route::post('/chat/{session}/resolve', 'resolve')->name('chat.resolve');
     });
@@ -143,14 +145,19 @@ Route::prefix('admin')
 });
 
 // ── Staff panel (Protected Chat & Handoff Console) ──────────────────────────────────────────────
-Route::prefix('staff')->name('staff.')->middleware('auth')->group(function () {
+Route::prefix('staff')
+    ->name('staff.')
+    ->middleware(['auth', 'role:Administrator,business_owner,Lead Operator'])
+    ->group(function () {
 
     Route::get('/chat', [StaffChatController::class, 'index'])->name('chat');
     Route::get('/chats', [StaffChatController::class, 'sessions'])->name('chats.index');
     Route::get('/chats/pending-count', [StaffChatController::class, 'pendingCount'])->name('chats.pending-count');
     Route::get('/chats/{session}/messages', [StaffChatController::class, 'messages'])->name('chats.messages');
     Route::post('/chats/{session}/messages', [StaffChatController::class, 'sendMessage'])->name('chats.messages.store');
-    Route::post('/chats/{session}/claim', [StaffChatController::class, 'claimSession'])->name('chats.claim');
+    Route::post('/chats/{session}/claim', [StaffChatController::class, 'claimSession'])
+        ->middleware('throttle:10,1')
+        ->name('chats.claim');
     Route::post('/chats/{session}/resolve', [StaffChatController::class, 'resolveSession'])->name('chats.resolve');
 
     Route::view('/settings', 'staff.settings')
