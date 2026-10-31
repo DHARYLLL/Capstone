@@ -505,13 +505,19 @@
         }
 
         async function claimActiveChat() {
-            if (!activeId) return;
+            const sessionId = activeSession?.id;
+            if (sessionId === undefined || sessionId === null) {
+                console.error('Cannot claim chat: active session has no database ID.', { activeSession, activeId });
+                alert('Unable to claim this chat because its session ID is missing.');
+                return;
+            }
+
             try {
-                await requestJson(sessionUrl(chatRoutes.claim, activeId), {
+                await requestJson(sessionUrl(chatRoutes.claim, sessionId), {
                     method: 'POST',
-                    body: JSON.stringify({ session_id: activeId })
+                    body: JSON.stringify({ session_id: sessionId })
                 });
-                await selectChat(activeId);
+                await selectChat(sessionId);
             } catch (error) {
                 console.error('Claim session failed:', error);
                 alert(error.message);
