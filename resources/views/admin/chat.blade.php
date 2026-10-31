@@ -584,10 +584,14 @@
         refreshQueue();
         setInterval(async () => {
             await refreshQueue();
-            if (activeId) {
-                const response = await requestJson(sessionUrl(chatRoutes.messages, activeId));
-                renderTimeline(response.data);
-            }
+            const selectedSessionId = activeSession?.id ?? activeId;
+
+            if (!selectedSessionId) return;
+
+            const response = await requestJson(
+                sessionUrl(chatRoutes.messages, selectedSessionId)
+            );
+            renderTimeline(response.data);
         }, 3000);
     </script>
 @endsection
