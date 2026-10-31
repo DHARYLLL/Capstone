@@ -14,6 +14,11 @@ use App\Http\Controllers\StaffController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AdminChatController;
+use App\Models\ChatSession;
+
+Route::bind('session', function (string $value): ChatSession {
+    return ChatSession::query()->findOrFail($value);
+});
 //gi add ni gar -- end--
 
 // ── Public: redirects to login page ──
@@ -87,31 +92,11 @@ Route::controller(AuthController::class)->group(function (): void {
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
 
-// Helper function to protect routes in a single-company console
-if (!function_exists('protectRoute')) {
-    function protectRoute(string $viewName, string $requiredRole = null) {
-        return function () use ($viewName, $requiredRole) {
-            if (!session()->has('user_role')) {
-                return redirect()->route('login');
-            }
-
-            if ($requiredRole) {
-                $userRole = session('user_role');
-                if ($requiredRole === 'Administrator' && $userRole !== 'Administrator') {
-                    abort(403, 'Unauthorized. This section is restricted to Administrators only.');
-                }
-                if ($requiredRole === 'Lead Operator' && $userRole !== 'Lead Operator' && $userRole !== 'Administrator') {
-                    abort(403, 'Unauthorized. This section is restricted to Operators/Staff only.');
-                }
-            }
-
-            return view($viewName);
-        };
-    }
-}
-
 // ── Admin panel (Protected Single-Company Console) ──────────────────────────────────────────────
-Route::prefix('admin')->name('admin.')->group(function () {
+Route::prefix('admin')
+    ->name('admin.')
+    ->middleware(['auth', 'role:Administrator'])
+    ->group(function () {
 
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -150,7 +135,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     Route::get('/logs', [ActivityLogController::class, 'index'])->name('logs');
 
-    Route::get('/settings', protectRoute('admin.settings', 'Administrator'))->name('settings');
+    Route::view('/settings', 'admin.settings')->name('settings');
     Route::post('/settings/profile', [AuthController::class, 'updateProfile'])->name('settings.profile.update');
     Route::post('/settings/password', [AuthController::class, 'updatePassword'])->name('settings.password.update');
     Route::post('/settings', [AuthController::class, 'updateProfile'])->name('settings.post');
@@ -168,7 +153,9 @@ Route::prefix('staff')->name('staff.')->middleware('auth')->group(function () {
     Route::post('/chats/{session}/claim', [StaffChatController::class, 'claimSession'])->name('chats.claim');
     Route::post('/chats/{session}/resolve', [StaffChatController::class, 'resolveSession'])->name('chats.resolve');
 
-    Route::get('/settings', protectRoute('staff.settings', 'Lead Operator'))->name('settings');
+    Route::view('/settings', 'staff.settings')
+        ->middleware('role:Lead Operator,Administrator')
+        ->name('settings');
     Route::post('/settings/profile', [AuthController::class, 'updateProfile'])->name('settings.profile.update');
     Route::post('/settings/password', [AuthController::class, 'updatePassword'])->name('settings.password.update');
     Route::post('/settings', [AuthController::class, 'updateProfile'])->name('settings.post');
@@ -197,7 +184,9 @@ Route::controller(ChatbotController::class)->group(function (): void {
         ->name('chat.ask');
 
     // 4. Public endpoint used by the embedded widget to poll live replies
-    Route::get('/get-messages/{sessionId}', 'getMessages')->name('chat.messages');
+    Route::get('/get-messages/{sessionToken}', 'getMessages')
+        ->where('sessionToken', '[A-Za-z0-9]{64}')
+        ->name('chat.messages');
     Route::get('/api/chatbot/contact-info', [ChatbotController::class, 'getContactInfo'])->name('chatbot.contact-info');
     
     // 5. Cancel handoff endpoint

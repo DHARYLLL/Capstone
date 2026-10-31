@@ -14,8 +14,6 @@ class AdminChatController extends Controller
 {
     public function index(): View
     {
-        $this->authorizeAdmin();
-
         $sessions = $this->activeSessions()->get();
         $waitingCount = ChatSession::query()->whereIn('status', ['waiting', 'pending', 'queued'])->count();
         $activeCount = ChatSession::query()
@@ -28,8 +26,6 @@ class AdminChatController extends Controller
 
     public function sessions(): JsonResponse
     {
-        $this->authorizeAdmin();
-
         $sessions = $this->activeSessions()->get()->map(fn (ChatSession $session): array => $this->sessionPayload($session));
 
         return response()->json([
@@ -44,8 +40,6 @@ class AdminChatController extends Controller
 
     public function pendingCount(): JsonResponse
     {
-        $this->authorizeAdmin();
-
         return response()->json([
             'count' => $this->pendingSessionsQuery()->count(),
         ]);
@@ -53,8 +47,6 @@ class AdminChatController extends Controller
 
     public function messages(ChatSession $session): JsonResponse
     {
-        $this->authorizeAdmin();
-
         return response()->json([
             'data' => $session->chatMessages()->oldest('created_at')->get()->map(static fn (ChatMessage $message): array => [
                 'id' => $message->id,
@@ -67,7 +59,6 @@ class AdminChatController extends Controller
 
     public function claim(ChatSession $session): JsonResponse
     {
-        $this->authorizeAdmin();
         abort_unless($this->isActiveSession($session), 422, 'This chat is no longer active.');
         $wasAssigned = filled($session->assigned_user_id);
 
@@ -91,7 +82,6 @@ class AdminChatController extends Controller
 
     public function reply(Request $request, ChatSession $session): JsonResponse
     {
-        $this->authorizeAdmin();
         abort_unless($session->assigned_user_id === Auth::id(), 403);
 
         $validated = $request->validate(['message' => ['required', 'string', 'max:5000']]);
@@ -106,7 +96,6 @@ class AdminChatController extends Controller
 
     public function resolve(ChatSession $session): JsonResponse
     {
-        $this->authorizeAdmin();
         abort_unless($session->assigned_user_id === Auth::id(), 403);
 
         $session->update(['status' => 'bot_active', 'assigned_user_id' => null]);
@@ -165,8 +154,4 @@ class AdminChatController extends Controller
         return $query;
     }
 
-    private function authorizeAdmin(): void
-    {
-        abort_unless(session('user_role') === 'Administrator', 403);
-    }
 }

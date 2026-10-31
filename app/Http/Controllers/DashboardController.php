@@ -18,8 +18,6 @@ class DashboardController extends Controller
 {
     public function index(Request $request): View
     {
-        abort_unless(session('user_role') === 'Administrator', 403);
-
         $user = $request->user() ?? Auth::user();
         $companyId = $user?->company_id ?? $request->integer('company_id');
         

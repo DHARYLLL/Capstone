@@ -158,15 +158,15 @@ class ChatbotController extends Controller
             'prompt' => ['required', 'string', 'max:5000'],
             'user_identifier' => ['nullable', 'string', 'max:255'],
             'user_id' => ['nullable', 'string', 'max:255'],
-            'session_id' => ['nullable', 'integer'],
+            'session_token' => ['nullable', 'string', 'size:64', 'regex:/^[A-Za-z0-9]+$/'],
         ]);
 
         $promptText = trim($validated['prompt']);
         $userIdentifier = trim((string) ($validated['user_identifier'] ?? $validated['user_id'] ?? 'guest'));
 
-        if ($validated['session_id'] ?? null) {
+        if ($validated['session_token'] ?? null) {
             $session = ChatSession::query()
-                ->whereKey($validated['session_id'])
+                ->where('token', $validated['session_token'])
                 ->where('company_id', $businessUnit->company_id)
                 ->where('business_unit_id', $businessUnit->id)
                 ->firstOrFail();
@@ -197,7 +197,7 @@ class ChatbotController extends Controller
         if ($session->status === 'human_active') {
             return response()->json([
                 'status' => 'success',
-                'session_id' => $session->id,
+                'session_token' => $session->token,
                 'message_id' => $customerMessage->id,
             ]);
         }
@@ -205,7 +205,7 @@ class ChatbotController extends Controller
         if ($session->status === 'waiting') {
             return response()->json([
                 'status' => 'waiting',
-                'session_id' => $session->id,
+                'session_token' => $session->token,
                 'message_id' => $customerMessage->id,
             ]);
         }
@@ -213,7 +213,7 @@ class ChatbotController extends Controller
         if ($session->status === 'pending') {
             return response()->json([
                 'status' => 'pending',
-                'session_id' => $session->id,
+                'session_token' => $session->token,
                 'message_id' => $customerMessage->id,
             ]);
         }
@@ -226,7 +226,7 @@ class ChatbotController extends Controller
                 'status' => 'waiting',
                 'message' => $promptText,
                 'response' => 'Connecting you to a live representative...',
-                'session_id' => $session->id,
+                'session_token' => $session->token,
                 'message_id' => $customerMessage->id,
                 'low_confidence_flag' => false,
             ]);
@@ -249,7 +249,7 @@ class ChatbotController extends Controller
                 'status' => 'bot_active',
                 'message' => $promptText,
                 'response' => Str::markdown($greetingReply),
-                'session_id' => $session->id,
+                'session_token' => $session->token,
                 'message_id' => $botMessage->id,
                 'customer_message_id' => $customerMessage->id,
                 'distance' => null,
@@ -359,7 +359,7 @@ class ChatbotController extends Controller
                 'status' => 'bot_active',
                 'message' => $promptText,
                 'response' => Str::markdown($rawResponse),
-                'session_id' => $session->id,
+                'session_token' => $session->token,
                 'message_id' => $botMessage->id,
                 'customer_message_id' => $customerMessage->id,
                 'distance' => $candidateRows->isNotEmpty() ? round($bestDistance, 4) : null,
@@ -371,7 +371,7 @@ class ChatbotController extends Controller
         } catch (\Throwable $e) {
             logger()->error('Gemini Chat Error', [
                 'business_unit_id' => $businessUnit->id,
-                'session_id' => $session->id,
+                'session_token' => $session->token,
                 'error' => $e->getMessage(),
             ]);
 
@@ -379,9 +379,9 @@ class ChatbotController extends Controller
         }
     }
 
-    public function getMessages(Request $request, int $sessionId): JsonResponse
+    public function getMessages(Request $request, string $sessionToken): JsonResponse
     {
-        $sessionQuery = ChatSession::query()->whereKey($sessionId);
+        $sessionQuery = ChatSession::query()->where('token', $sessionToken);
         $user = $request->user();
 
         if ($user) {
@@ -481,7 +481,7 @@ class ChatbotController extends Controller
             'status' => 'bot_active',
             'message' => $promptText,
             'response' => Str::markdown($fallbackMessage),
-            'session_id' => $session->id,
+            'session_token' => $session->token,
             'message_id' => $botMessage->id,
             'customer_message_id' => $customerMessage->id,
             'trigger_handoff_prompt' => true,
@@ -512,7 +512,7 @@ class ChatbotController extends Controller
             'status' => 'bot_active',
             'message' => $promptText,
             'response' => Str::markdown($message),
-            'session_id' => $session->id,
+            'session_token' => $session->token,
             'message_id' => $botMessage->id,
             'customer_message_id' => $customerMessage->id,
             'trigger_handoff_prompt' => true,
@@ -523,9 +523,17 @@ class ChatbotController extends Controller
     public function getContactInfo(Request $request): JsonResponse
     {
         try {
+            $request->validate([
+                'session_token' => ['nullable', 'string', 'size:64', 'regex:/^[A-Za-z0-9]+$/'],
+            ]);
+
             $businessParam = trim((string) ($request->query('business') ?? ''));
-            $sessionId = $request->query('session_id') ?? $request->query('sessionId');
-            $session = $sessionId ? ChatSession::find($sessionId) : null;
+            $sessionToken = $request->query('session_token');
+            $session = $sessionToken
+                ? ChatSession::query()->where('token', $sessionToken)->first()
+                : null;
+
+            abort_if($sessionToken !== null && $session === null, 404);
 
             if ($session) {
                 $this->ensureAuthenticatedCompanyScope($request, $session->company_id);
@@ -978,11 +986,13 @@ class ChatbotController extends Controller
     public function cancelHandoff(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'session_id' => ['required', 'integer'],
+            'session_token' => ['required', 'string', 'size:64', 'regex:/^[A-Za-z0-9]+$/'],
         ]);
 
         try {
-            $session = ChatSession::findOrFail($validated['session_id']);
+            $session = ChatSession::query()
+                ->where('token', $validated['session_token'])
+                ->firstOrFail();
             $this->ensureAuthenticatedCompanyScope($request, $session->company_id);
 
             // Update session to bot_active and clear operator assignments
@@ -995,11 +1005,11 @@ class ChatbotController extends Controller
             return response()->json([
                 'status' => 'cancelled',
                 'message' => 'Handoff request cancelled.',
-                'session_id' => $session->id,
+                'session_token' => $session->token,
             ]);
         } catch (\Throwable $e) {
             logger()->error('Cancel handoff failed', [
-                'session_id' => $validated['session_id'],
+                'session_token' => $validated['session_token'],
                 'error' => $e->getMessage(),
             ]);
 

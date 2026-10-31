@@ -27,7 +27,6 @@ class AdminController extends Controller
 
     public function knowledgeBase(Request $request): View
     {
-        abort_unless(session('user_role') === 'Administrator', 403);
         $companyId = $this->currentCompanyId($request);
 
         $chunks = BusinessKnowledge::query()
@@ -46,7 +45,6 @@ class AdminController extends Controller
 
     public function storeChunk(Request $request): JsonResponse
     {
-        abort_unless(session('user_role') === 'Administrator', 403);
         $companyId = $this->currentCompanyId($request);
 
         $validated = $request->validate([
@@ -81,7 +79,6 @@ class AdminController extends Controller
 
     public function destroyChunk(Request $request, BusinessKnowledge $knowledge): JsonResponse
     {
-        abort_unless(session('user_role') === 'Administrator', 403);
         $this->ensureKnowledgeCompanyScope($request, $knowledge);
 
         $knowledge->delete();
@@ -92,7 +89,6 @@ class AdminController extends Controller
 
     public function updateChunk(Request $request, BusinessKnowledge $knowledge): JsonResponse
     {
-        abort_unless(session('user_role') === 'Administrator', 403);
         $this->ensureKnowledgeCompanyScope($request, $knowledge);
 
         $validated = $request->validate([
@@ -118,7 +114,6 @@ class AdminController extends Controller
 
     public function stagedKnowledge(): JsonResponse
     {
-        abort_unless(session('user_role') === 'Administrator', 403);
         $companyId = $this->currentCompanyId(request());
 
         $documents = StagedKnowledgeDocument::query()
@@ -140,7 +135,6 @@ class AdminController extends Controller
 
     public function uploadKnowledge(Request $request): JsonResponse
     {
-        abort_unless(session('user_role') === 'Administrator', 403);
         $companyId = $this->currentCompanyId($request);
 
         $validated = $request->validate([
@@ -201,7 +195,6 @@ class AdminController extends Controller
 
     public function approveStagedKnowledge(Request $request, StagedKnowledgeDocument $stagedDocument): JsonResponse
     {
-        abort_unless(session('user_role') === 'Administrator', 403);
         $this->ensureStagedDocumentCompanyScope($request, $stagedDocument);
         abort_unless($stagedDocument->status === 'staged', 409, 'This file has already been processed.');
         $this->quotaService->assertCanAcceptUpload(
@@ -241,7 +234,6 @@ class AdminController extends Controller
 
     public function discardStagedKnowledge(Request $request, StagedKnowledgeDocument $stagedDocument): JsonResponse
     {
-        abort_unless(session('user_role') === 'Administrator', 403);
         $this->ensureStagedDocumentCompanyScope($request, $stagedDocument);
         abort_unless($stagedDocument->status === 'staged', 409, 'Only staged files can be discarded.');
 
