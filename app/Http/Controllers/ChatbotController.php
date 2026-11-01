@@ -7,6 +7,7 @@ use App\Models\BusinessKnowledge;
 use App\Models\ChatMessage;
 use App\Models\ChatSession;
 use App\Models\ActivityLog;
+use App\Services\EmbeddingService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Client\ConnectionException;
@@ -21,6 +22,9 @@ use Throwable;
 
 class ChatbotController extends Controller
 {
+    public function __construct(private readonly EmbeddingService $embeddingService)
+    {
+    }
     // public function chat(BusinessUnit $businessUnit): View
     // {
     //     // Hardcode business unit ID = 1 for testing
@@ -158,15 +162,15 @@ class ChatbotController extends Controller
             'prompt' => ['required', 'string', 'max:5000'],
             'user_identifier' => ['nullable', 'string', 'max:255'],
             'user_id' => ['nullable', 'string', 'max:255'],
-            'session_id' => ['nullable', 'integer'],
+            'session_token' => ['nullable', 'string', 'size:64', 'regex:/^[A-Za-z0-9]+$/'],
         ]);
 
         $promptText = trim($validated['prompt']);
         $userIdentifier = trim((string) ($validated['user_identifier'] ?? $validated['user_id'] ?? 'guest'));
 
-        if ($validated['session_id'] ?? null) {
+        if ($validated['session_token'] ?? null) {
             $session = ChatSession::query()
-                ->whereKey($validated['session_id'])
+                ->where('token', $validated['session_token'])
                 ->where('company_id', $businessUnit->company_id)
                 ->where('business_unit_id', $businessUnit->id)
                 ->firstOrFail();
@@ -197,7 +201,7 @@ class ChatbotController extends Controller
         if ($session->status === 'human_active') {
             return response()->json([
                 'status' => 'success',
-                'session_id' => $session->id,
+                'session_token' => $session->token,
                 'message_id' => $customerMessage->id,
             ]);
         }
@@ -205,7 +209,7 @@ class ChatbotController extends Controller
         if ($session->status === 'waiting') {
             return response()->json([
                 'status' => 'waiting',
-                'session_id' => $session->id,
+                'session_token' => $session->token,
                 'message_id' => $customerMessage->id,
             ]);
         }
@@ -213,7 +217,7 @@ class ChatbotController extends Controller
         if ($session->status === 'pending') {
             return response()->json([
                 'status' => 'pending',
-                'session_id' => $session->id,
+                'session_token' => $session->token,
                 'message_id' => $customerMessage->id,
             ]);
         }
@@ -226,7 +230,7 @@ class ChatbotController extends Controller
                 'status' => 'waiting',
                 'message' => $promptText,
                 'response' => 'Connecting you to a live representative...',
-                'session_id' => $session->id,
+                'session_token' => $session->token,
                 'message_id' => $customerMessage->id,
                 'low_confidence_flag' => false,
             ]);
@@ -249,7 +253,7 @@ class ChatbotController extends Controller
                 'status' => 'bot_active',
                 'message' => $promptText,
                 'response' => Str::markdown($greetingReply),
-                'session_id' => $session->id,
+                'session_token' => $session->token,
                 'message_id' => $botMessage->id,
                 'customer_message_id' => $customerMessage->id,
                 'distance' => null,
@@ -275,12 +279,17 @@ class ChatbotController extends Controller
             $bestDistance = 1.0;
 
             if (! empty($queryEmbedding)) {
+                $distanceThreshold = (float) config('rag.retrieval_distance_threshold', 0.40);
                 $vectorRows = $resolvedBusinessUnit->businessKnowledge()
                     ->select(['content', 'embedding'])
                     ->selectRaw('embedding::extensions.vector <=> ?::extensions.vector AS distance', [$queryEmbedding])
                     ->where('company_id', $resolvedBusinessUnit->company_id)
                     ->where('business_unit_id', $resolvedBusinessUnit->id)
                     ->whereNotNull('embedding')
+                    ->whereRaw(
+                        'embedding::extensions.vector <=> ?::extensions.vector <= ?',
+                        [$queryEmbedding, $distanceThreshold],
+                    )
                     ->orderByRaw('embedding::extensions.vector <=> ?::extensions.vector ASC', [$queryEmbedding])
                     ->limit(5)
                     ->get();
@@ -295,19 +304,10 @@ class ChatbotController extends Controller
             $candidateRows = $vectorRows;
 
             if ($candidateRows->isEmpty()) {
-                $candidateRows = $resolvedBusinessUnit->businessKnowledge()
-                    ->select('content')
-                    ->where('company_id', $resolvedBusinessUnit->company_id)
-                    ->where('business_unit_id', $resolvedBusinessUnit->id)
-                    ->whereNotNull('content')
-                    ->latest()
-                    ->limit(5)
-                    ->get();
+                return $this->insufficientKnowledgeResponse($session, $customerMessage, $promptText);
             }
 
-            $knowledgeBase = $candidateRows->isNotEmpty()
-                ? $candidateRows->pluck('content')->implode("\n\n")
-                : 'No relevant knowledge snippets were found in the business knowledge base.';
+            $knowledgeBase = $candidateRows->pluck('content')->implode("\n\n");
 
             $historyMessages = $session->chatMessages()->latest()->limit(8)->get()->reverse();
             $conversationContext = '';
@@ -344,7 +344,7 @@ class ChatbotController extends Controller
             $rawResponse = $this->extractGeminiText($response);
 
             if ($rawResponse === '') {
-                return $this->fallbackChatResponse($session, $customerMessage, $businessUnit, $promptText);
+                return $this->fallbackChatResponse($session, $customerMessage, $businessUnit, $promptText, true);
             }
 
             $session->update(['status' => 'bot_active']);
@@ -359,7 +359,7 @@ class ChatbotController extends Controller
                 'status' => 'bot_active',
                 'message' => $promptText,
                 'response' => Str::markdown($rawResponse),
-                'session_id' => $session->id,
+                'session_token' => $session->token,
                 'message_id' => $botMessage->id,
                 'customer_message_id' => $customerMessage->id,
                 'distance' => $candidateRows->isNotEmpty() ? round($bestDistance, 4) : null,
@@ -369,19 +369,21 @@ class ChatbotController extends Controller
                 'low_confidence_flag' => $lowConfidenceFlag,
             ]);
         } catch (\Throwable $e) {
+            $correlationId = (string) Str::uuid();
             logger()->error('Gemini Chat Error', [
+                'correlation_id' => $correlationId,
                 'business_unit_id' => $businessUnit->id,
-                'session_id' => $session->id,
+                'session_token' => $session->token,
                 'error' => $e->getMessage(),
             ]);
 
-            return $this->fallbackChatResponse($session, $customerMessage, $businessUnit, $promptText);
+            return $this->fallbackChatResponse($session, $customerMessage, $businessUnit, $promptText, true);
         }
     }
 
-    public function getMessages(Request $request, int $sessionId): JsonResponse
+    public function getMessages(Request $request, string $sessionToken): JsonResponse
     {
-        $sessionQuery = ChatSession::query()->whereKey($sessionId);
+        $sessionQuery = ChatSession::query()->where('token', $sessionToken);
         $user = $request->user();
 
         if ($user) {
@@ -391,7 +393,9 @@ class ChatbotController extends Controller
 
         $session = $sessionQuery->firstOrFail();
 
-        $messagesQuery = $session->chatMessages()->orderBy('created_at');
+        $messagesQuery = $session->chatMessages()
+            ->with('chatFeedback')
+            ->orderBy('created_at');
 
         if ($session->handed_off_at) {
             $messagesQuery = $messagesQuery->where('created_at', '>=', $session->handed_off_at);
@@ -411,6 +415,10 @@ class ChatbotController extends Controller
                     'sender_type' => $message->sender_type,
                     'message_text' => $message->message_text,
                     'created_at' => $message->created_at?->toISOString(),
+                    'feedback' => $message->chatFeedback ? [
+                        'rating' => $message->chatFeedback->rating,
+                        'comment' => $message->chatFeedback->comment,
+                    ] : null,
                 ];
             })->values(),
         ]);
@@ -467,6 +475,7 @@ class ChatbotController extends Controller
         ChatMessage $customerMessage,
         BusinessUnit $businessUnit,
         string $promptText,
+        bool $degraded = false,
     ): JsonResponse {
         $company = $businessUnit->company()->first(['contact_email', 'contact_phone', 'contact_address']);
         $contactLines = collect([
@@ -489,11 +498,14 @@ class ChatbotController extends Controller
             'message_text' => $fallbackMessage,
         ]);
 
+        $correlationId = (string) Str::uuid();
+
         return response()->json([
-            'status' => 'bot_active',
+            'success' => ! $degraded,
+            'status' => $degraded ? 'degraded' : 'bot_active',
             'message' => $promptText,
             'response' => Str::markdown($fallbackMessage),
-            'session_id' => $session->id,
+            'session_token' => $session->token,
             'message_id' => $botMessage->id,
             'customer_message_id' => $customerMessage->id,
             'trigger_handoff_prompt' => true,
@@ -501,6 +513,34 @@ class ChatbotController extends Controller
             'contact_phone' => $company?->contact_phone,
             'contact_address' => $company?->contact_address,
             'low_confidence_flag' => true,
+            'degraded' => $degraded,
+            'correlation_id' => $correlationId,
+        ], $degraded ? 503 : 200);
+    }
+
+    private function insufficientKnowledgeResponse(
+        ChatSession $session,
+        ChatMessage $customerMessage,
+        string $promptText,
+    ): JsonResponse {
+        $message = 'I do not have enough relevant information in the knowledge base to answer that question. '
+            .'Please rephrase your question or connect with a human staff member for help.';
+
+        $session->update(['status' => 'bot_active']);
+        $botMessage = $session->chatMessages()->create([
+            'sender_type' => 'bot',
+            'message_text' => $message,
+        ]);
+
+        return response()->json([
+            'status' => 'bot_active',
+            'message' => $promptText,
+            'response' => Str::markdown($message),
+            'session_token' => $session->token,
+            'message_id' => $botMessage->id,
+            'customer_message_id' => $customerMessage->id,
+            'low_confidence_flag' => true,
+            'insufficient_knowledge' => true,
         ]);
     }
 
@@ -524,7 +564,7 @@ class ChatbotController extends Controller
             'status' => 'bot_active',
             'message' => $promptText,
             'response' => Str::markdown($message),
-            'session_id' => $session->id,
+            'session_token' => $session->token,
             'message_id' => $botMessage->id,
             'customer_message_id' => $customerMessage->id,
             'trigger_handoff_prompt' => true,
@@ -535,9 +575,17 @@ class ChatbotController extends Controller
     public function getContactInfo(Request $request): JsonResponse
     {
         try {
+            $request->validate([
+                'session_token' => ['nullable', 'string', 'size:64', 'regex:/^[A-Za-z0-9]+$/'],
+            ]);
+
             $businessParam = trim((string) ($request->query('business') ?? ''));
-            $sessionId = $request->query('session_id') ?? $request->query('sessionId');
-            $session = $sessionId ? ChatSession::find($sessionId) : null;
+            $sessionToken = $request->query('session_token');
+            $session = $sessionToken
+                ? ChatSession::query()->where('token', $sessionToken)->first()
+                : null;
+
+            abort_if($sessionToken !== null && $session === null, 404);
 
             if ($session) {
                 $this->ensureAuthenticatedCompanyScope($request, $session->company_id);
@@ -622,6 +670,7 @@ class ChatbotController extends Controller
     {
         $embedding = $this->embedUserPrompt($prompt);
         $knowledgeRows = collect();
+        $distanceThreshold = (float) config('rag.retrieval_distance_threshold', 0.40);
 
         if (! empty($embedding)) {
             $knowledgeRows = $businessUnit->businessKnowledge()
@@ -630,20 +679,18 @@ class ChatbotController extends Controller
                 ->where('company_id', $businessUnit->company_id)
                 ->where('business_unit_id', $businessUnit->id)
                 ->whereNotNull('embedding')
+                ->whereRaw(
+                    'embedding::extensions.vector <=> ?::extensions.vector <= ?',
+                    [$embedding, $distanceThreshold],
+                )
                 ->orderByRaw('embedding::extensions.vector <=> ?::extensions.vector ASC', [$embedding])
                 ->limit(5)
                 ->get();
         }
 
-            if ($knowledgeRows->isEmpty()) {
-                $knowledgeRows = $businessUnit->businessKnowledge()
-                ->select('content')
-                ->where('company_id', $businessUnit->company_id)
-                ->where('business_unit_id', $businessUnit->id)
-                ->whereNotNull('content')
-                ->limit(20)
-                ->get();
-            }
+        if ($knowledgeRows->isEmpty()) {
+            return 'I do not have enough relevant information in the knowledge base to answer that question.';
+        }
 
         $knowledgeText = $knowledgeRows->pluck('content')->implode("\n\n");
 
@@ -680,12 +727,16 @@ class ChatbotController extends Controller
 
             return $rawResponse ?: $knowledgeText;
         } catch (\Throwable $e) {
-            logger()->warning('Contact response generation failed; returning retrieved knowledge.', [
+            $correlationId = (string) Str::uuid();
+            logger()->error('AI response generation failed.', [
+                'correlation_id' => $correlationId,
                 'business_unit_id' => $businessUnit->id,
                 'error' => $e->getMessage(),
             ]);
 
-            return $knowledgeText;
+            return "The AI response service is temporarily unavailable. "
+                ."Please try again shortly or connect with a human staff member. "
+                ."(Reference: {$correlationId})";
         }
     }
 
@@ -990,11 +1041,13 @@ class ChatbotController extends Controller
     public function cancelHandoff(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'session_id' => ['required', 'integer'],
+            'session_token' => ['required', 'string', 'size:64', 'regex:/^[A-Za-z0-9]+$/'],
         ]);
 
         try {
-            $session = ChatSession::findOrFail($validated['session_id']);
+            $session = ChatSession::query()
+                ->where('token', $validated['session_token'])
+                ->firstOrFail();
             $this->ensureAuthenticatedCompanyScope($request, $session->company_id);
 
             // Update session to bot_active and clear operator assignments
@@ -1007,11 +1060,11 @@ class ChatbotController extends Controller
             return response()->json([
                 'status' => 'cancelled',
                 'message' => 'Handoff request cancelled.',
-                'session_id' => $session->id,
+                'session_token' => $session->token,
             ]);
         } catch (\Throwable $e) {
             logger()->error('Cancel handoff failed', [
-                'session_id' => $validated['session_id'],
+                'session_token' => $validated['session_token'],
                 'error' => $e->getMessage(),
             ]);
 
@@ -1028,37 +1081,23 @@ class ChatbotController extends Controller
     private function embedUserPrompt(string $prompt): ?string
     {
         try {
-            $response = retry(
-                [200, 400, 800],
-                fn () => app(\Gemini\Contracts\ClientContract::class)
-                    ->embeddingModel('gemini-embedding-001')
-                    ->embedContent(
-                        $prompt,
-                        \Gemini\Enums\TaskType::RETRIEVAL_QUERY,
-                        null,
-                        768
-                    ),
-                when: fn (Throwable $exception): bool => $this->shouldRetryGemini($exception),
-            );
+            $values = $this->embeddingService->embedQuery($prompt);
 
-            $values = $response->embedding->values ?? null;
-
-            if (! is_array($values) || count($values) === 0) {
-                return null;
-            }
-
-            $floatValues = array_map(
-                static fn ($value): float => (float) $value,
-                $values
-            );
-
-            return '[' . implode(',', $floatValues) . ']';
+            return '[' . implode(',', array_map(
+                static fn (float $value): string => (string) $value,
+                $values,
+            )) . ']';
         } catch (\Throwable $e) {
+            $correlationId = (string) Str::uuid();
             logger()->error('Embedding generation failed', [
+                'correlation_id' => $correlationId,
                 'error' => $e->getMessage(),
             ]);
 
-            return null;
+            throw new \RuntimeException(
+                "Embedding generation failed. Correlation ID: {$correlationId}",
+                previous: $e,
+            );
         }
     }
 

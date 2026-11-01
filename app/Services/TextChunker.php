@@ -127,6 +127,50 @@ class TextChunker
     }
 
     /**
+     * Yield chunks from bounded text segments without retaining the document.
+     *
+     * @param  iterable<int, string>  $segments
+     * @return \Generator<int, string>
+     */
+    public static function chunkSegments(
+        iterable $segments,
+        int $chunkSize = self::DEFAULT_CHUNK_SIZE,
+        int $overlap = self::DEFAULT_OVERLAP,
+    ): \Generator {
+        $chunkSize = max(1, $chunkSize);
+        $overlap = max(0, min($overlap, $chunkSize - 1));
+        $buffer = '';
+
+        foreach ($segments as $segment) {
+            $cleanSegment = self::cleanExtractedText($segment);
+
+            if ($cleanSegment === '') {
+                continue;
+            }
+
+            $buffer = trim($buffer.' '.$cleanSegment);
+
+            while (mb_strlen($buffer) > $chunkSize + $overlap) {
+                $candidate = mb_substr($buffer, 0, $chunkSize + $overlap);
+                $candidateChunks = self::chunk($candidate, $chunkSize, $overlap);
+                $chunk = $candidateChunks[0] ?? '';
+
+                if ($chunk === '') {
+                    break;
+                }
+
+                yield $chunk;
+                $nextStart = max(1, mb_strlen($chunk) - $overlap);
+                $buffer = ltrim(mb_substr($buffer, $nextStart));
+            }
+        }
+
+        foreach (self::chunk($buffer, $chunkSize, $overlap) as $chunk) {
+            yield $chunk;
+        }
+    }
+
+    /**
      * @param  array<string, int>  $lineFrequency
      */
     private static function shouldDropBoilerplateLine(string $line, string $normalizedLine, array $lineFrequency): bool

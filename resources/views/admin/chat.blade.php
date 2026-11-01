@@ -234,12 +234,13 @@
     <script>
         const chatRoutes = {
             sessions: @json(route('admin.chat.sessions')),
-            messages: @json(route('admin.chat.messages', ['session' => '__SESSION__'])),
-            claim: @json(route('admin.chat.claim', ['session' => '__SESSION__'])),
-            reply: @json(route('admin.chat.reply', ['session' => '__SESSION__'])),
-            resolve: @json(route('admin.chat.resolve', ['session' => '__SESSION__']))
+            messages: @json(route('admin.chat.messages', ['sessionId' => '__SESSION__'])),
+            claim: @json(route('admin.chat.claim', ['sessionId' => '__SESSION__'])),
+            reply: @json(route('admin.chat.reply', ['sessionId' => '__SESSION__'])),
+            resolve: @json(route('admin.chat.resolve', ['sessionId' => '__SESSION__']))
         };
-        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}';
+        const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+        const csrfToken = csrfMeta?.getAttribute('content') || '{{ csrf_token() }}';
         let activeId = null;
         let activeSession = null;
         let allSessions = [];
@@ -251,9 +252,32 @@
         async function requestJson(url, options = {}) {
             const response = await fetch(url, {
                 ...options,
-                headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken, ...(options.headers || {}) }
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    ...(options.headers || {})
+                }
             });
-            if (!response.ok) throw new Error('Chat request failed.');
+            if (!response.ok) {
+                const responseText = await response.text();
+                let payload = {};
+
+                try {
+                    payload = responseText ? JSON.parse(responseText) : {};
+                } catch {
+                    payload = { raw_response: responseText };
+                }
+
+                console.error('Chat request failed', {
+                    url,
+                    status: response.status,
+                    statusText: response.statusText,
+                    response: payload
+                });
+
+                throw new Error(payload.message || `Chat request failed (${response.status}).`);
+            }
             return response.json();
         }
 
@@ -283,16 +307,37 @@
 
             sessions.forEach(session => {
                 const item = document.createElement('div');
+                const sessionId = session.id;
                 const waiting = ['waiting', 'pending', 'queued'].includes(session.raw_status);
-                const isSelected = String(session.id) === String(activeId);
+                const isSelected = String(sessionId) === String(activeId);
                 const initials = (session.customer_name || 'CL').substring(0, 2).toUpperCase();
 
+                if (sessionId === undefined || sessionId === null || sessionId === '') {
+                    console.error('Skipping queue item without a database session ID.', { session });
+                    return;
+                }
+
+                item.dataset.sessionId = String(sessionId);
+                item.setAttribute('data-session-id', String(sessionId));
                 item.className = `p-3 rounded-xl border transition-all duration-150 cursor-pointer text-left ${
                     isSelected 
                         ? 'bg-violet-50/70 border-violet-300 shadow-xs ring-1 ring-violet-200' 
                         : 'bg-white border-slate-200/80 hover:border-slate-300 hover:bg-slate-50/70'
                 }`;
-                item.addEventListener('click', () => selectChat(session.id));
+                item.addEventListener('click', (event) => {
+                    const selectedSessionId = event.currentTarget.dataset.sessionId;
+
+                    if (!selectedSessionId) {
+                        console.error('Cannot select queue item without a database session ID.', { session });
+                        return;
+                    }
+
+                    console.debug('Selecting chat session from queue card.', {
+                        sessionId: selectedSessionId,
+                        customer: session.customer_name
+                    });
+                    selectChat(selectedSessionId);
+                });
 
                 item.innerHTML = `
                     <div class="flex items-start gap-2.5">
@@ -360,16 +405,23 @@
         }
 
         async function selectChat(id) {
-            activeId = id;
+            const sessionId = String(id ?? '').trim();
+
+            if (!/^\d+$/.test(sessionId) || Number(sessionId) < 1) {
+                console.error('Cannot select chat: invalid database session ID.', { id });
+                return;
+            }
+
+            activeId = sessionId;
             activeSession = null;
             document.getElementById('chat-empty-state').classList.add('hidden');
             try {
                 const [queue, messages] = await Promise.all([
                     requestJson(chatRoutes.sessions),
-                    requestJson(sessionUrl(chatRoutes.messages, id))
+                    requestJson(sessionUrl(chatRoutes.messages, sessionId))
                 ]);
                 allSessions = queue.data || [];
-                activeSession = allSessions.find(session => String(session.id) === String(id));
+                activeSession = allSessions.find(session => String(session.id) === sessionId);
                 renderQueue(allSessions);
                 updateHeader();
                 renderTimeline(messages.data);
@@ -481,9 +533,23 @@
         }
 
         async function claimActiveChat() {
-            if (!activeId) return;
-            await requestJson(sessionUrl(chatRoutes.claim, activeId), { method: 'POST' });
-            await selectChat(activeId);
+            const sessionId = activeSession?.id;
+            if (sessionId === undefined || sessionId === null) {
+                console.error('Cannot claim chat: active session has no database ID.', { activeSession, activeId });
+                alert('Unable to claim this chat because its session ID is missing.');
+                return;
+            }
+
+            try {
+                await requestJson(sessionUrl(chatRoutes.claim, sessionId), {
+                    method: 'POST',
+                    body: JSON.stringify({ session_id: sessionId })
+                });
+                await selectChat(sessionId);
+            } catch (error) {
+                console.error('Claim session failed:', error);
+                alert(error.message);
+            }
         }
 
         async function resolveActiveChat() {
@@ -518,10 +584,14 @@
         refreshQueue();
         setInterval(async () => {
             await refreshQueue();
-            if (activeId) {
-                const response = await requestJson(sessionUrl(chatRoutes.messages, activeId));
-                renderTimeline(response.data);
-            }
+            const selectedSessionId = activeSession?.id ?? activeId;
+
+            if (!selectedSessionId) return;
+
+            const response = await requestJson(
+                sessionUrl(chatRoutes.messages, selectedSessionId)
+            );
+            renderTimeline(response.data);
         }, 3000);
     </script>
 @endsection

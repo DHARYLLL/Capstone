@@ -12,5 +12,5 @@ php artisan view:cache
 echo "Running Supabase database migrations..."
 php artisan migrate --force
 
-echo "Launching Web Server..."
-apache2-foreground
+echo "Launching Apache and Laravel queue worker under Supervisor..."
+exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf

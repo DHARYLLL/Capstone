@@ -8,14 +8,15 @@ use App\Models\ChatSession;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
+use Throwable;
 
 class AdminChatController extends Controller
 {
     public function index(): View
     {
-        $this->authorizeAdmin();
-
         $sessions = $this->activeSessions()->get();
         $waitingCount = ChatSession::query()->whereIn('status', ['waiting', 'pending', 'queued'])->count();
         $activeCount = ChatSession::query()
@@ -28,8 +29,6 @@ class AdminChatController extends Controller
 
     public function sessions(): JsonResponse
     {
-        $this->authorizeAdmin();
-
         $sessions = $this->activeSessions()->get()->map(fn (ChatSession $session): array => $this->sessionPayload($session));
 
         return response()->json([
@@ -44,16 +43,14 @@ class AdminChatController extends Controller
 
     public function pendingCount(): JsonResponse
     {
-        $this->authorizeAdmin();
-
         return response()->json([
             'count' => $this->pendingSessionsQuery()->count(),
         ]);
     }
 
-    public function messages(ChatSession $session): JsonResponse
+    public function messages(int $sessionId): JsonResponse
     {
-        $this->authorizeAdmin();
+        $session = $this->resolveSessionById($sessionId);
 
         return response()->json([
             'data' => $session->chatMessages()->oldest('created_at')->get()->map(static fn (ChatMessage $message): array => [
@@ -65,33 +62,59 @@ class AdminChatController extends Controller
         ]);
     }
 
-    public function claim(ChatSession $session): JsonResponse
+    public function claim(int $sessionId): JsonResponse
     {
-        $this->authorizeAdmin();
-        abort_unless($this->isActiveSession($session), 422, 'This chat is no longer active.');
-        $wasAssigned = filled($session->assigned_user_id);
+        $user = Auth::user();
+        $session = null;
 
-        $session->update([
-            'status' => 'human_active',
-            'assigned_user_id' => Auth::id(),
-            'handed_off_at' => $session->handed_off_at ?? now(),
-        ]);
+        try {
+            $session = $this->resolveSessionById($sessionId);
+            abort_unless($this->canAccessSession($session, $user), 404);
 
-        ActivityLog::record(
-            Auth::id(),
-            $wasAssigned ? 'Admin took over chat from Operator' : 'Human handoff accepted',
-            'Done',
-            null,
-            'DARIV',
-            'auth',
-        );
+            [$claimedSession, $wasAssigned] = DB::transaction(function () use ($session, $user): array {
+                $lockedSession = ChatSession::query()->lockForUpdate()->findOrFail($session->id);
+                abort_unless($this->canAccessSession($lockedSession, $user), 404);
+                abort_unless($this->isActiveSession($lockedSession), 422, 'This chat is no longer active.');
+                $wasAssigned = filled($lockedSession->assigned_user_id);
 
-        return response()->json(['data' => $this->sessionPayload($session->fresh(['lastMessage']))]);
+                $lockedSession->update([
+                    'status' => 'human_active',
+                    'assigned_user_id' => $user->id,
+                    'handed_off_at' => $lockedSession->handed_off_at ?? now(),
+                ]);
+
+                return [$lockedSession->fresh(['lastMessage']), $wasAssigned];
+            });
+
+            ActivityLog::record(
+                $user->id,
+                $wasAssigned ? 'Admin took over chat from Operator' : 'Human handoff accepted',
+                'Done',
+                null,
+                'DARIV',
+                'auth',
+            );
+
+            return response()->json(['success' => true, 'data' => $this->sessionPayload($claimedSession)]);
+        } catch (Throwable $exception) {
+            Log::error('Chat claim failed', [
+                'error' => $exception->getMessage(),
+                'trace' => $exception->getTraceAsString(),
+                'session_id' => $session?->id ?? $sessionId,
+                'user_id' => $user?->id,
+                'user_role' => $user?->role,
+                'user_company_id' => $user?->company_id,
+                'session_company_id' => $session->company_id,
+                'session_business_unit_id' => $session->business_unit_id,
+            ]);
+
+            throw $exception;
+        }
     }
 
-    public function reply(Request $request, ChatSession $session): JsonResponse
+    public function reply(Request $request, int $sessionId): JsonResponse
     {
-        $this->authorizeAdmin();
+        $session = $this->resolveSessionById($sessionId);
         abort_unless($session->assigned_user_id === Auth::id(), 403);
 
         $validated = $request->validate(['message' => ['required', 'string', 'max:5000']]);
@@ -104,9 +127,9 @@ class AdminChatController extends Controller
         return response()->json(['success' => true]);
     }
 
-    public function resolve(ChatSession $session): JsonResponse
+    public function resolve(int $sessionId): JsonResponse
     {
-        $this->authorizeAdmin();
+        $session = $this->resolveSessionById($sessionId);
         abort_unless($session->assigned_user_id === Auth::id(), 403);
 
         $session->update(['status' => 'bot_active', 'assigned_user_id' => null]);
@@ -153,6 +176,30 @@ class AdminChatController extends Controller
         ], true);
     }
 
+    private function canAccessSession(ChatSession $session, ?\App\Models\User $user): bool
+    {
+        $companyMatches = $user?->company_id !== null
+            && $session->company_id !== null
+            && (int) $session->company_id === (int) $user->company_id;
+
+        $businessUnitMatches = $user?->business_unit_id === null
+            || ($session->business_unit_id !== null
+                && (int) $session->business_unit_id === (int) $user->business_unit_id);
+
+        if (! $companyMatches || ! $businessUnitMatches) {
+            Log::warning('Chat claim tenant mismatch', [
+                'session_id' => $session->id,
+                'session_company_id' => $session->company_id,
+                'session_business_unit_id' => $session->business_unit_id,
+                'user_id' => $user?->id,
+                'user_company_id' => $user?->company_id,
+                'user_business_unit_id' => $user?->business_unit_id,
+            ]);
+        }
+
+        return $companyMatches && $businessUnitMatches;
+    }
+
     private function pendingSessionsQuery()
     {
         $query = ChatSession::query()->where('status', 'waiting');
@@ -165,8 +212,11 @@ class AdminChatController extends Controller
         return $query;
     }
 
-    private function authorizeAdmin(): void
+    private function resolveSessionById(int $sessionId): ChatSession
     {
-        abort_unless(session('user_role') === 'Administrator', 403);
+        return ChatSession::query()
+            ->whereKey($sessionId)
+            ->firstOrFail();
     }
+
 }

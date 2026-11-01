@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\StaffRole;
 use App\Models\BusinessUnit;
 use App\Models\Company;
 use App\Models\ActivityLog;
@@ -156,21 +157,15 @@ class AuthController extends Controller
             ActivityLog::record($user->id, 'Logged in', 'Done', null, 'DARIV', 'auth');
         }
 
-        // MAP ROLE TO WHAT protectRoute() EXPECTS IN web.php
-        $roleName = match ($user->role) {
-            'admin', User::ROLE_ADMIN => 'Administrator',
-            'agent', User::ROLE_OPERATOR => 'Lead Operator',
-            default                   => $user->role,
-        };
+        $roleName = StaffRole::normalize($user->role);
 
-        // SET THE EXACT SESSION KEY protectRoute CHECKS FOR
         session([
             'user_name'  => $user->name,
             'user_email' => $user->email,
             'user_role'  => $roleName,
         ]);
 
-        if ($roleName === 'Administrator') {
+        if ($roleName === StaffRole::ADMINISTRATOR->value) {
             return redirect()->route('admin.dashboard');
         }
 
@@ -238,20 +233,19 @@ class AuthController extends Controller
 
     public function updateProfile(Request $request): RedirectResponse
     {
-        $user = Auth::user();
+        /** @var User $user */
+        $user = $request->user();
 
         $validated = $request->validate([
             'name'  => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user?->id)],
         ]);
 
-        if ($user instanceof User) {
-            $user->update([
-                'name'  => $validated['name'],
-                'email' => $validated['email'],
-            ]);
-            ActivityLog::record($user->id, 'Updated profile details', 'Done', null, 'DARIV', 'profile');
-        }
+        $user->update([
+            'name'  => $validated['name'],
+            'email' => $validated['email'],
+        ]);
+        ActivityLog::record($user->id, 'Updated profile details', 'Done', null, 'DARIV', 'profile');
 
         session([
             'user_name'  => $validated['name'],
@@ -263,7 +257,8 @@ class AuthController extends Controller
 
     public function updatePassword(Request $request): RedirectResponse
     {
-        $user = Auth::user();
+        /** @var User $user */
+        $user = $request->user();
 
         $validated = $request->validate([
             'current_password' => ['required', 'string', 'current_password'],
@@ -275,12 +270,10 @@ class AuthController extends Controller
             'password.min'                     => 'The new password must be at least 8 characters.',
         ]);
 
-        if ($user instanceof User) {
-            $user->update([
-                'password' => Hash::make($validated['password']),
-            ]);
-            ActivityLog::record($user->id, 'Changed account password', 'Done', null, 'DARIV', 'security');
-        }
+        $user->update([
+            'password' => Hash::make($validated['password']),
+        ]);
+        ActivityLog::record($user->id, 'Changed account password', 'Done', null, 'DARIV', 'security');
 
         return back()->with('password_success', 'Password changed successfully!');
     }

@@ -14,6 +14,13 @@ use App\Http\Controllers\StaffController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AdminChatController;
+use App\Models\ChatSession;
+
+Route::bind('session', function (string $value): ChatSession {
+    abort_unless(ctype_digit($value), 404);
+
+    return ChatSession::query()->whereKey((int) $value)->firstOrFail();
+});
 //gi add ni gar -- end--
 
 // ── Public: redirects to login page ──
@@ -87,31 +94,11 @@ Route::controller(AuthController::class)->group(function (): void {
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
 
-// Helper function to protect routes in a single-company console
-if (!function_exists('protectRoute')) {
-    function protectRoute(string $viewName, string $requiredRole = null) {
-        return function () use ($viewName, $requiredRole) {
-            if (!session()->has('user_role')) {
-                return redirect()->route('login');
-            }
-
-            if ($requiredRole) {
-                $userRole = session('user_role');
-                if ($requiredRole === 'Administrator' && $userRole !== 'Administrator') {
-                    abort(403, 'Unauthorized. This section is restricted to Administrators only.');
-                }
-                if ($requiredRole === 'Lead Operator' && $userRole !== 'Lead Operator' && $userRole !== 'Administrator') {
-                    abort(403, 'Unauthorized. This section is restricted to Operators/Staff only.');
-                }
-            }
-
-            return view($viewName);
-        };
-    }
-}
-
 // ── Admin panel (Protected Single-Company Console) ──────────────────────────────────────────────
-Route::prefix('admin')->name('admin.')->group(function () {
+Route::prefix('admin')
+    ->name('admin.')
+    ->middleware(['auth', 'role:Administrator'])
+    ->group(function () {
 
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -136,10 +123,19 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/chat', 'index')->name('chat');
         Route::get('/chat/sessions', 'sessions')->name('chat.sessions');
         Route::get('/chat/pending-count', 'pendingCount')->name('chat.pending-count');
-        Route::get('/chat/{session}/messages', 'messages')->name('chat.messages');
-        Route::post('/chat/{session}/claim', 'claim')->name('chat.claim');
-        Route::post('/chat/{session}/reply', 'reply')->name('chat.reply');
-        Route::post('/chat/{session}/resolve', 'resolve')->name('chat.resolve');
+        Route::get('/chat/{sessionId}/messages', 'messages')
+            ->whereNumber('sessionId')
+            ->name('chat.messages');
+        Route::post('/chat/{sessionId}/claim', 'claim')
+            ->whereNumber('sessionId')
+            ->middleware('throttle:10,1')
+            ->name('chat.claim');
+        Route::post('/chat/{sessionId}/reply', 'reply')
+            ->whereNumber('sessionId')
+            ->name('chat.reply');
+        Route::post('/chat/{sessionId}/resolve', 'resolve')
+            ->whereNumber('sessionId')
+            ->name('chat.resolve');
     });
 
     Route::get('/staff', [StaffController::class, 'index'])->name('staff');
@@ -150,7 +146,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     Route::get('/logs', [ActivityLogController::class, 'index'])->name('logs');
 
-    Route::get('/settings', protectRoute('admin.settings', 'Administrator'))->name('settings');
+    Route::view('/settings', 'admin.settings')->name('settings');
     Route::post('/settings/profile', [AuthController::class, 'updateProfile'])->name('settings.profile.update');
     Route::post('/settings/password', [AuthController::class, 'updatePassword'])->name('settings.password.update');
     Route::post('/settings', [AuthController::class, 'updateProfile'])->name('settings.post');
@@ -158,19 +154,26 @@ Route::prefix('admin')->name('admin.')->group(function () {
 });
 
 // ── Staff panel (Protected Chat & Handoff Console) ──────────────────────────────────────────────
-Route::prefix('staff')->name('staff.')->middleware('auth')->group(function () {
+Route::prefix('staff')
+    ->name('staff.')
+    ->middleware(['auth', 'role:Administrator,business_owner,Lead Operator'])
+    ->group(function () {
 
     Route::get('/chat', [StaffChatController::class, 'index'])->name('chat');
     Route::get('/chats', [StaffChatController::class, 'sessions'])->name('chats.index');
     Route::get('/chats/pending-count', [StaffChatController::class, 'pendingCount'])->name('chats.pending-count');
     Route::get('/chats/{session}/messages', [StaffChatController::class, 'messages'])->name('chats.messages');
     Route::post('/chats/{session}/messages', [StaffChatController::class, 'sendMessage'])->name('chats.messages.store');
-    Route::post('/chats/{session}/claim', [StaffChatController::class, 'claimSession'])->name('chats.claim');
+    Route::post('/chats/{session}/claim', [StaffChatController::class, 'claimSession'])
+        ->middleware('throttle:10,1')
+        ->name('chats.claim');
     Route::post('/chats/{session}/resolve', [StaffChatController::class, 'resolveSession'])->name('chats.resolve');
     Route::post('/chats/{session}/typing', [StaffChatController::class, 'sendTyping'])->name('chats.typing');
     Route::get('/chats/{session}/status', [StaffChatController::class, 'sessionStatus'])->name('chats.status');
 
-    Route::get('/settings', protectRoute('staff.settings', 'Lead Operator'))->name('settings');
+    Route::view('/settings', 'staff.settings')
+        ->middleware('role:Lead Operator,Administrator')
+        ->name('settings');
     Route::post('/settings/profile', [AuthController::class, 'updateProfile'])->name('settings.profile.update');
     Route::post('/settings/password', [AuthController::class, 'updatePassword'])->name('settings.password.update');
     Route::post('/settings', [AuthController::class, 'updateProfile'])->name('settings.post');
@@ -196,16 +199,23 @@ Route::controller(ChatbotController::class)->group(function (): void {
     // 3. The API endpoint that receives messages and returns Gemini replies
     Route::post('/chat/{businessUnit}/ask', 'ask')
         ->whereNumber('businessUnit')
+        ->middleware('throttle:30,1')
         ->name('chat.ask');
 
     // 4. Public endpoint used by the embedded widget to poll live replies
-    Route::get('/get-messages/{sessionId}', 'getMessages')->name('chat.messages');
+    Route::get('/get-messages/{sessionToken}', 'getMessages')
+        ->where('sessionToken', '[A-Za-z0-9]{64}')
+        ->middleware('throttle:120,1')
+        ->name('chat.messages');
     Route::post('/chat/{sessionId}/typing', 'notifyTyping')->name('chat.typing');
     Route::get('/api/chatbot/contact-info', [ChatbotController::class, 'getContactInfo'])->name('chatbot.contact-info');
     
     // 5. Cancel handoff endpoint
-    Route::post('/api/chatbot/cancel-handoff', [ChatbotController::class, 'cancelHandoff'])->name('chatbot.cancel-handoff');
+    Route::post('/api/chatbot/cancel-handoff', [ChatbotController::class, 'cancelHandoff'])
+        ->middleware('throttle:10,1')
+        ->name('chatbot.cancel-handoff');
 });
 
 Route::post('/chat/feedback', [ChatFeedbackController::class, 'store'])
+    ->middleware('throttle:10,1')
     ->name('chat.feedback.store');

@@ -18,10 +18,6 @@ class AnalyticsController extends Controller
             return redirect()->route('login');
         }
 
-        if (session('user_role') !== 'Administrator') {
-            abort(403, 'Unauthorized. This section is restricted to Administrators only.');
-        }
-
         $customerMessages = ChatMessage::query()
             ->where('sender_type', 'customer');
 

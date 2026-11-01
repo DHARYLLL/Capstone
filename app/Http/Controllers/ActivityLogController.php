@@ -10,8 +10,6 @@ class ActivityLogController extends Controller
 {
     public function index(Request $request): View
     {
-        abort_unless(session('user_role') === 'Administrator', 403);
-
         $filter = $request->string('filter')->lower()->value();
         $kbLogs = ActivityLog::query()->where('type', 'kb');
         $totalUploads = (clone $kbLogs)->count();

@@ -188,7 +188,7 @@
         const contactInfoUrl = @json(route('chatbot.contact-info'));
         const cancelHandoffUrl = @json(route('chatbot.cancel-handoff'));
         const renderedIds = new Set();
-        const sessionStorageKey = 'session_id_unit_{{ (int) ($businessUnit->id ?? 0) }}';
+        const sessionStorageKey = 'session_token_unit_{{ (int) ($businessUnit->id ?? 0) }}';
         const businessSlug = '{{ $slug ?? ($businessUnit->slug ?? "dariv") }}';
         const companyContactMap = {
             dariv: {
@@ -336,7 +336,7 @@
                 });
 
                 if (activeSessionId) {
-                    contactParams.set('session_id', activeSessionId);
+                    contactParams.set('session_token', activeSessionId);
                 }
 
                 const response = await fetch(`${contactInfoUrl}?${contactParams.toString()}`, {
@@ -370,7 +370,7 @@
                         'Accept': 'application/json',
                         'X-CSRF-TOKEN': csrfToken,
                     },
-                    body: JSON.stringify({ session_id: sessionId }),
+                    body: JSON.stringify({ session_token: sessionId }),
                 });
 
                 const payload = await response.json();
@@ -475,7 +475,13 @@
 
             renderedIds.add(String(messageId));
             const senderType = message.sender_type ?? 'customer';
-            return appendBubble(message.message_text, ['customer', 'user'].includes(senderType), senderType, messageId);
+            return appendBubble(
+                message.message_text,
+                ['customer', 'user'].includes(senderType),
+                senderType,
+                messageId,
+                { feedback: message.feedback },
+            );
         }
 
         function handleSessionStatusChange(status, payload = {}) {
@@ -677,6 +683,25 @@
         }
 
         // Helper function to append bubbles to the DOM
+        function applyFeedbackState(actions, rating) {
+            if (!actions || !['like', 'dislike'].includes(rating)) return;
+
+            const buttons = [...actions.querySelectorAll('.btn-feedback')];
+            const status = actions.querySelector('[data-feedback-status]');
+            buttons.forEach((item) => {
+                item.disabled = true;
+                item.classList.remove('text-emerald-600', 'text-rose-600');
+            });
+
+            const selectedButton = actions.querySelector(`[data-rating="${rating}"]`);
+            selectedButton?.classList.add(rating === 'like' ? 'text-emerald-600' : 'text-rose-600');
+
+            if (status) {
+                status.textContent = 'Thanks for your feedback!';
+                status.classList.remove('hidden');
+            }
+        }
+
         function appendBubble(message, isUser = false, senderType = 'bot', messageId = null, options = {}) {
             const wrapper = document.createElement('div');
             wrapper.className = isUser ? 'chat chat-end' : 'chat chat-start';
@@ -733,6 +758,7 @@
                 chatForm.dispatchEvent(new Event('submit', { cancelable: true }));
             });
 
+            applyFeedbackState(bubble.querySelector('[data-feedback-actions]'), options.feedback?.rating);
             scrollToBottom();
             return wrapper;
         }
@@ -756,15 +782,14 @@
                     },
                     body: JSON.stringify({
                         chat_message_id: button.dataset.messageId,
+                        session_token: activeSessionId,
                         rating: button.dataset.rating,
                     }),
                 });
 
                 if (!response.ok) throw new Error('Feedback request failed');
 
-                button.classList.add(button.dataset.rating === 'like' ? 'text-emerald-600' : 'text-rose-600');
-                status.textContent = 'Thanks for your feedback!';
-                status.classList.remove('hidden');
+                applyFeedbackState(actions, button.dataset.rating);
             } catch (error) {
                 buttons.forEach((item) => { item.disabled = false; });
                 status.textContent = 'Unable to record feedback.';
@@ -839,7 +864,7 @@
                         prompt: prompt,
                         user_id: userId,
                         user_identifier: userIdentifier,
-                        session_id: activeSessionId,
+                        session_token: activeSessionId,
                     }),
                 });
 
@@ -849,9 +874,9 @@
                     throw new Error(payload.message || 'Server error');
                 }
 
-                if (payload.session_id) {
-                    persistSessionId(payload.session_id);
-                    activeSessionId = String(payload.session_id);
+                if (payload.session_token) {
+                    persistSessionId(payload.session_token);
+                    activeSessionId = String(payload.session_token);
                     suppressWelcomeMessage();
                 }
 
@@ -865,12 +890,12 @@
                     lastKnownSessionStatus = payload.status;
                     handoffRequestedAt = Date.now();
                     handleSessionStatusChange(payload.status, payload);
-                    startMessagePolling(payload.session_id);
+                    startMessagePolling(payload.session_token);
                 } else if (payload.status === 'success') {
                     lastKnownSessionStatus = 'human_active';
                     handoffRequestedAt = Date.now();
                     handleSessionStatusChange('human_active', payload);
-                    startMessagePolling(payload.session_id);
+                    startMessagePolling(payload.session_token);
                     chatStatus.textContent = 'Your message was sent to staff.';
                 } else {
                     appendBubble(

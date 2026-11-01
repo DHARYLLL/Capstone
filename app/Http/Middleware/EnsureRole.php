@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Enums\StaffRole;
 use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
@@ -18,7 +19,15 @@ class EnsureRole
     {
         $user = $request->user();
 
-        abort_unless($user instanceof User && in_array($user->role, array_map('trim', $roles), true), 403);
+        $allowedRoles = array_map(
+            static fn (string $role): ?string => StaffRole::normalize($role),
+            $roles,
+        );
+
+        abort_unless(
+            $user instanceof User && in_array(StaffRole::normalize($user->role), $allowedRoles, true),
+            403,
+        );
 
         return $next($request);
     }

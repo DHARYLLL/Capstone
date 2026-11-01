@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Str;
 
 class ChatSession extends Model
 {
@@ -21,6 +22,7 @@ class ChatSession extends Model
     // ];
     protected $fillable = [
         'company_id',
+        'token',
         'business_unit_id',
         'user_identifier',
         'status',
@@ -31,6 +33,18 @@ class ChatSession extends Model
     protected $casts = [
         'handed_off_at' => 'datetime',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (ChatSession $session): void {
+            $session->token ??= Str::random(64);
+        });
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'token';
+    }
 
     public function company(): BelongsTo
     {

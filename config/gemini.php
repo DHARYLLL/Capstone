@@ -36,4 +36,6 @@ return [
     */
 
     'request_timeout' => env('GEMINI_REQUEST_TIMEOUT', 30),
+
+    'connect_timeout' => env('GEMINI_CONNECT_TIMEOUT', 10),
 ];

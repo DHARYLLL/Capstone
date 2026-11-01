@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\StaffRole;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use App\Notifications\ResetPasswordNotification;
@@ -17,11 +18,11 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, SoftDeletes;
 
-    public const ROLE_ADMIN = 'Administrator';
+    public const ROLE_ADMIN = StaffRole::ADMINISTRATOR->value;
 
-    public const ROLE_BUSINESS_OWNER = 'business_owner';
+    public const ROLE_BUSINESS_OWNER = StaffRole::BUSINESS_OWNER->value;
 
-    public const ROLE_OPERATOR = 'Lead Operator';
+    public const ROLE_OPERATOR = StaffRole::LEAD_OPERATOR->value;
 
     /**
      * The attributes that are mass assignable.
@@ -100,7 +101,7 @@ class User extends Authenticatable
 
     public function hasRole(string $role): bool
     {
-        return $this->role === $role;
+        return StaffRole::normalize($this->role) === StaffRole::normalize($role);
     }
 
     public function isAdministrator(): bool
@@ -110,7 +111,18 @@ class User extends Authenticatable
 
     public function isTenantUser(): bool
     {
-        return in_array($this->role, [self::ROLE_BUSINESS_OWNER, self::ROLE_OPERATOR], true);
+        return in_array(StaffRole::normalize($this->role), [
+            StaffRole::BUSINESS_OWNER->value,
+            StaffRole::LEAD_OPERATOR->value,
+        ], true);
+    }
+
+    protected function role(): \Illuminate\Database\Eloquent\Casts\Attribute
+    {
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(
+            get: static fn (?string $value): ?string => StaffRole::normalize($value),
+            set: static fn (?string $value): ?string => StaffRole::normalize($value),
+        );
     }
 
     /**

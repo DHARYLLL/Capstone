@@ -437,10 +437,41 @@
         }
 
         async function claimActiveChat() {
-            if (!activeSessionId) return;
-            await axios.post(chatEndpoints.claim(activeSessionId));
-            await loadSessions();
-            await selectChat(activeSessionId);
+            const activeSession = sessions.find(session => String(session.id) === String(activeSessionId));
+            const sessionId = activeSession?.id;
+            if (sessionId === undefined || sessionId === null) {
+                console.error('Cannot claim conversation: active session has no database ID.', {
+                    activeSession,
+                    activeSessionId
+                });
+                alert('Unable to claim this conversation because its session ID is missing.');
+                return;
+            }
+
+            try {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                await axios.post(
+                    chatEndpoints.claim(sessionId),
+                    { session_id: sessionId },
+                    {
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken || '',
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        }
+                    }
+                );
+                await loadSessions();
+                await selectChat(sessionId);
+            } catch (error) {
+                const message = error.response?.data?.message || 'Unable to claim this conversation.';
+                console.error('Claim conversation failed', {
+                    status: error.response?.status,
+                    response: error.response?.data || error.message
+                });
+                console.error('Claim conversation failed:', error);
+                alert(message);
+            }
         }
 
         async function resolveActiveChat() {

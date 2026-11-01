@@ -9,25 +9,27 @@ use App\Models\Company;
 use App\Models\ActivityLog;
 use App\Models\StagedKnowledgeDocument;
 use App\Services\OrganizationQuotaService;
+use App\Services\EmbeddingService;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class AdminController extends Controller
 {
-    public function __construct(private OrganizationQuotaService $quotaService)
+    public function __construct(
+        private OrganizationQuotaService $quotaService,
+        private EmbeddingService $embeddingService,
+    )
     {
     }
 
     public function knowledgeBase(Request $request): View
     {
-        abort_unless(session('user_role') === 'Administrator', 403);
         $companyId = $this->currentCompanyId($request);
 
         $chunks = BusinessKnowledge::query()
@@ -46,7 +48,6 @@ class AdminController extends Controller
 
     public function storeChunk(Request $request): JsonResponse
     {
-        abort_unless(session('user_role') === 'Administrator', 403);
         $companyId = $this->currentCompanyId($request);
 
         $validated = $request->validate([
@@ -57,14 +58,19 @@ class AdminController extends Controller
         $businessUnit = BusinessUnit::query()
             ->where('company_id', $companyId)
             ->findOrFail($validated['business_unit_id']);
-        $this->quotaService->assertCanInsertChunks($companyId, 1);
         $embedding = $this->embedKnowledgeContent($validated['content']);
-        $chunk = BusinessKnowledge::query()->create([
-            'company_id' => $companyId,
-            'business_unit_id' => $businessUnit->id,
-            'content' => $validated['content'],
-            'embedding' => $embedding,
-        ]);
+        $chunk = $this->quotaService->withinVectorQuota(
+            $companyId,
+            1,
+            $businessUnit->id,
+            false,
+            fn (): BusinessKnowledge => BusinessKnowledge::query()->create([
+                'company_id' => $companyId,
+                'business_unit_id' => $businessUnit->id,
+                'content' => $validated['content'],
+                'embedding' => $embedding,
+            ]),
+        );
         $chunk->load('businessUnit');
         ActivityLog::record(Auth::id(), 'Indexed', 'Done', null, $chunk->businessUnit->name);
 
@@ -81,7 +87,6 @@ class AdminController extends Controller
 
     public function destroyChunk(Request $request, BusinessKnowledge $knowledge): JsonResponse
     {
-        abort_unless(session('user_role') === 'Administrator', 403);
         $this->ensureKnowledgeCompanyScope($request, $knowledge);
 
         $knowledge->delete();
@@ -92,7 +97,6 @@ class AdminController extends Controller
 
     public function updateChunk(Request $request, BusinessKnowledge $knowledge): JsonResponse
     {
-        abort_unless(session('user_role') === 'Administrator', 403);
         $this->ensureKnowledgeCompanyScope($request, $knowledge);
 
         $validated = $request->validate([
@@ -118,7 +122,6 @@ class AdminController extends Controller
 
     public function stagedKnowledge(): JsonResponse
     {
-        abort_unless(session('user_role') === 'Administrator', 403);
         $companyId = $this->currentCompanyId(request());
 
         $documents = StagedKnowledgeDocument::query()
@@ -140,7 +143,6 @@ class AdminController extends Controller
 
     public function uploadKnowledge(Request $request): JsonResponse
     {
-        abort_unless(session('user_role') === 'Administrator', 403);
         $companyId = $this->currentCompanyId($request);
 
         $validated = $request->validate([
@@ -201,7 +203,6 @@ class AdminController extends Controller
 
     public function approveStagedKnowledge(Request $request, StagedKnowledgeDocument $stagedDocument): JsonResponse
     {
-        abort_unless(session('user_role') === 'Administrator', 403);
         $this->ensureStagedDocumentCompanyScope($request, $stagedDocument);
         abort_unless($stagedDocument->status === 'staged', 409, 'This file has already been processed.');
         $this->quotaService->assertCanAcceptUpload(
@@ -241,7 +242,6 @@ class AdminController extends Controller
 
     public function discardStagedKnowledge(Request $request, StagedKnowledgeDocument $stagedDocument): JsonResponse
     {
-        abort_unless(session('user_role') === 'Administrator', 403);
         $this->ensureStagedDocumentCompanyScope($request, $stagedDocument);
         abort_unless($stagedDocument->status === 'staged', 409, 'Only staged files can be discarded.');
 
@@ -362,25 +362,40 @@ class AdminController extends Controller
         $ingestionMode = $validated['ingestion_mode'] ?? 'append';
 
         $uploadedFile = $request->file('pdf');
-    $this->quotaService->assertCanAcceptUpload($companyId, (int) $uploadedFile->getSize());
-        $storedPath = $uploadedFile->storeAs(
-            'pdf-ingestions',
-            Str::uuid()->toString().'.pdf',
-            'local'
-        );
+    $stagedDocument = $this->quotaService->withinUploadQuota(
+        $companyId,
+        (int) $uploadedFile->getSize(),
+        function () use ($uploadedFile, $businessUnit, $ingestionMode): StagedKnowledgeDocument {
+            $storedPath = $uploadedFile->storeAs(
+                'pdf-ingestions',
+                Str::uuid()->toString().'.pdf',
+                'local',
+            );
+
+            return StagedKnowledgeDocument::query()->create([
+                'business_unit_id' => $businessUnit->id,
+                'original_name' => $uploadedFile->getClientOriginalName(),
+                'mime_type' => $uploadedFile->getClientMimeType() ?: $uploadedFile->getMimeType(),
+                'file_size' => $uploadedFile->getSize(),
+                'stored_path' => $storedPath,
+                'ingestion_mode' => $ingestionMode,
+                'status' => 'processing',
+            ]);
+        },
+    );
 
         ActivityLog::record(Auth::id(), 'Uploaded', 'Done', $uploadedFile->getClientOriginalName(), $businessUnit->name);
 
-        // Persist the upload immediately, then continue indexing in the queue so the response stays fast.
         ProcessPdfIngestion::dispatch(
             businessUnitId: $businessUnit->id,
             storageDisk: 'local',
-            storedPath: $storedPath,
+            storedPath: $stagedDocument->stored_path,
             ingestionMode: $ingestionMode,
+            stagedDocumentId: $stagedDocument->id,
             fileName: $uploadedFile->getClientOriginalName(),
             division: $businessUnit->name,
             userId: Auth::id(),
-        )->afterResponse();
+        );
 
         return $this->redirectToAdmin(
             $businessUnit->company_id,
@@ -498,22 +513,13 @@ class AdminController extends Controller
 
     private function embedKnowledgeContent(string $content): string
     {
-        $response = Http::baseUrl(rtrim((string) (config('gemini.base_url') ?: 'https://generativelanguage.googleapis.com/v1beta'), '/'))
-            ->acceptJson()
-            ->timeout((int) config('gemini.request_timeout', 30))
-            ->retry([200, 400, 800])
-            ->withQueryParameters(['key' => (string) config('gemini.api_key')])
-            ->post('models/gemini-embedding-001:embedContent', [
-                'model' => 'models/gemini-embedding-001',
-                'content' => ['parts' => [['text' => $content]]],
-                'taskType' => 'RETRIEVAL_DOCUMENT',
-                'outputDimensionality' => 768,
-            ]);
+        try {
+            $values = $this->embeddingService->embedDocument($content);
 
-        $values = $response->json('embedding.values');
-
-        abort_unless($response->successful() && is_array($values) && $values !== [], 502, 'Could not generate an embedding for this knowledge entry.');
-
-        return '['.implode(',', array_map(static fn (float|int|string $value): string => (string) $value, $values)).']';
+            return '['.implode(',', array_map(static fn (float $value): string => (string) $value, $values)).']';
+        } catch (\Throwable $exception) {
+            report($exception);
+            abort(502, 'Could not generate an embedding for this knowledge entry.');
+        }
     }
 }
