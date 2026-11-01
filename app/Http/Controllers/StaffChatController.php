@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
 class StaffChatController extends Controller
@@ -51,8 +52,36 @@ class StaffChatController extends Controller
         $this->touchLastSeen();
         $this->ensureCompanySession($session);
 
+        $customerTyping = Cache::has("session_{$session->id}_typing_customer");
+
         return response()->json([
             'data' => $session->chatMessages()->oldest('created_at')->get(),
+            'customer_typing' => $customerTyping,
+        ]);
+    }
+
+    public function sendTyping(ChatSession $session): JsonResponse
+    {
+        $this->touchLastSeen();
+        $this->ensureCompanySession($session);
+
+        Cache::put("session_{$session->id}_typing_agent", true, now()->addSeconds(4));
+
+        return response()->json(['status' => 'ok']);
+    }
+
+    public function sessionStatus(ChatSession $session): JsonResponse
+    {
+        $this->touchLastSeen();
+        $this->ensureCompanySession($session);
+
+        $customerTyping = Cache::has("session_{$session->id}_typing_customer");
+
+        return response()->json([
+            'session_id' => $session->id,
+            'status' => $session->status,
+            'assigned_user_id' => $session->assigned_user_id,
+            'customer_typing' => $customerTyping,
         ]);
     }
 

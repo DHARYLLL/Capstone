@@ -4,347 +4,174 @@
 @section('breadcrumbs', 'Staff / Chat & Handoff')
 
 @section('content')
-    <div class="space-y-8">
-        <!-- Dashboard Header -->
-        <section class="rounded-[2rem] border border-[#e2e8f0] bg-white p-6 shadow-sm lg:p-8">
-            <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+    <div class="space-y-6">
+        <!-- Minimal Top Control Header -->
+        <div class="flex flex-col gap-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex items-center gap-4">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-violet-600 to-indigo-700 text-lg font-black text-white shadow-xs">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a.75.75 0 0 1-.974-.94 4.09 4.09 0 0 0 .546-2.127C3.308 16.326 2 14.307 2 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
+                    </svg>
+                </div>
                 <div>
-                    <h1 class="text-3xl font-black tracking-tight text-gray-900 font-sans">Live Chat & Staff Handoff</h1>
-                    <p class="mt-2 max-w-3xl text-sm leading-6 text-gray-500">Operate a split-screen console for active queues, conversation timelines, and live handoff actions.</p>
-                </div>
-                <div class="flex gap-2">
-                    <span id="header-waiting-badge" class="badge badge-warning badge-outline font-bold px-3 py-2.5 text-xs rounded-full">2 Waiting</span>
-                    <span id="header-active-badge" class="badge badge-info badge-outline font-bold px-3 py-2.5 text-xs rounded-full">1 Active</span>
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-xl font-bold tracking-tight text-slate-900">Live Operator Desk</h1>
+                        <span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-600/20">
+                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                            Live Console
+                        </span>
+                    </div>
+                    <p class="text-xs font-medium text-slate-400">Triage incoming escalations, claim waiting customer tickets, and provide instant live support</p>
                 </div>
             </div>
-        </section>
 
-        <!-- Main Console Layout -->
-        <section class="grid gap-6 xl:grid-cols-[300px_1fr_280px]">
+            <div class="flex items-center gap-2">
+                <button type="button" id="sound-toggle-btn" onclick="toggleSoundAlerts()" 
+                    class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition" title="Toggle audio alert on new chats">
+                    <span id="sound-icon">🔔</span>
+                    <span id="sound-label">Sound On</span>
+                </button>
+                <span id="header-waiting-badge" class="inline-flex items-center gap-1.5 rounded-xl border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-700">
+                    <span class="h-2 w-2 rounded-full bg-amber-500"></span>
+                    0 Waiting
+                </span>
+                <span id="header-active-badge" class="inline-flex items-center gap-1.5 rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-xs font-bold text-indigo-700">
+                    <span class="h-2 w-2 rounded-full bg-indigo-500 animate-pulse"></span>
+                    0 Active
+                </span>
+            </div>
+        </div>
+
+        <!-- 3-Column Operator Workspace -->
+        <section class="grid gap-5 xl:grid-cols-[320px_1fr_280px]">
             
-            <!-- Left Column: Client Queue -->
-            <div class="card bg-base-100 shadow-sm border border-gray-100 rounded-3xl h-[650px] overflow-hidden flex flex-col">
-                <div class="p-5 border-b border-gray-100 flex items-center justify-between bg-slate-50/30">
-                    <h2 class="text-xs font-bold text-gray-900 uppercase tracking-wider">Active Queue</h2>
-                    <span id="queue-count" class="badge bg-slate-100 border-0 text-gray-700 font-bold px-2 py-1.5 text-[10px]">3 chats</span>
+            <!-- Left Column: Queue List -->
+            <div class="flex flex-col h-[700px] rounded-2xl border border-slate-200/80 bg-white shadow-xs overflow-hidden">
+                <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                    <div class="flex items-center gap-2">
+                        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500">Active Queue</h2>
+                    </div>
+                    <span id="queue-count" class="inline-flex items-center rounded-lg bg-slate-200/60 px-2 py-0.5 text-xs font-bold text-slate-700">0 chats</span>
                 </div>
-                <div class="flex-1 overflow-y-auto p-4 space-y-3" id="queue-list">
-                    <!-- Queue items populated via JS -->
+                
+                <div class="flex-1 overflow-y-auto p-3 space-y-2" id="queue-list">
+                    <!-- Populated dynamically via JS -->
                 </div>
             </div>
 
-            <!-- Center Column: Conversation View -->
-            <div class="card bg-base-100 shadow-sm border border-gray-100 rounded-3xl h-[650px] flex flex-col justify-between overflow-hidden relative">
-                <!-- Active Chat Header -->
-                <div class="p-5 border-b border-gray-100 flex items-center justify-between bg-slate-50/50" id="chat-header">
-                    <div class="min-w-0">
-                        <h3 class="font-extrabold text-gray-900 text-base truncate" id="active-client-name">No Chat Selected</h3>
-                        <p class="text-xs text-gray-400 mt-0.5 truncate" id="active-client-status">Select a conversation from the queue to start reply</p>
+            <!-- Center Column: Conversation Thread -->
+            <div class="flex flex-col h-[700px] rounded-2xl border border-slate-200/80 bg-white shadow-xs overflow-hidden relative">
+                
+                <!-- Chat Top Bar -->
+                <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/60" id="chat-header">
+                    <div class="min-w-0 flex items-center gap-3">
+                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-100 text-xs font-bold text-violet-700" id="active-client-avatar">
+                            #
+                        </div>
+                        <div class="min-w-0">
+                            <h3 class="font-bold text-slate-900 text-sm truncate" id="active-client-name">No Chat Selected</h3>
+                            <p class="text-xs text-slate-400 truncate" id="active-client-status">Select a ticket from the queue to start responding</p>
+                        </div>
                     </div>
-                    <div id="session-badge" class="badge badge-sm font-bold border-0 text-[10px] uppercase tracking-wider py-2 hidden"></div>
+                    <div id="session-badge" class="hidden"></div>
                 </div>
 
-                <!-- Empty State Placeholder -->
-                <div id="chat-empty-state" class="absolute inset-0 flex flex-col items-center justify-center bg-white z-10 p-8 text-center space-y-4">
-                    <div class="h-16 w-16 bg-slate-50 rounded-2xl flex items-center justify-center text-3xl">💬</div>
+                <!-- Empty State Screen -->
+                <div id="chat-empty-state" class="absolute inset-0 flex flex-col items-center justify-center bg-white z-10 p-8 text-center space-y-3">
+                    <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-50 text-violet-600">
+                        <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a.75.75 0 0 1-.974-.94 4.09 4.09 0 0 0 .546-2.127C3.308 16.326 2 14.307 2 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
+                        </svg>
+                    </div>
                     <div>
-                        <h3 class="font-bold text-gray-800">No Chat Selected</h3>
-                        <p class="text-xs text-gray-400 mt-1">Select a waiting client from the active queue to take over the session.</p>
+                        <h3 class="font-bold text-slate-800 text-sm">No Active Session Selected</h3>
+                        <p class="text-xs text-slate-400 mt-1 max-w-sm">Pick an incoming customer inquiry from the left panel to review message history and take over live messaging.</p>
                     </div>
                 </div>
 
-                <!-- Chat Timeline Container -->
-                <div class="flex-1 overflow-y-auto p-5 space-y-4 bg-slate-50/20" id="chat-timeline">
-                    <!-- Messages injected dynamically -->
+                <!-- Chat Timeline Stream -->
+                <div class="flex-1 overflow-y-auto p-5 space-y-4 bg-slate-50/40 relative" id="chat-timeline">
+                    <!-- Dynamic chat messages injected here -->
                 </div>
 
-                <!-- Message Input Bar -->
-                <div class="p-4 border-t border-gray-100 bg-white" id="input-container">
+                <!-- Customer Typing Indicator Bar (Hidden by default) -->
+                <div id="customer-typing-bar" class="hidden px-5 py-2 border-t border-slate-100 bg-slate-50/80 flex items-center gap-2">
+                    <div class="flex gap-1 items-center">
+                        <span class="h-1.5 w-1.5 rounded-full bg-violet-600 animate-bounce" style="animation-delay: -0.32s"></span>
+                        <span class="h-1.5 w-1.5 rounded-full bg-violet-600 animate-bounce" style="animation-delay: -0.16s"></span>
+                        <span class="h-1.5 w-1.5 rounded-full bg-violet-600 animate-bounce"></span>
+                    </div>
+                    <span class="text-[11px] font-semibold text-slate-500" id="customer-typing-label">Customer is typing...</span>
+                </div>
+
+                <!-- Reply Input Composer -->
+                <div class="p-3.5 border-t border-slate-100 bg-white" id="input-container">
                     <form id="operator-reply-form" class="flex gap-2">
                         <input type="text" id="reply-input" disabled placeholder="Claim this chat to write a reply..." 
-                            class="input input-bordered flex-1 rounded-2xl border-gray-200 bg-slate-50 text-sm text-gray-800 focus:border-indigo-500 focus:bg-white focus:outline-none">
+                            class="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-violet-500 focus:bg-white focus:ring-1 focus:ring-violet-500 focus:outline-none transition disabled:opacity-50">
                         <button type="submit" id="send-btn" disabled 
-                            class="btn rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-3 h-auto">
+                            class="inline-flex items-center gap-1.5 rounded-xl bg-violet-600 px-5 py-2.5 text-xs font-semibold text-white shadow-xs hover:bg-violet-700 transition disabled:opacity-50 disabled:pointer-events-none">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
+                            </svg>
                             Send
                         </button>
                     </form>
                 </div>
             </div>
 
-            <!-- Right Column: Operator Controls -->
-            <div class="card bg-base-100 shadow-sm border border-gray-100 rounded-3xl h-[650px] flex flex-col overflow-hidden">
-                <div class="p-5 border-b border-gray-100 bg-slate-50/30">
-                    <h2 class="text-xs font-bold text-gray-900 uppercase tracking-wider">Handoff Actions</h2>
+            <!-- Right Column: Operator Controls & Actions -->
+            <div class="flex flex-col h-[700px] rounded-2xl border border-slate-200/80 bg-white shadow-xs overflow-hidden">
+                <div class="p-4 border-b border-slate-100 bg-slate-50/50">
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500">Handoff Actions</h2>
                 </div>
+
                 <div class="p-5 flex-1 flex flex-col justify-between" id="control-panel">
                     <div class="space-y-4">
                         <button onclick="claimActiveChat()" id="claim-btn" disabled 
-                            class="btn w-full rounded-2xl border-0 bg-indigo-600 hover:bg-indigo-700 text-white font-bold h-auto py-3.5">
-                            👋 Claim & Take Over
+                            class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-3 text-xs font-semibold text-white shadow-xs hover:bg-violet-700 transition disabled:opacity-50 disabled:pointer-events-none">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM4 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 10.374 21c-2.331 0-4.512-.645-6.374-1.765Z" />
+                            </svg>
+                            Claim & Take Over
                         </button>
                         
-                        <div class="dropdown w-full">
-                            <button id="canned-btn" tabindex="0" role="button" disabled 
-                                class="btn w-full rounded-2xl border border-gray-200 bg-white hover:bg-slate-50 text-gray-700 font-bold text-left justify-between h-auto py-3 text-xs">
-                                <span>💬 Quick Responses</span>
-                                <span>▼</span>
-                            </button>
-                            <ul tabindex="0" class="dropdown-content z-30 menu p-2 shadow-lg bg-white border border-gray-200 rounded-2xl w-full mt-1 space-y-1 text-xs">
-                                <li><a onclick="insertCanned('Hello! I am reviewing your case now.')">Reviewing case now</a></li>
-                                <li><a onclick="insertCanned('We will schedule a site visit shortly.')">Schedule site visit</a></li>
-                                <li><a onclick="insertCanned('Could you upload a photo of the leakage?')">Ask for photos</a></li>
-                                <li><a onclick="insertCanned('Our estimator will email your final quote today.')">Send email quote</a></li>
-                            </ul>
+                        <div class="space-y-1.5">
+                            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Quick canned responses</label>
+                            <div class="space-y-1.5" id="canned-responses-list">
+                                <button type="button" onclick="insertCanned('Hello! I am reviewing your case now.')" 
+                                    class="canned-item w-full text-left rounded-xl border border-slate-200/80 bg-slate-50/50 px-3 py-2 text-xs font-medium text-slate-700 hover:border-violet-300 hover:bg-violet-50/40 hover:text-violet-700 transition disabled:opacity-50" disabled>
+                                    👋 Reviewing case now
+                                </button>
+                                <button type="button" onclick="insertCanned('We will schedule a site visit shortly.')" 
+                                    class="canned-item w-full text-left rounded-xl border border-slate-200/80 bg-slate-50/50 px-3 py-2 text-xs font-medium text-slate-700 hover:border-violet-300 hover:bg-violet-50/40 hover:text-violet-700 transition disabled:opacity-50" disabled>
+                                    📅 Schedule site visit
+                                </button>
+                                <button type="button" onclick="insertCanned('Could you upload or send a photo of the issue?')" 
+                                    class="canned-item w-full text-left rounded-xl border border-slate-200/80 bg-slate-50/50 px-3 py-2 text-xs font-medium text-slate-700 hover:border-violet-300 hover:bg-violet-50/40 hover:text-violet-700 transition disabled:opacity-50" disabled>
+                                    📸 Request photo / proof
+                                </button>
+                                <button type="button" onclick="insertCanned('Our team will email your final quotation today.')" 
+                                    class="canned-item w-full text-left rounded-xl border border-slate-200/80 bg-slate-50/50 px-3 py-2 text-xs font-medium text-slate-700 hover:border-violet-300 hover:bg-violet-50/40 hover:text-violet-700 transition disabled:opacity-50" disabled>
+                                    ✉️ Send email quote
+                                </button>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="space-y-3 pt-6 border-t border-gray-100">
+                    <div class="pt-4 border-t border-slate-100">
                         <button onclick="resolveActiveChat()" id="resolve-btn" disabled 
-                            class="btn w-full rounded-2xl border-0 bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-auto py-3.5">
-                            ✓ Mark Resolved
+                            class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 text-xs font-semibold text-white shadow-xs hover:bg-emerald-700 transition disabled:opacity-50 disabled:pointer-events-none">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                            </svg>
+                            Mark As Resolved
                         </button>
                     </div>
                 </div>
             </div>
         </section>
     </div>
-
-    <!-- Legacy mockup kept below as reference while the live console is active. -->
-    <script>
-        if (false) {
-        // Initial dataset representing databases
-        const chats = {
-            'maria-d': {
-                name: 'Maria D.',
-                meta: 'Roof leak repair quote',
-                status: 'waiting',
-                claimed: false,
-                messages: [
-                    { sender: 'client', text: 'How much does it cost to waterproof a residential roof deck?', time: '10:14 AM' },
-                    { sender: 'bot', text: 'Our DARIV residential waterproofing rates start at PHP 450 per sqm. Curing takes 3-5 days. All works include a 5-year warranty!', time: '10:14 AM' },
-                    { sender: 'client', text: 'Can I speak to an operator to get a site visit scheduled?', time: '10:15 AM' },
-                    { sender: 'system', text: 'Handoff triggered. Conversation routed to waiting operator queue.', time: '10:15 AM' }
-                ]
-            },
-            'john-p': {
-                name: 'John P.',
-                meta: 'Downpayment invoice questions',
-                status: 'waiting',
-                claimed: false,
-                messages: [
-                    { sender: 'client', text: 'I received the quote but where do I pay the 30% downpayment?', time: '09:40 AM' },
-                    { sender: 'bot', text: 'Hello! I can transfer you to our manager to send downpayment invoices or links. Please type "Talk to human" or wait a moment.', time: '09:41 AM' },
-                    { sender: 'client', text: 'Talk to human please.', time: '09:41 AM' },
-                    { sender: 'system', text: 'Handoff triggered. Routed reason: Downpayment/billing inquiry.', time: '09:41 AM' }
-                ]
-            },
-            'aya-r': {
-                name: 'Aya R.',
-                meta: 'Balcony sealing warranty',
-                status: 'active',
-                claimed: true,
-                messages: [
-                    { sender: 'client', text: 'Is balcony sealing also covered by the 5-year warranty?', time: '09:02 AM' },
-                    { sender: 'bot', text: 'Yes! We provide a full 5-year warranty on all our roof and balcony waterproofing services against any leakage.', time: '09:03 AM' },
-                    { sender: 'system', text: 'Operator Mae S. claimed this chat session.', time: '09:05 AM' },
-                    { sender: 'operator', text: 'Hello Aya! Yes, balcony sealing is fully covered. Would you like us to inspect the balcony size first?', time: '09:06 AM' }
-                ]
-            }
-        };
-
-        let activeId = null;
-
-        // Render queue listings on page load
-        function renderQueue() {
-            const list = document.getElementById('queue-list');
-            list.innerHTML = '';
-            
-            let count = 0;
-            let waitingCount = 0;
-            let activeCount = 0;
-
-            for (const [id, chat] of Object.entries(chats)) {
-                count++;
-                if (chat.status === 'waiting') waitingCount++;
-                if (chat.status === 'active') activeCount++;
-
-                const isActive = (id === activeId);
-                const badgeColor = chat.status === 'waiting' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700';
-                
-                const item = document.createElement('div');
-                item.onclick = () => selectChat(id);
-                item.className = `p-4 rounded-2xl border transition cursor-pointer text-left ${isActive ? 'bg-indigo-50/50 border-indigo-200 shadow-sm ring-1 ring-indigo-150' : 'bg-white border-gray-100 hover:bg-slate-50'}`;
-                item.innerHTML = `
-                    <div class="flex justify-between items-start">
-                        <span class="font-bold text-gray-900 text-sm">${chat.name}</span>
-                        <span class="badge badge-xs font-bold border-0 px-2 py-1 text-[9px] uppercase tracking-wide ${badgeColor}">${chat.status}</span>
-                    </div>
-                    <p class="text-xs text-gray-500 mt-1 truncate">${chat.meta}</p>
-                `;
-                list.appendChild(item);
-            }
-
-            // Update top counters
-            document.getElementById('queue-count').innerText = `${count} chats`;
-            document.getElementById('header-waiting-badge').innerText = `${waitingCount} Waiting`;
-            document.getElementById('header-active-badge').innerText = `${activeCount} Active`;
-        }
-
-        // Active chat selection
-        function selectChat(id) {
-            activeId = id;
-            const chat = chats[id];
-            
-            // Remove empty state placeholder
-            document.getElementById('chat-empty-state').classList.add('hidden');
-            
-            // Header content
-            document.getElementById('active-client-name').innerText = chat.name;
-            document.getElementById('active-client-status').innerText = chat.meta;
-            
-            const badge = document.getElementById('session-badge');
-            badge.classList.remove('hidden');
-            badge.innerText = chat.status;
-            if (chat.status === 'waiting') {
-                badge.className = 'badge badge-sm font-bold border-0 text-[10px] uppercase tracking-wider py-2 bg-amber-100 text-amber-700';
-            } else {
-                badge.className = 'badge badge-sm font-bold border-0 text-[10px] uppercase tracking-wider py-2 bg-blue-100 text-blue-700';
-            }
-
-            // Load message timelines
-            renderTimeline();
-
-            // Toggle controls status
-            const inputsDisabled = !chat.claimed;
-            document.getElementById('reply-input').disabled = inputsDisabled;
-            document.getElementById('send-btn').disabled = inputsDisabled;
-            
-            document.getElementById('claim-btn').disabled = chat.claimed;
-            document.getElementById('canned-btn').disabled = inputsDisabled;
-            document.getElementById('resolve-btn').disabled = !chat.claimed;
-
-            if (inputsDisabled) {
-                document.getElementById('reply-input').placeholder = "Claim this chat to write a reply...";
-                document.getElementById('reply-input').classList.add('bg-slate-50');
-            } else {
-                document.getElementById('reply-input').placeholder = "Type a message to reply live...";
-                document.getElementById('reply-input').classList.remove('bg-slate-50');
-            }
-
-            renderQueue();
-        }
-
-        // Render message thread list
-        function renderTimeline() {
-            const timeline = document.getElementById('chat-timeline');
-            timeline.innerHTML = '';
-            const chat = chats[activeId];
-
-            chat.messages.forEach(msg => {
-                const el = document.createElement('div');
-                
-                if (msg.sender === 'system') {
-                    // System logs
-                    el.className = 'flex justify-center my-2';
-                    el.innerHTML = `<span class="bg-slate-100 border border-slate-200/50 text-[10px] font-bold text-slate-500 uppercase tracking-wider px-3 py-1 rounded-full">${msg.text}</span>`;
-                } else if (msg.sender === 'bot') {
-                    // Bot responses
-                    el.className = 'flex justify-start items-end gap-2.5 max-w-[85%]';
-                    el.innerHTML = `
-                        <div class="h-8 w-8 rounded-lg bg-indigo-50 border border-indigo-150 flex items-center justify-center text-sm shrink-0">🤖</div>
-                        <div class="bg-white border border-gray-150 p-4 rounded-[1.5rem] rounded-bl-none text-sm text-gray-800 shadow-sm leading-relaxed">
-                            <p class="text-[10px] font-extrabold uppercase tracking-widest text-indigo-600 mb-1">AI Assistant</p>
-                            ${msg.text}
-                            <span class="block text-[9px] text-gray-400 mt-2 text-right">${msg.time}</span>
-                        </div>
-                    `;
-                } else if (msg.sender === 'operator') {
-                    // Operator answers
-                    el.className = 'flex justify-end gap-2.5 max-w-[85%] ml-auto';
-                    el.innerHTML = `
-                        <div class="bg-indigo-600 text-white p-4 rounded-[1.5rem] rounded-br-none text-sm shadow-sm leading-relaxed">
-                            <p class="text-[10px] font-extrabold uppercase tracking-widest text-white/80 mb-1">You (Operator)</p>
-                            ${msg.text}
-                            <span class="block text-[9px] text-white/60 mt-2 text-right">${msg.time}</span>
-                        </div>
-                    `;
-                } else {
-                    // Customer client text
-                    el.className = 'flex justify-start gap-2.5 max-w-[85%]';
-                    el.innerHTML = `
-                        <div class="bg-slate-100 border border-slate-200/60 p-4 rounded-[1.5rem] rounded-tl-none text-sm text-gray-800 leading-relaxed">
-                            <p class="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 mb-1">Client User</p>
-                            ${msg.text}
-                            <span class="block text-[9px] text-gray-400 mt-2">${msg.time}</span>
-                        </div>
-                    `;
-                }
-                timeline.appendChild(el);
-            });
-
-            // Auto-scroll timeline to bottom
-            timeline.scrollTop = timeline.scrollHeight;
-        }
-
-        // Claim Chat
-        function claimActiveChat() {
-            if (!activeId) return;
-            const chat = chats[activeId];
-            chat.claimed = true;
-            chat.status = 'active';
-            chat.messages.push({ sender: 'system', text: 'You claimed this chat session.', time: 'Just now' });
-            
-            selectChat(activeId);
-        }
-
-        // Resolve Chat
-        function resolveActiveChat() {
-            if (!activeId) return;
-            delete chats[activeId];
-            activeId = null;
-
-            // Reset back to empty placeholder screen
-            document.getElementById('chat-empty-state').classList.remove('hidden');
-            document.getElementById('active-client-name').innerText = "No Chat Selected";
-            document.getElementById('active-client-status').innerText = "Select a conversation from the queue to start reply";
-            document.getElementById('session-badge').classList.add('hidden');
-            document.getElementById('chat-timeline').innerHTML = '';
-            
-            document.getElementById('reply-input').disabled = true;
-            document.getElementById('send-btn').disabled = true;
-            document.getElementById('claim-btn').disabled = true;
-            document.getElementById('canned-btn').disabled = true;
-            document.getElementById('resolve-btn').disabled = true;
-
-            renderQueue();
-        }
-
-        // Quick responses insertion
-        function insertCanned(text) {
-            document.getElementById('reply-input').value = text;
-            document.getElementById('reply-input').focus();
-        }
-
-        // Submit replies
-        document.getElementById('operator-reply-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const input = document.getElementById('reply-input');
-            const text = input.value.trim();
-            if (!text || !activeId) return;
-
-            const chat = chats[activeId];
-            const now = new Date();
-            const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-            chat.messages.push({ sender: 'operator', text: text, time: timeStr });
-            input.value = '';
-            renderTimeline();
-        });
-
-        // Bootstrap on page load
-        renderQueue();
-        }
-    </script>
 
     <script>
         const chatEndpoints = {
@@ -353,14 +180,92 @@
             send: sessionId => @json(url('/staff/chats')) + `/${sessionId}/messages`,
             claim: sessionId => @json(url('/staff/chats')) + `/${sessionId}/claim`,
             resolve: sessionId => @json(url('/staff/chats')) + `/${sessionId}/resolve`,
+            typing: sessionId => @json(url('/staff/chats')) + `/${sessionId}/typing`,
         };
 
         let sessions = [];
         let activeSessionId = null;
         let renderedMessageIds = new Set();
+        let previousPendingCount = 0;
+        let soundAlertsEnabled = localStorage.getItem('operator_sound_alerts') !== 'false';
+        let originalPageTitle = document.title;
+        let titleFlashInterval = null;
+        let lastStaffTypingPing = 0;
 
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
         if (csrfToken && window.axios) window.axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken;
+
+        // Initialize Audio Context for subtle pleasant notification chime
+        function playChimeSound() {
+            if (!soundAlertsEnabled) return;
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
+                osc.frequency.exponentialRampToValueAtTime(880.00, audioCtx.currentTime + 0.15); // A5
+                gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.35);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.35);
+            } catch (e) {
+                console.warn('Audio alert not permitted:', e);
+            }
+        }
+
+        function toggleSoundAlerts() {
+            soundAlertsEnabled = !soundAlertsEnabled;
+            localStorage.setItem('operator_sound_alerts', soundAlertsEnabled);
+            updateSoundButton();
+            if (soundAlertsEnabled) playChimeSound();
+        }
+
+        function updateSoundButton() {
+            const icon = document.getElementById('sound-icon');
+            const label = document.getElementById('sound-label');
+            if (icon && label) {
+                icon.textContent = soundAlertsEnabled ? '🔔' : '🔕';
+                label.textContent = soundAlertsEnabled ? 'Sound On' : 'Muted';
+            }
+        }
+        updateSoundButton();
+
+        // Request browser system notification permission if needed
+        if ('Notification' in window && Notification.permission === 'default') {
+            setTimeout(() => Notification.requestPermission().catch(() => {}), 2000);
+        }
+
+        function triggerNewTicketNotification(count) {
+            playChimeSound();
+            
+            // Tab Title Flashing
+            if (titleFlashInterval) clearInterval(titleFlashInterval);
+            let state = false;
+            titleFlashInterval = setInterval(() => {
+                document.title = state ? `(${count}) New Escalation! 💬` : originalPageTitle;
+                state = !state;
+            }, 1000);
+
+            // Desktop system push notification
+            if ('Notification' in window && Notification.permission === 'granted' && document.hidden) {
+                new Notification('Customer Waiting for Support', {
+                    body: `${count} ticket(s) waiting in your operator queue.`,
+                    icon: '/favicon.ico',
+                });
+            }
+        }
+
+        function clearTitleAlert() {
+            if (titleFlashInterval) {
+                clearInterval(titleFlashInterval);
+                titleFlashInterval = null;
+                document.title = originalPageTitle;
+            }
+        }
+        window.addEventListener('focus', clearTitleAlert);
 
         function sessionLabel(session) {
             return session.user_identifier || `Customer #${session.id}`;
@@ -369,31 +274,83 @@
         function renderQueue() {
             const list = document.getElementById('queue-list');
             list.innerHTML = '';
-            sessions.forEach(session => {
-                const item = document.createElement('button');
-                item.type = 'button';
-                item.className = `w-full p-4 rounded-2xl border text-left transition ${session.id === activeSessionId ? 'bg-indigo-50 border-indigo-200' : 'bg-white border-gray-100 hover:bg-slate-50'}`;
-                item.innerHTML = `<div class="flex justify-between gap-2"><span class="font-bold text-gray-900 text-sm"></span><span class="badge badge-xs font-bold border-0 px-2 py-1 text-[9px] uppercase ${session.status === 'pending' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'}">${session.status}</span></div><p class="text-xs text-gray-500 mt-1 truncate">${session.business_unit?.name || 'Chat session'}</p>`;
-                item.querySelector('span').textContent = sessionLabel(session);
-                item.addEventListener('click', () => selectChat(session.id));
-                list.appendChild(item);
-            });
+            
+            const currentPendingCount = sessions.filter(session => session.status === 'pending').length;
+            
+            // Alert operator when a new ticket enters queue
+            if (currentPendingCount > previousPendingCount && previousPendingCount >= 0) {
+                triggerNewTicketNotification(currentPendingCount);
+            }
+            previousPendingCount = currentPendingCount;
+
+            if (sessions.length === 0) {
+                list.innerHTML = `
+                    <div class="text-center py-8 text-slate-400">
+                        <p class="text-xs font-semibold">No chats in queue</p>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Waiting customer inquiries will appear here.</p>
+                    </div>
+                `;
+            } else {
+                sessions.forEach(session => {
+                    const isSelected = session.id === activeSessionId;
+                    const isPending = session.status === 'pending';
+                    const item = document.createElement('button');
+                    item.type = 'button';
+                    item.className = `w-full p-3.5 rounded-xl border text-left transition ${
+                        isSelected 
+                            ? 'bg-violet-50/60 border-violet-300 ring-1 ring-violet-300/40 shadow-xs' 
+                            : 'bg-white border-slate-200/70 hover:bg-slate-50 hover:border-slate-300'
+                    }`;
+
+                    const statusBadgeClass = isPending 
+                        ? 'bg-amber-50 text-amber-700 ring-amber-600/20' 
+                        : 'bg-emerald-50 text-emerald-700 ring-emerald-600/20';
+
+                    item.innerHTML = `
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="font-bold text-slate-900 text-xs truncate session-title"></span>
+                            <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ring-1 ${statusBadgeClass}">
+                                ${session.status}
+                            </span>
+                        </div>
+                        <p class="text-[11px] text-slate-400 mt-1 truncate">${session.business_unit?.name || 'Customer Conversation'}</p>
+                    `;
+                    item.querySelector('.session-title').textContent = sessionLabel(session);
+                    item.addEventListener('click', () => selectChat(session.id));
+                    list.appendChild(item);
+                });
+            }
+
             document.getElementById('queue-count').textContent = `${sessions.length} chats`;
-            document.getElementById('header-waiting-badge').textContent = `${sessions.filter(session => session.status === 'pending').length} Waiting`;
-            document.getElementById('header-active-badge').textContent = `${sessions.filter(session => session.status === 'human_active').length} Active`;
+            const waitingCount = sessions.filter(session => session.status === 'pending').length;
+            const activeCount = sessions.filter(session => session.status === 'human_active').length;
+            document.getElementById('header-waiting-badge').innerHTML = `<span class="h-2 w-2 rounded-full bg-amber-500"></span> ${waitingCount} Waiting`;
+            document.getElementById('header-active-badge').innerHTML = `<span class="h-2 w-2 rounded-full bg-indigo-500 animate-pulse"></span> ${activeCount} Active`;
         }
 
         function appendMessage(message) {
             if (renderedMessageIds.has(message.id)) return;
             renderedMessageIds.add(message.id);
+            
             const isAgent = message.sender_type === 'agent';
             const isCustomer = message.sender_type === 'customer';
             const wrapper = document.createElement('div');
             wrapper.className = isAgent ? 'flex justify-end max-w-[85%] ml-auto' : 'flex justify-start max-w-[85%]';
+            
             const bubble = document.createElement('div');
-            bubble.className = isAgent ? 'bg-indigo-600 text-white p-4 rounded-[1.5rem] rounded-br-none text-sm shadow-sm' : 'bg-slate-100 border border-slate-200/60 p-4 rounded-[1.5rem] rounded-tl-none text-sm text-gray-800';
-            const label = isAgent ? 'You (Agent)' : (isCustomer ? 'Customer' : message.sender_type);
-            bubble.innerHTML = `<p class="text-[10px] font-extrabold uppercase tracking-widest mb-1">${label}</p><p class="message-body"></p><span class="block text-[9px] opacity-60 mt-2 text-right"></span>`;
+            bubble.className = isAgent 
+                ? 'bg-gradient-to-br from-violet-600 to-indigo-700 text-white p-3.5 rounded-2xl rounded-tr-xs text-xs shadow-xs' 
+                : 'bg-white border border-slate-200/80 p-3.5 rounded-2xl rounded-tl-xs text-xs text-slate-800 shadow-xs';
+            
+            const label = isAgent ? 'You (Operator)' : (isCustomer ? 'Customer' : 'Bot Assistant');
+            const labelColor = isAgent ? 'text-violet-200' : 'text-slate-400';
+            const timeColor = isAgent ? 'text-violet-200/70' : 'text-slate-400';
+
+            bubble.innerHTML = `
+                <p class="text-[10px] font-bold uppercase tracking-wider mb-1 ${labelColor}">${label}</p>
+                <p class="message-body leading-relaxed"></p>
+                <span class="block text-[10px] mt-1.5 text-right font-medium ${timeColor}"></span>
+            `;
             bubble.querySelector('.message-body').textContent = message.message_text;
             bubble.querySelector('span').textContent = new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             wrapper.appendChild(bubble);
@@ -401,34 +358,65 @@
         }
 
         async function loadSessions() {
-            const response = await axios.get(chatEndpoints.sessions);
-            sessions = response.data.data;
-            renderQueue();
-            if (activeSessionId && !sessions.some(session => session.id === activeSessionId)) resetChat();
+            try {
+                const response = await axios.get(chatEndpoints.sessions);
+                sessions = response.data.data;
+                renderQueue();
+                if (activeSessionId && !sessions.some(session => session.id === activeSessionId)) resetChat();
+            } catch (err) {
+                console.error(err);
+            }
         }
 
         async function loadMessages() {
             if (!activeSessionId) return;
-            const response = await axios.get(chatEndpoints.messages(activeSessionId));
-            response.data.data.forEach(appendMessage);
-            const timeline = document.getElementById('chat-timeline');
-            timeline.scrollTop = timeline.scrollHeight;
+            try {
+                const response = await axios.get(chatEndpoints.messages(activeSessionId));
+                response.data.data.forEach(appendMessage);
+                
+                // Toggle customer typing status bar
+                const typingBar = document.getElementById('customer-typing-bar');
+                if (typingBar) {
+                    if (response.data.customer_typing) {
+                        typingBar.classList.remove('hidden');
+                    } else {
+                        typingBar.classList.add('hidden');
+                    }
+                }
+
+                const timeline = document.getElementById('chat-timeline');
+                timeline.scrollTop = timeline.scrollHeight;
+            } catch (err) {
+                console.error(err);
+            }
         }
 
         async function selectChat(sessionId) {
             activeSessionId = sessionId;
             renderedMessageIds = new Set();
             const session = sessions.find(item => item.id === sessionId);
+            if (!session) return;
+
             document.getElementById('chat-empty-state').classList.add('hidden');
             document.getElementById('active-client-name').textContent = sessionLabel(session);
-            document.getElementById('active-client-status').textContent = session.business_unit?.name || 'Live customer conversation';
-            document.getElementById('session-badge').textContent = session.status;
-            document.getElementById('session-badge').classList.remove('hidden');
-            document.getElementById('claim-btn').disabled = session.status === 'human_active' && session.assigned_user_id;
-            document.getElementById('resolve-btn').disabled = !session.assigned_user_id;
-            document.getElementById('reply-input').disabled = !session.assigned_user_id;
-            document.getElementById('send-btn').disabled = !session.assigned_user_id;
-            document.getElementById('canned-btn').disabled = !session.assigned_user_id;
+            document.getElementById('active-client-avatar').textContent = sessionLabel(session).substring(0, 2).toUpperCase();
+            document.getElementById('active-client-status').textContent = session.business_unit?.name || 'Live customer session';
+            
+            const badge = document.getElementById('session-badge');
+            badge.className = `inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ${
+                session.status === 'pending' ? 'bg-amber-50 text-amber-700 ring-amber-600/20' : 'bg-emerald-50 text-emerald-700 ring-emerald-600/20'
+            }`;
+            badge.textContent = session.status;
+            badge.classList.remove('hidden');
+
+            const isAssignedToMe = session.assigned_user_id;
+            document.getElementById('claim-btn').disabled = Boolean(session.status === 'human_active' && isAssignedToMe);
+            document.getElementById('resolve-btn').disabled = !isAssignedToMe;
+            document.getElementById('reply-input').disabled = !isAssignedToMe;
+            document.getElementById('send-btn').disabled = !isAssignedToMe;
+            
+            document.querySelectorAll('.canned-item').forEach(el => el.disabled = !isAssignedToMe);
+
             document.getElementById('chat-timeline').innerHTML = '';
             await loadMessages();
             renderQueue();
@@ -438,9 +426,14 @@
             activeSessionId = null;
             document.getElementById('chat-empty-state').classList.remove('hidden');
             document.getElementById('active-client-name').textContent = 'No Chat Selected';
-            document.getElementById('active-client-status').textContent = 'Select a conversation from the queue to start reply';
+            document.getElementById('active-client-avatar').textContent = '#';
+            document.getElementById('active-client-status').textContent = 'Select a ticket from the queue to start responding';
+            document.getElementById('session-badge').classList.add('hidden');
+            const typingBar = document.getElementById('customer-typing-bar');
+            if (typingBar) typingBar.classList.add('hidden');
             document.getElementById('chat-timeline').innerHTML = '';
-            ['reply-input', 'send-btn', 'claim-btn', 'canned-btn', 'resolve-btn'].forEach(id => document.getElementById(id).disabled = true);
+            ['reply-input', 'send-btn', 'claim-btn', 'resolve-btn'].forEach(id => document.getElementById(id).disabled = true);
+            document.querySelectorAll('.canned-item').forEach(el => el.disabled = true);
         }
 
         async function claimActiveChat() {
@@ -455,6 +448,26 @@
             await axios.post(chatEndpoints.resolve(activeSessionId));
             await loadSessions();
             resetChat();
+        }
+
+        function insertCanned(text) {
+            const input = document.getElementById('reply-input');
+            if (input.disabled) return;
+            input.value = text;
+            input.focus();
+        }
+
+        // Notify customer widget when staff operator is typing
+        const replyInputField = document.getElementById('reply-input');
+        if (replyInputField) {
+            replyInputField.addEventListener('input', () => {
+                if (!activeSessionId) return;
+                const now = Date.now();
+                if (now - lastStaffTypingPing > 2500) {
+                    lastStaffTypingPing = now;
+                    axios.post(chatEndpoints.typing(activeSessionId)).catch(() => {});
+                }
+            });
         }
 
         document.getElementById('operator-reply-form').addEventListener('submit', async event => {

@@ -356,11 +356,20 @@ php artisan test
 
 ---
 
-## 9. Important Conventions & Rules
+## 10. Important Conventions & Rules
 
 1. **Company Scope**: Never query or update `BusinessKnowledge`, `ChatSession`, `BusinessUnit`, or `User` without scoping to the current user's or request's `company_id`.
 2. **Quotas**: Always invoke `OrganizationQuotaService` before inserting new chunks or uploading files to enforce limits.
 3. **Audit Logging**: Any administrative change to the knowledge base (manual chunk creation, staging approval, chunk update, or deletion) must create a record using `ActivityLog::record(...)`.
 4. **Soft Deletes**: Staff accounts are terminated via soft deletion (`SoftDeletes`) and can be restored via `/admin/staff/{id}/restore`.
 5. **No Direct Model Hallucination**: AI system prompts must enforce strict grounding on indexed facts and avoid making up business policies or prices not present in `BusinessKnowledge`.
+6. **Design Standards (Impeccable & Tailwind)**: All admin and staff control surfaces use a cohesive modern design system:
+   - Primary accents: Violet/Indigo palette (`from-violet-600 to-indigo-700`, `bg-violet-600`, `ring-violet-600/20`).
+   - Cards & Elevators: `rounded-2xl border border-slate-200/80 bg-white shadow-xs`.
+   - Typography: Clean `Inter`/`Outfit` hierarchy with bold titles and `text-slate-400` uppercase tracking labels.
+   - Status indicators: Color-coded pill badges with live pulsing dots for active operations (`Active`, `Online`, `Waiting`, `Pending`).
+7. **Operator Live Desk Typing & Alerting System**:
+   - Bi-directional typing heartbeats cached via Redis/database cache (`session_{id}_typing_customer` & `session_{id}_typing_agent`) for 4-second TTL.
+   - Audio chime synthesizer via Web Audio API (no audio asset files needed, clean and lightweight).
+   - Dynamic tab title flash (`(X) New Escalation! 💬`) and desktop push notifications via Web Notification API when new tickets enter the queue.
 

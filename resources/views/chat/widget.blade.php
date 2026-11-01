@@ -615,6 +615,13 @@
                     ? (payload.messages ?? []).filter((message) => new Date(message.created_at || 0) >= new Date(payload.handed_off_at))
                     : (payload.messages ?? []);
 
+                if (payload.agent_typing) {
+                    typingIndicator.classList.remove('hidden');
+                    scrollToBottom();
+                } else if (!isAwaitingBotResponse) {
+                    typingIndicator.classList.add('hidden');
+                }
+
                 if (filteredMessages.length > 0) {
                     filteredMessages.forEach((message) => {
                         appendMessageIfNew(message);
@@ -774,6 +781,24 @@
             promptField.value = suggestionText;
             chatForm.dispatchEvent(new Event('submit', { cancelable: true }));
         }
+
+        // Notify operator desk when customer is typing
+        let lastCustomerTypingPing = 0;
+        promptField.addEventListener('input', () => {
+            if (!activeSessionId) return;
+            const now = Date.now();
+            if (now - lastCustomerTypingPing > 2500) {
+                lastCustomerTypingPing = now;
+                fetch(`/chat/${encodeURIComponent(activeSessionId)}/typing`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                    },
+                }).catch(() => {});
+            }
+        });
 
         // Form Submit Event Handler
         chatForm.addEventListener('submit', async (event) => {

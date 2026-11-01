@@ -397,10 +397,13 @@ class ChatbotController extends Controller
             $messagesQuery = $messagesQuery->where('created_at', '>=', $session->handed_off_at);
         }
 
+        $agentTyping = Cache::has("session_{$session->id}_typing_agent");
+
         return response()->json([
             'status' => $session->status,
             'assigned_user_id' => $session->assigned_user_id ?? null,
             'handed_off_at' => $session->handed_off_at?->toISOString(),
+            'agent_typing' => $agentTyping,
             'messages' => $messagesQuery->get()->map(function ($message) {
                 return [
                     'id' => $message->id,
@@ -411,6 +414,15 @@ class ChatbotController extends Controller
                 ];
             })->values(),
         ]);
+    }
+
+    public function notifyTyping(Request $request, int $sessionId): JsonResponse
+    {
+        $session = ChatSession::query()->whereKey($sessionId)->firstOrFail();
+        // Mark customer as typing for 4 seconds
+        Cache::put("session_{$session->id}_typing_customer", true, now()->addSeconds(4));
+
+        return response()->json(['status' => 'ok']);
     }
 
     private function extractGeminiText(mixed $response): string

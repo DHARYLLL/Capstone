@@ -167,6 +167,8 @@ Route::prefix('staff')->name('staff.')->middleware('auth')->group(function () {
     Route::post('/chats/{session}/messages', [StaffChatController::class, 'sendMessage'])->name('chats.messages.store');
     Route::post('/chats/{session}/claim', [StaffChatController::class, 'claimSession'])->name('chats.claim');
     Route::post('/chats/{session}/resolve', [StaffChatController::class, 'resolveSession'])->name('chats.resolve');
+    Route::post('/chats/{session}/typing', [StaffChatController::class, 'sendTyping'])->name('chats.typing');
+    Route::get('/chats/{session}/status', [StaffChatController::class, 'sessionStatus'])->name('chats.status');
 
     Route::get('/settings', protectRoute('staff.settings', 'Lead Operator'))->name('settings');
     Route::post('/settings/profile', [AuthController::class, 'updateProfile'])->name('settings.profile.update');
@@ -198,6 +200,7 @@ Route::controller(ChatbotController::class)->group(function (): void {
 
     // 4. Public endpoint used by the embedded widget to poll live replies
     Route::get('/get-messages/{sessionId}', 'getMessages')->name('chat.messages');
+    Route::post('/chat/{sessionId}/typing', 'notifyTyping')->name('chat.typing');
     Route::get('/api/chatbot/contact-info', [ChatbotController::class, 'getContactInfo'])->name('chatbot.contact-info');
     
     // 5. Cancel handoff endpoint
