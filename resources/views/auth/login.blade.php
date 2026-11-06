@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign In — Project RED AI</title>
-    <meta name="description" content="Sign in to Project RED AI — your enterprise-grade centralized technical support intelligence platform.">
+    <title>Sign In - Project RED AI</title>
+    <meta name="description" content="Sign in to Project RED AI centralized multi-unit support console.">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,17 +17,11 @@
                 extend: {
                     fontFamily: { sans: ['Inter', 'sans-serif'] },
                     animation: {
-                        'blob': 'blob 12s ease-in-out infinite',
-                        'fade-up': 'fadeUp 0.45s ease-out both',
+                        'fade-up': 'fadeUp 0.35s ease-out both',
                     },
                     keyframes: {
-                        blob: {
-                            '0%, 100%': { transform: 'translate(0px, 0px) scale(1)' },
-                            '33%':       { transform: 'translate(28px, -36px) scale(1.08)' },
-                            '66%':       { transform: 'translate(-18px, 18px) scale(0.94)' },
-                        },
                         fadeUp: {
-                            '0%':   { opacity: '0', transform: 'translateY(14px)' },
+                            '0%':   { opacity: '0', transform: 'translateY(10px)' },
                             '100%': { opacity: '1', transform: 'translateY(0)' },
                         },
                     }
@@ -62,23 +56,15 @@
 
 <body class="bg-slate-50 font-sans text-slate-900 antialiased h-full flex overflow-hidden relative selection:bg-slate-900 selection:text-white">
 
-    {{-- ── Ambient Background Effects (behind everything) ────────────────────── --}}
-    <div class="fixed inset-0 pointer-events-none overflow-hidden z-0" aria-hidden="true">
-        <div class="absolute -top-48 -left-48 w-[30rem] h-[30rem] bg-violet-400/20 rounded-full blur-3xl animate-blob"></div>
-        <div class="absolute top-1/4 -right-24 w-[36rem] h-[36rem] bg-indigo-400/15 rounded-full blur-3xl animate-blob [animation-delay:2.5s]"></div>
-        <div class="absolute -bottom-40 left-1/4 w-[32rem] h-[32rem] bg-sky-400/15 rounded-full blur-3xl animate-blob [animation-delay:5s]"></div>
-    </div>
-
     {{-- ══════════════════════════════════════════════════════════════════════════
          LEFT PANEL — Login Form
     ══════════════════════════════════════════════════════════════════════════ --}}
-    <div class="relative z-10 w-full lg:w-[46%] xl:w-[42%] flex flex-col h-full px-6 sm:px-10 xl:px-14 py-6">
+    <div class="relative z-10 w-full lg:w-[46%] xl:w-[42%] flex flex-col h-full px-6 sm:px-10 xl:px-14 py-6 sm:py-10">
 
-        {{-- Form Card (glass) --}}
+        {{-- Form Card --}}
         <div class="form-card w-full max-w-[420px] mx-auto flex flex-col justify-between flex-1
-                    rounded-3xl bg-white/85 backdrop-blur-2xl
-                    border border-white/70 shadow-2xl shadow-slate-300/40
-                    ring-1 ring-slate-900/5 px-8 py-8 sm:px-10">
+                    rounded-2xl bg-white
+                    border border-slate-200/90 shadow-sm px-8 py-8 sm:px-10">
 
             {{-- ── TOP: Brand Mark + Heading ──────────────────────────────── --}}
             <div class="space-y-5">
@@ -93,7 +79,7 @@
                     </div>
                     <div class="flex flex-col leading-none">
                         <span class="text-sm font-bold text-slate-900 tracking-tight">Project RED</span>
-                        <span class="text-[10px] font-semibold tracking-widest text-indigo-600 uppercase mt-0.5">Enterprise AI</span>
+                        <span class="text-[11px] font-medium text-slate-500 mt-0.5">Multi-Unit Console</span>
                     </div>
                 </div>
 
@@ -236,13 +222,12 @@
                         id="signin-btn"
                         type="submit"
                         class="relative w-full py-2.5 rounded-xl border-0 cursor-pointer
-                               bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900
-                               hover:from-indigo-900 hover:via-slate-900 hover:to-indigo-900
-                               text-white font-bold text-sm tracking-wide
-                               shadow-lg shadow-indigo-950/25 hover:shadow-indigo-900/35
-                               transition-all duration-200 active:scale-[0.975]
+                               bg-slate-900 hover:bg-slate-800
+                               text-white font-semibold text-sm tracking-wide
+                               shadow-sm
+                               transition-colors duration-150 active:scale-[0.98]
                                flex items-center justify-center gap-2
-                               focus:outline-none focus:ring-4 focus:ring-indigo-500/30"
+                               focus:outline-none focus:ring-4 focus:ring-slate-900/15"
                         aria-label="Sign in to Dashboard">
                         <span id="signin-label">Sign In</span>
                         <svg id="signin-arrow" class="w-4 h-4 fill-none stroke-current" viewBox="0 0 24 24" aria-hidden="true">
@@ -276,9 +261,9 @@
          RIGHT PANEL — Image (hidden on mobile)
     ══════════════════════════════════════════════════════════════════════════ --}}
     <div class="hidden lg:block flex-1 relative z-10 p-6 xl:p-8" aria-hidden="true">
-        <div class="w-full h-full rounded-[2.5rem] overflow-hidden relative group
-                    bg-slate-900 shadow-2xl ring-1 ring-slate-900/10 p-1">
-            <div class="w-full h-full rounded-[2.3rem] overflow-hidden relative">
+        <div class="w-full h-full rounded-2xl overflow-hidden relative group
+                    bg-slate-900 shadow-md ring-1 ring-slate-900/10">
+            <div class="w-full h-full overflow-hidden relative">
 
                 {{-- Hero image --}}
                 <img
@@ -286,20 +271,18 @@
                     alt=""
                     role="presentation"
                     class="w-full h-full object-cover object-center block
-                           group-hover:scale-[1.03] transition-transform duration-700 ease-out">
+                           group-hover:scale-[1.02] transition-transform duration-700 ease-out">
 
                 {{-- Ambient gradient overlay — deeper at bottom so text is readable --}}
-                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/25 to-transparent"></div>
 
-
-
-                {{-- Text overlaid directly on the gradient — no card, no border --}}
+                {{-- Text overlaid directly on the gradient --}}
                 <div class="absolute bottom-8 left-8 right-8">
                     <h2 class="text-xl font-bold text-white tracking-tight leading-snug">
-                        Technical Support Intelligence
+                        Multi-Branch Support Console
                     </h2>
                     <p class="text-sm text-slate-300 mt-2 leading-relaxed">
-                        Centralized knowledge synthesis, fast query response, and automated resolution workflows.
+                        Centralized branch knowledge, automated customer inquiry resolution, and live staff handoff.
                     </p>
                 </div>
 
@@ -330,7 +313,7 @@
             btn.disabled = true;
             btn.classList.add('opacity-80', 'cursor-not-allowed');
             arrow.style.display = 'none';
-            label.innerHTML = '<svg class="h-4 w-4 animate-spin mr-2 inline" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Signing in…';
+            label.innerHTML = '<svg class="h-4 w-4 animate-spin mr-2 inline" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Signing in...';
         });
     </script>
 

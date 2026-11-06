@@ -25,3 +25,4 @@ Thumbs.db
 graphify-out/
 .agents/rules/graphify.md
 .agents/workflows/graphify.md
+.agent/

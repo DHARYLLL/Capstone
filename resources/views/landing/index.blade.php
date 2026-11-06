@@ -100,119 +100,65 @@
         ];
     @endphp
 
-    <section id="home" class="mx-auto max-w-7xl px-4 py-10 lg:px-8 lg:py-16">
-        <div class="grid items-center gap-10 lg:grid-cols-[1.05fr_0.95fr]">
-            <div class="space-y-6">
-                <div
-                    class="badge border-0 bg-[#f5f3ff] px-4 py-3 text-xs font-semibold uppercase tracking-[0.22em] text-brand-primary">
+    <section id="home" class="mx-auto max-w-7xl px-4 py-16 sm:py-24 lg:px-8">
+        <div class="grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr]">
+            <div class="space-y-8">
+                <div class="inline-flex items-center rounded-full bg-indigo-50 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-indigo-600">
                     {{ $heroBadge }}
                 </div>
 
-                <div class="space-y-5">
-                    <h1 class="max-w-2xl text-4xl font-black leading-tight tracking-tight text-gray-950 md:text-6xl">
-                        {{ $heroHeadline }}
+                <div class="space-y-6">
+                    <h1 class="max-w-2xl text-5xl font-extrabold leading-[1.1] tracking-tighter text-gray-950 md:text-7xl">
+                        Automate interactions for multi-unit operations.
                     </h1>
-                    <p class="max-w-2xl text-base leading-7 text-gray-600 md:text-lg">
+                    <p class="max-w-xl text-lg leading-8 text-gray-600">
                         {{ $heroDescription }}
-                    </p>
-                    <p class="max-w-xl text-sm font-medium leading-6 text-gray-500 md:text-base">
-                        {{ $heroSupportLine }}
                     </p>
                 </div>
 
-                <div class="flex flex-col gap-3 sm:flex-row">
-                    <button type="button" onclick="signup_modal.showModal()" class="btn rounded-full border-0 bg-brand-primary px-6 text-white hover:bg-[#6d28d9]">
+                <div class="flex flex-col gap-4 sm:flex-row">
+                    <button type="button" onclick="signup_modal.showModal()" class="flex items-center justify-center rounded-full bg-indigo-600 px-8 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700">
                         {{ $primaryCtaLabel }}
                     </button>
-                    <a href="#feature-tour"
-                        class="btn rounded-full border border-brand-primary bg-transparent px-6 text-brand-primary hover:bg-[#f5f3ff] hover:text-brand-primary">
+                    <a href="#feature-tour" class="flex items-center justify-center rounded-full bg-indigo-50 px-8 py-3.5 text-sm font-semibold text-indigo-700 transition hover:bg-indigo-100">
                         {{ $secondaryCtaLabel }}
                     </a>
                 </div>
 
-                <div class="flex flex-wrap gap-3">
+                <div class="flex flex-wrap gap-4 pt-4">
                     @foreach ($heroHighlights as $highlight)
-                        <div
-                            class="rounded-full border border-[#e2e8f0] bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm">
+                        <div class="flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700">
+                            <svg class="h-4 w-4 text-emerald-500" fill="currentColor" viewBox="0 0 20 20"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
                             {{ $highlight }}
                         </div>
                     @endforeach
                 </div>
-
-                <div class="rounded-[2rem] border border-[#e2e8f0] bg-[#f8fafc] p-5 shadow-sm">
-                    <div class="flex items-start gap-4">
-                        <div
-                            class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-brand-primary text-white">
-                            <svg viewBox="0 0 24 24" class="h-5 w-5 fill-current" aria-hidden="true">
-                                <path
-                                    d="M12 2a4 4 0 0 0-4 4v1H7a3 3 0 0 0-3 3v7a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-7a3 3 0 0 0-3-3h-1V6a4 4 0 0 0-4-4zm-2 5V6a2 2 0 1 1 4 0v1h-4zm2 5a1.5 1.5 0 0 1 .75 2.8V16h-1.5v-1.2A1.5 1.5 0 0 1 12 12z" />
-                            </svg>
-                        </div>
-                        <div>
-                            <div class="flex items-center gap-2">
-                                <h2 class="text-sm font-bold text-gray-950">Active multi-tenant support</h2>
-                                <span
-                                    class="rounded-full bg-emerald-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-700">Live</span>
-                            </div>
-                            <p class="mt-1 text-sm leading-6 text-gray-600">
-                                Each business instance can be configured separately while still feeding the same centralized
-                                knowledge and support framework.
-                            </p>
-                        </div>
-                    </div>
-                </div>
             </div>
 
-            <div class="space-y-4">
-                <div
-                    class="rounded-[2rem] border border-white/70 bg-white p-5 shadow-[0_20px_60px_rgba(124,58,237,0.12)] lg:p-6">
-                    <div class="space-y-4 rounded-[1.6rem] bg-[#ffffff] p-5">
-                        <div class="flex items-center justify-between gap-3">
-                            <div>
-                                <p class="text-xs font-semibold uppercase tracking-[0.22em] text-gray-400">System status</p>
-                                <p class="mt-1 text-lg font-black text-gray-950">Tenant orchestration online</p>
-                            </div>
-                            <div class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700">Healthy
+            <div class="relative lg:block">
+                <div class="rounded-[2.5rem] border border-gray-200 bg-white p-2 shadow-2xl shadow-indigo-100">
+                    <div class="overflow-hidden rounded-[2rem] bg-gray-50 p-6 md:p-8">
+                        <div class="flex items-center justify-between border-b border-gray-200 pb-6 mb-6">
+                            <span class="text-xs font-bold uppercase tracking-widest text-gray-400">System status</span>
+                            <div class="flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700">
+                                <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                                Live
                             </div>
                         </div>
-
-                        <div class="grid gap-3 sm:grid-cols-2">
-                            <div class="rounded-2xl border border-[#e2e8f0] bg-white p-4">
-                                <div class="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Core framework
-                                </div>
-                                <div class="mt-2 text-lg font-black text-gray-950">Single database spine</div>
-                                <div class="mt-1 text-sm text-gray-600">Every branch feeds one shared support model.</div>
+                        <div class="grid gap-4">
+                            <div class="rounded-3xl bg-white p-6 shadow-sm border border-gray-100">
+                                <div class="text-xs font-bold uppercase tracking-widest text-gray-400">Core framework</div>
+                                <div class="mt-2 text-xl font-extrabold text-gray-950">Single database spine</div>
                             </div>
-                            <div class="rounded-2xl border border-[#e2e8f0] bg-white p-4">
-                                <div class="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Availability
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="rounded-3xl bg-white p-6 shadow-sm border border-gray-100">
+                                    <div class="text-xs font-bold uppercase tracking-widest text-gray-400">Branches</div>
+                                    <div class="mt-2 text-xl font-extrabold text-gray-950">12+</div>
                                 </div>
-                                <div class="mt-2 flex items-center gap-2 text-lg font-black text-gray-950">
-                                    <span class="h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
-                                    Ready for onboarding
+                                <div class="rounded-3xl bg-white p-6 shadow-sm border border-gray-100">
+                                    <div class="text-xs font-bold uppercase tracking-widest text-gray-400">Status</div>
+                                    <div class="mt-2 text-xl font-extrabold text-gray-950">Active</div>
                                 </div>
-                                <div class="mt-1 text-sm text-gray-600">New tenants can register immediately.</div>
-                            </div>
-                        </div>
-
-                        <div class="rounded-2xl border border-[#e2e8f0] bg-[#f8fafc] p-4">
-                            <div class="flex items-center justify-between gap-4">
-                                <div>
-                                    <p class="text-sm font-semibold text-gray-900">Branch support model</p>
-                                    <p class="text-sm text-gray-600">Hotels, dining, pools, and more all branch from the
-                                        same core.</p>
-                                </div>
-                                <div class="rounded-full bg-brand-primary px-3 py-1 text-xs font-semibold text-white">Core</div>
-                            </div>
-                            <div class="mt-4 grid grid-cols-3 gap-3">
-                                <div
-                                    class="rounded-2xl bg-white p-3 text-center text-xs font-semibold text-gray-700 shadow-sm">
-                                    Branch A</div>
-                                <div
-                                    class="rounded-2xl bg-white p-3 text-center text-xs font-semibold text-gray-700 shadow-sm">
-                                    Branch B</div>
-                                <div
-                                    class="rounded-2xl bg-white p-3 text-center text-xs font-semibold text-gray-700 shadow-sm">
-                                    Branch C</div>
                             </div>
                         </div>
                     </div>

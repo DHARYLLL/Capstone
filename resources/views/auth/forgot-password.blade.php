@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forgot Password — Project RED AI</title>
+    <title>Forgot Password - Project RED AI</title>
     <meta name="description" content="Reset your Project RED AI account password.">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,17 +17,11 @@
                 extend: {
                     fontFamily: { sans: ['Inter', 'sans-serif'] },
                     animation: {
-                        'blob':    'blob 12s ease-in-out infinite',
-                        'fade-up': 'fadeUp 0.45s ease-out both',
+                        'fade-up': 'fadeUp 0.35s ease-out both',
                     },
                     keyframes: {
-                        blob: {
-                            '0%, 100%': { transform: 'translate(0px, 0px) scale(1)' },
-                            '33%':      { transform: 'translate(28px, -36px) scale(1.08)' },
-                            '66%':      { transform: 'translate(-18px, 18px) scale(0.94)' },
-                        },
                         fadeUp: {
-                            '0%':   { opacity: '0', transform: 'translateY(14px)' },
+                            '0%':   { opacity: '0', transform: 'translateY(10px)' },
                             '100%': { opacity: '1', transform: 'translateY(0)' },
                         },
                     }
@@ -58,20 +52,13 @@
 
 <body class="bg-slate-50 font-sans text-slate-900 antialiased h-full flex overflow-hidden relative selection:bg-slate-900 selection:text-white">
 
-    {{-- Ambient Background --}}
-    <div class="fixed inset-0 pointer-events-none overflow-hidden z-0" aria-hidden="true">
-        <div class="absolute -top-48 -left-48 w-[30rem] h-[30rem] bg-violet-400/20 rounded-full blur-3xl animate-blob"></div>
-        <div class="absolute top-1/4 -right-24 w-[36rem] h-[36rem] bg-indigo-400/15 rounded-full blur-3xl animate-blob [animation-delay:2.5s]"></div>
-        <div class="absolute -bottom-40 left-1/4 w-[32rem] h-[32rem] bg-sky-400/15 rounded-full blur-3xl animate-blob [animation-delay:5s]"></div>
-    </div>
-
     {{-- Centered Card --}}
     <div class="relative z-10 w-full flex items-center justify-center px-6 py-12">
 
         <div class="form-card w-full max-w-[420px]
-                    rounded-3xl bg-white/85 backdrop-blur-2xl
-                    border border-white/70 shadow-2xl shadow-slate-300/40
-                    ring-1 ring-slate-900/5 px-8 py-10 sm:px-10 space-y-6">
+                    rounded-2xl bg-white
+                    border border-slate-200/90 shadow-sm
+                    px-8 py-10 sm:px-10 space-y-6">
 
             {{-- Brand Mark --}}
             <div class="flex items-center gap-3">
@@ -83,7 +70,7 @@
                 </div>
                 <div class="flex flex-col leading-none">
                     <span class="text-sm font-bold text-slate-900 tracking-tight">Project RED</span>
-                    <span class="text-[10px] font-semibold tracking-widest text-indigo-600 uppercase mt-0.5">Enterprise AI</span>
+                    <span class="text-[11px] font-medium text-slate-500 mt-0.5">Multi-Unit Console</span>
                 </div>
             </div>
 
@@ -162,13 +149,12 @@
                     id="send-btn"
                     type="submit"
                     class="relative w-full py-2.5 rounded-xl border-0 cursor-pointer
-                           bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900
-                           hover:from-indigo-900 hover:via-slate-900 hover:to-indigo-900
-                           text-white font-bold text-sm tracking-wide
-                           shadow-lg shadow-indigo-950/25 hover:shadow-indigo-900/35
-                           transition-all duration-200 active:scale-[0.975]
+                           bg-slate-900 hover:bg-slate-800
+                           text-white font-semibold text-sm tracking-wide
+                           shadow-sm
+                           transition-colors duration-150 active:scale-[0.98]
                            flex items-center justify-center gap-2
-                           focus:outline-none focus:ring-4 focus:ring-indigo-500/30"
+                           focus:outline-none focus:ring-4 focus:ring-slate-900/15"
                     aria-label="Send password reset link">
                     <span id="send-label">Send Reset Link</span>
                     <svg id="send-icon" class="w-4 h-4 fill-none stroke-current" viewBox="0 0 24 24" aria-hidden="true">
