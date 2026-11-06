@@ -1,6 +1,5 @@
-{{-- filepath: c:\Users\dhary\Desktop\Capstone\capstone1\resources\views\layouts\admin.blade.php --}}
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,19 +18,60 @@
                         sans: ['Inter', 'sans-serif'],
                     },
                     colors: {
+                        // RED AI — dark, precise, confident
+                        ink: {
+                            950: '#0A0D11',
+                            900: '#0E1117',
+                            850: '#12161D',
+                            800: '#161A22',
+                            700: '#1C212B',
+                            600: '#232934',
+                            500: '#2B313D',
+                        },
+                        surface: {
+                            0: '#14181F',
+                            1: '#1A1F29',
+                            2: '#202632',
+                        },
+                        line: {
+                            0: '#232934',
+                            1: '#2B313D',
+                            2: '#343B49',
+                        },
+                        text: {
+                            primary: '#F0EDE8',
+                            secondary: '#9AA0AB',
+                            muted: '#6B7280',
+                            faint: '#4B5260',
+                        },
                         brand: {
-                            primary: '#D8210B',
-                            'primary-dark': '#b51a08',
-                            'primary-light': '#fef2f2',
-                            coral: '#EE4E56',
-                            gold: '#F2D742',
+                            primary: '#E8312B',
+                            'primary-dark': '#C4211C',
+                            'primary-soft': '#FDECEA',
+                            coral: '#FF5A4D',
+                            gold: '#F5A623',
+                            'gold-soft': '#FDECD2',
                             charcoal: '#263049',
                             navy: '#263049',
-                            'bg-base': '#f8fafc',
-                            'bg-card': '#ffffff',
-                            border: '#e2e8f0',
-                        }
-                    }
+                        },
+                        accent: {
+                            red: '#E8312B',
+                            gold: '#F5A623',
+                            emerald: '#34D399',
+                            amber: '#FBBF24',
+                            sky: '#60A5FA',
+                            rose: '#FB7185',
+                        },
+                    },
+                    boxShadow: {
+                        xs: '0 1px 2px 0 rgba(0,0,0,0.4)',
+                        sm: '0 2px 6px -2px rgba(0,0,0,0.5)',
+                        md: '0 6px 16px -6px rgba(0,0,0,0.6)',
+                        lg: '0 12px 28px -10px rgba(0,0,0,0.7)',
+                    },
+                    borderWidth: {
+                        DEFAULT: '1px',
+                    },
                 },
             },
         }
@@ -40,11 +80,12 @@
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
 </head>
-<body class="bg-[#f8fafc] font-sans text-slate-800 antialiased">
+<body class="bg-ink-950 font-sans text-text-primary antialiased selection:bg-brand-primary selection:text-white">
+
     <div class="drawer md:drawer-open">
         <input id="admin-mobile-drawer" type="checkbox" class="drawer-toggle" />
-        
-        <div class="drawer-content flex h-screen flex-col overflow-hidden bg-slate-50/50">
+
+        <div class="drawer-content flex h-screen flex-col overflow-hidden bg-ink-950">
             @include('partials.admin-header')
 
             <main class="flex-1 overflow-y-auto">

@@ -22,8 +22,8 @@
                 'title' => 'Knowledge Base',
                 'subtitle' => 'Docs, ingestion & sync',
                 'badge' => 'Files Ready',
-                'badgeColor' => 'bg-red-50 text-brand-primary ring-red-200',
-                'iconBg' => 'bg-brand-primary text-white',
+                'badgeColor' => 'border-[#E8312B]/40 text-[#E8312B]',
+                'iconClass' => 'border-[#E8312B]/60 text-[#E8312B]',
                 'icon' => 'kb',
                 'href' => route('admin.knowledge-base'),
             ],
@@ -31,8 +31,8 @@
                 'title' => 'Live Chat & Queue',
                 'subtitle' => 'Operator escalations',
                 'badge' => 'Active',
-                'badgeColor' => 'bg-emerald-50 text-emerald-700 ring-emerald-200',
-                'iconBg' => 'bg-emerald-500 text-white',
+                'badgeColor' => 'border-emerald-500/40 text-emerald-400',
+                'iconClass' => 'border-emerald-500/60 text-emerald-400',
                 'icon' => 'chat',
                 'href' => route('admin.chat'),
             ],
@@ -40,8 +40,8 @@
                 'title' => 'Analytics & Trends',
                 'subtitle' => 'Query volumes & CSAT',
                 'badge' => 'Insights',
-                'badgeColor' => 'bg-blue-50 text-blue-700 ring-blue-200',
-                'iconBg' => 'bg-blue-500 text-white',
+                'badgeColor' => 'border-blue-500/40 text-blue-400',
+                'iconClass' => 'border-blue-500/60 text-blue-400',
                 'icon' => 'analytics',
                 'href' => route('admin.analytics'),
             ],
@@ -49,8 +49,8 @@
                 'title' => 'Widget Playground',
                 'subtitle' => 'Test & embed chat',
                 'badge' => 'HTML Ready',
-                'badgeColor' => 'bg-amber-50 text-amber-700 ring-amber-200',
-                'iconBg' => 'bg-amber-500 text-white',
+                'badgeColor' => 'border-[#F5A623]/40 text-[#F5A623]',
+                'iconClass' => 'border-[#F5A623]/60 text-[#F5A623]',
                 'icon' => 'widget',
                 'href' => route('chat.demo'),
                 'external' => true,
@@ -59,8 +59,8 @@
                 'title' => 'Staff & Permissions',
                 'subtitle' => 'Agents, shifts & roles',
                 'badge' => 'Team',
-                'badgeColor' => 'bg-slate-100 text-slate-700 ring-slate-200',
-                'iconBg' => 'bg-slate-700 text-white',
+                'badgeColor' => 'border-[#2B313D] text-[#9AA0AB]',
+                'iconClass' => 'border-[#2B313D] text-[#F0EDE8]',
                 'icon' => 'staff',
                 'href' => route('admin.staff'),
             ],
@@ -69,39 +69,35 @@
 
     <div class="space-y-6">
         <!-- Minimal Top Control Header -->
-        <div class="flex flex-col gap-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex flex-col gap-4 rounded-2xl border border-[#232934] bg-[#14181F] p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
             <div class="flex items-center gap-4">
-                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-primary text-lg font-black text-white shadow-xs">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-[#E8312B]/60 bg-[#14181F] text-lg font-black text-[#E8312B]">
                     {{ strtoupper(substr($tenantName, 0, 2)) }}
                 </div>
                 <div>
                     <div class="flex items-center gap-2">
-                        <h1 class="text-xl font-bold tracking-tight text-slate-900">{{ $tenantName }}</h1>
-                        <span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-600/20">
-                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
-                            Live
-                        </span>
+                        <h1 class="text-xl font-bold tracking-tight text-[#F0EDE8]">{{ $tenantName }}</h1>
                     </div>
-                    <p class="text-xs font-medium text-slate-400">{{ $tenantType }} - Production Console</p>
+                    <p class="text-xs font-medium text-[#6B7280]">{{ $tenantType }} - Production Console</p>
                 </div>
             </div>
 
             <!-- Quick Action Buttons -->
             <div class="flex flex-wrap items-center gap-2">
-                <a href="{{ route('admin.knowledge-base') }}" class="inline-flex items-center gap-2 rounded-xl bg-brand-primary px-3.5 py-2 text-xs font-semibold text-white shadow-xs hover:bg-brand-primary-dark transition">
+                <a href="{{ route('admin.knowledge-base') }}" class="inline-flex items-center gap-2 rounded-xl border border-[#E8312B]/60 bg-[#14181F] px-3.5 py-2 text-xs font-semibold text-[#E8312B] transition hover:border-[#E8312B] hover:bg-[#1A1F29]">
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                     </svg>
                     Upload Document
                 </a>
-                <a href="{{ route('admin.chat') }}" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition">
-                    <svg class="h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <a href="{{ route('admin.chat') }}" class="inline-flex items-center gap-2 rounded-xl border border-[#232934] bg-[#1A1F29] px-3.5 py-2 text-xs font-semibold text-[#F0EDE8] hover:bg-[#202632] transition">
+                    <svg class="h-4 w-4 text-[#9AA0AB]" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a.75.75 0 0 1-.974-.94 4.09 4.09 0 0 0 .546-2.127C3.308 16.326 2 14.307 2 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
                     </svg>
                     Chat Queue
                 </a>
-                <a href="{{ route('chat.demo') }}" target="_blank" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition">
-                    <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <a href="{{ route('chat.demo') }}" target="_blank" class="inline-flex items-center gap-2 rounded-xl border border-[#232934] bg-[#14181F] px-3 py-2 text-xs font-semibold text-[#9AA0AB] hover:bg-[#1A1F29] hover:text-[#F0EDE8] transition">
+                    <svg class="h-4 w-4 text-[#6B7280]" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
                     </svg>
                     Playground
@@ -112,74 +108,62 @@
         <!-- 4 Visual KPI Metric Cards -->
         <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <!-- 1. Answered Queries -->
-            <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs transition hover:border-slate-300">
+            <div class="rounded-2xl border border-[#232934] bg-[#14181F] p-5 shadow-sm transition hover:border-[#2B313D]">
                 <div class="flex items-center justify-between">
-                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-500/60 text-emerald-400">
                         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                         </svg>
                     </div>
-                    <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold {{ $kpis[0]['deltaClass'] }}">
-                        {{ $kpis[0]['delta'] }}
-                    </span>
                 </div>
                 <div class="mt-4">
-                    <div class="text-2xl font-black tracking-tight text-slate-900">{{ $kpis[0]['value'] }}</div>
-                    <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mt-0.5">{{ $kpis[0]['label'] }}</div>
+                    <div class="text-2xl font-black tracking-tight text-[#F0EDE8]">{{ $kpis[0]['value'] }}</div>
+                    <div class="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mt-0.5">{{ $kpis[0]['label'] }}</div>
                 </div>
             </div>
 
             <!-- 2. Unanswered Queries -->
-            <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs transition hover:border-slate-300">
+            <div class="rounded-2xl border border-[#232934] bg-[#14181F] p-5 shadow-sm transition hover:border-[#2B313D]">
                 <div class="flex items-center justify-between">
-                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl border border-[#F5A623]/60 text-[#F5A623]">
                         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
                         </svg>
                     </div>
-                    <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold {{ $kpis[1]['deltaClass'] }}">
-                        {{ $kpis[1]['delta'] }}
-                    </span>
                 </div>
                 <div class="mt-4">
-                    <div class="text-2xl font-black tracking-tight text-slate-900">{{ $kpis[1]['value'] }}</div>
-                    <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mt-0.5">{{ $kpis[1]['label'] }}</div>
+                    <div class="text-2xl font-black tracking-tight text-[#F0EDE8]">{{ $kpis[1]['value'] }}</div>
+                    <div class="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mt-0.5">{{ $kpis[1]['label'] }}</div>
                 </div>
             </div>
 
             <!-- 3. Human Routed Queries -->
-            <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs transition hover:border-slate-300">
+            <div class="rounded-2xl border border-[#232934] bg-[#14181F] p-5 shadow-sm transition hover:border-[#2B313D]">
                 <div class="flex items-center justify-between">
-                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl border border-blue-500/60 text-blue-400">
                         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
                         </svg>
                     </div>
-                    <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold {{ $kpis[2]['deltaClass'] }}">
-                        {{ $kpis[2]['delta'] }}
-                    </span>
                 </div>
                 <div class="mt-4">
-                    <div class="text-2xl font-black tracking-tight text-slate-900">{{ $kpis[2]['value'] }}</div>
-                    <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mt-0.5">{{ $kpis[2]['label'] }}</div>
+                    <div class="text-2xl font-black tracking-tight text-[#F0EDE8]">{{ $kpis[2]['value'] }}</div>
+                    <div class="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mt-0.5">{{ $kpis[2]['label'] }}</div>
                 </div>
             </div>
 
             <!-- 4. Knowledge Base Files -->
-            <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs transition hover:border-slate-300">
+            <div class="rounded-2xl border border-[#232934] bg-[#14181F] p-5 shadow-sm transition hover:border-[#2B313D]">
                 <div class="flex items-center justify-between">
-                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-red-50 text-brand-primary">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl border border-[#E8312B]/60 text-[#E8312B]">
                         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
                         </svg>
                     </div>
-                    <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold {{ $kpis[3]['deltaClass'] }}">
-                        {{ $kpis[3]['delta'] }}
-                    </span>
                 </div>
                 <div class="mt-4">
-                    <div class="text-2xl font-black tracking-tight text-slate-900">{{ $kpis[3]['value'] }}</div>
-                    <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mt-0.5">{{ $kpis[3]['label'] }}</div>
+                    <div class="text-2xl font-black tracking-tight text-[#F0EDE8]">{{ $kpis[3]['value'] }}</div>
+                    <div class="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mt-0.5">{{ $kpis[3]['label'] }}</div>
                 </div>
             </div>
         </div>
@@ -191,45 +175,45 @@
             <div class="space-y-6">
                 
                 <!-- AI Resolution & Routing Distribution Bar -->
-                <div class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-xs">
+                <div class="rounded-2xl border border-[#232934] bg-[#14181F] p-6 shadow-sm">
                     <div class="flex items-center justify-between">
                         <div>
-                            <h2 class="text-base font-bold text-slate-900">Query Resolution Breakdown</h2>
-                            <p class="text-xs text-slate-400 mt-0.5">Automated AI vs human operator routing</p>
+                            <h2 class="text-base font-bold text-[#F0EDE8]">Query Resolution Breakdown</h2>
+                            <p class="text-xs text-[#6B7280] mt-0.5">Automated AI vs human operator routing</p>
                         </div>
-                        <span class="inline-flex items-center gap-1 rounded-xl bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-800">
+                        <span class="inline-flex items-center gap-1 rounded-xl bg-[#1A1F29] px-2.5 py-1 text-xs font-bold text-[#F0EDE8]">
                             {{ $totalQueries > 0 ? $aiRate . '% AI Automated' : '0 Queries Recorded' }}
                         </span>
                     </div>
 
                     <!-- Progress Distribution Segment -->
-                    <div class="mt-5 h-3.5 w-full overflow-hidden rounded-full bg-slate-100 flex">
+                    <div class="mt-5 h-3.5 w-full overflow-hidden rounded-full bg-[#1A1F29] flex">
                         <div style="width: {{ $aiRate }}%" class="h-full bg-emerald-500 transition-all duration-500" title="AI Answered: {{ $aiRate }}%"></div>
                         <div style="width: {{ $humanRate }}%" class="h-full bg-blue-500 transition-all duration-500" title="Human Routed: {{ $humanRate }}%"></div>
-                        <div style="width: {{ $unansweredRate }}%" class="h-full bg-amber-400 transition-all duration-500" title="Unanswered: {{ $unansweredRate }}%"></div>
+                        <div style="width: {{ $unansweredRate }}%" class="h-full bg-[#F5A623] transition-all duration-500" title="Unanswered: {{ $unansweredRate }}%"></div>
                     </div>
 
                     <!-- Legend Stats -->
-                    <div class="mt-4 grid grid-cols-3 gap-2 pt-2 border-t border-slate-100 text-center sm:text-left">
+                    <div class="mt-4 grid grid-cols-3 gap-2 pt-2 border-t border-[#232934] text-center sm:text-left">
                         <div class="flex items-center gap-2">
                             <span class="h-2.5 w-2.5 shrink-0 rounded-full bg-emerald-500"></span>
                             <div>
-                                <span class="text-xs font-bold text-slate-800">{{ $answeredNum }}</span>
-                                <span class="block text-[10px] font-semibold text-slate-400 uppercase">AI Answered</span>
+                                <span class="text-xs font-bold text-[#F0EDE8]">{{ $answeredNum }}</span>
+                                <span class="block text-[10px] font-semibold text-[#6B7280] uppercase">AI Answered</span>
                             </div>
                         </div>
                         <div class="flex items-center gap-2">
                             <span class="h-2.5 w-2.5 shrink-0 rounded-full bg-blue-500"></span>
                             <div>
-                                <span class="text-xs font-bold text-slate-800">{{ $humanRoutedNum }}</span>
-                                <span class="block text-[10px] font-semibold text-slate-400 uppercase">Human Routed</span>
+                                <span class="text-xs font-bold text-[#F0EDE8]">{{ $humanRoutedNum }}</span>
+                                <span class="block text-[10px] font-semibold text-[#6B7280] uppercase">Human Routed</span>
                             </div>
                         </div>
                         <div class="flex items-center gap-2">
-                            <span class="h-2.5 w-2.5 shrink-0 rounded-full bg-amber-400"></span>
+                            <span class="h-2.5 w-2.5 shrink-0 rounded-full bg-[#F5A623]"></span>
                             <div>
-                                <span class="text-xs font-bold text-slate-800">{{ $unansweredNum }}</span>
-                                <span class="block text-[10px] font-semibold text-slate-400 uppercase">Unanswered</span>
+                                <span class="text-xs font-bold text-[#F0EDE8]">{{ $unansweredNum }}</span>
+                                <span class="block text-[10px] font-semibold text-[#6B7280] uppercase">Unanswered</span>
                             </div>
                         </div>
                     </div>
@@ -238,17 +222,17 @@
                 <!-- Fast Action Modules Grid (Icon & Badge Driven) -->
                 <div>
                     <div class="flex items-center justify-between mb-3 px-1">
-                        <h2 class="text-sm font-bold uppercase tracking-wider text-slate-400">Operational Modules</h2>
-                        <span class="text-xs font-medium text-slate-400">5 Modules Ready</span>
+                        <h2 class="text-sm font-bold uppercase tracking-wider text-[#6B7280]">Operational Modules</h2>
+                        <span class="text-xs font-medium text-[#4B5260]">5 Modules Ready</span>
                     </div>
 
                     <div class="grid gap-3 sm:grid-cols-2">
                         @foreach ($modules as $module)
                             <a href="{{ $module['href'] }}"
                                 @if (!empty($module['external'])) target="_blank" rel="noopener noreferrer" @endif
-                                class="group flex items-center justify-between rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs transition hover:border-slate-300 hover:shadow-sm">
+                                class="group flex items-center justify-between rounded-2xl border border-[#232934] bg-[#14181F] p-4 shadow-sm transition hover:border-[#2B313D] hover:bg-[#1A1F29]">
                                 <div class="flex items-center gap-3.5">
-                                    <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl {{ $module['iconBg'] }} shadow-xs transition group-hover:scale-105">
+                                    <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border bg-[#14181F] {{ $module['iconClass'] }} shadow-sm transition group-hover:scale-105">
                                         @if ($module['icon'] === 'kb')
                                             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
@@ -272,20 +256,20 @@
                                         @endif
                                     </div>
                                     <div>
-                                        <h3 class="text-sm font-bold text-slate-900 group-hover:text-slate-800 transition">{{ $module['title'] }}</h3>
-                                        <p class="text-xs text-slate-400">{{ $module['subtitle'] }}</p>
+                                        <h3 class="text-sm font-bold text-[#F0EDE8] group-hover:text-white transition">{{ $module['title'] }}</h3>
+                                        <p class="text-xs text-[#6B7280]">{{ $module['subtitle'] }}</p>
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-2">
-                                    <span class="hidden sm:inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold ring-1 {{ $module['badgeColor'] }}">
+                                    <span class="hidden sm:inline-flex rounded-full border px-2 py-0.5 text-[10px] font-semibold {{ $module['badgeColor'] }}">
                                         {{ $module['badge'] }}
                                     </span>
                                     @if (!empty($module['external']))
-                                        <svg class="h-4 w-4 text-slate-400 transition group-hover:text-slate-700" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                        <svg class="h-4 w-4 text-[#6B7280] transition group-hover:text-[#F0EDE8]" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
                                         </svg>
                                     @else
-                                        <svg class="h-4 w-4 text-slate-400 transition group-hover:translate-x-0.5 group-hover:text-slate-700" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                                        <svg class="h-4 w-4 text-[#6B7280] transition group-hover:translate-x-0.5 group-hover:text-[#F0EDE8]" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
                                         </svg>
                                     @endif
@@ -300,65 +284,65 @@
             <div class="space-y-6">
                 
                 <!-- System Health Indicator Widget -->
-                <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs">
+                <div class="rounded-2xl border border-[#232934] bg-[#14181F] p-5 shadow-sm">
                     <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">System Status</span>
-                        <span class="inline-flex items-center gap-1.5 text-xs font-semibold {{ ($systemHealth['ai_engine_ok'] ?? true) ? 'text-emerald-600' : 'text-amber-600' }}">
-                            <span class="h-2 w-2 rounded-full {{ ($systemHealth['ai_engine_ok'] ?? true) ? 'bg-emerald-500' : 'bg-amber-500' }}"></span>
+                        <span class="text-xs font-bold uppercase tracking-wider text-[#6B7280]">System Status</span>
+                        <span class="inline-flex items-center gap-1.5 text-xs font-semibold {{ ($systemHealth['ai_engine_ok'] ?? true) ? 'text-emerald-400' : 'text-[#F5A623]' }}">
+                            <span class="h-2 w-2 rounded-full {{ ($systemHealth['ai_engine_ok'] ?? true) ? 'bg-emerald-500' : 'bg-[#F5A623]' }}"></span>
                             {{ ($systemHealth['ai_engine_ok'] ?? true) ? 'All Systems Optimal' : 'Attention Needed' }}
                         </span>
                     </div>
 
                     <div class="mt-4 space-y-2.5 text-xs">
-                        <div class="flex items-center justify-between py-1 border-b border-slate-100">
-                            <span class="text-slate-500">AI Assistant Engine</span>
-                            <span class="font-semibold text-slate-800">{{ $systemHealth['ai_engine'] ?? 'Online · RAG Active' }}</span>
+                        <div class="flex items-center justify-between py-1 border-b border-[#232934]">
+                            <span class="text-[#9AA0AB]">AI Assistant Engine</span>
+                            <span class="font-semibold text-[#F0EDE8]">{{ $systemHealth['ai_engine'] ?? 'Online · RAG Active' }}</span>
                         </div>
-                        <div class="flex items-center justify-between py-1 border-b border-slate-100">
-                            <span class="text-slate-500">Knowledge Ingestion</span>
-                            <span class="font-semibold {{ $systemHealth['ingestion_badge'] ?? 'text-slate-800' }}">{{ $systemHealth['ingestion'] ?? 'Synchronized' }}</span>
+                        <div class="flex items-center justify-between py-1 border-b border-[#232934]">
+                            <span class="text-[#9AA0AB]">Knowledge Ingestion</span>
+                            <span class="font-semibold {{ $systemHealth['ingestion_badge'] ?? 'text-[#F0EDE8]' }}">{{ $systemHealth['ingestion'] ?? 'Synchronized' }}</span>
                         </div>
-                        <div class="flex items-center justify-between py-1 border-b border-slate-100">
-                            <span class="text-slate-500">Avg Response Time</span>
-                            <span class="font-semibold text-emerald-600">{{ $systemHealth['avg_response'] ?? '< 1.5s' }}</span>
+                        <div class="flex items-center justify-between py-1 border-b border-[#232934]">
+                            <span class="text-[#9AA0AB]">Avg Response Time</span>
+                            <span class="font-semibold text-emerald-400">{{ $systemHealth['avg_response'] ?? '< 1.5s' }}</span>
                         </div>
                         <div class="flex items-center justify-between py-1">
-                            <span class="text-slate-500">Active Staff Online</span>
-                            <span class="font-semibold text-slate-800">{{ $systemHealth['online_staff'] ?? 0 }} Staff Active</span>
+                            <span class="text-[#9AA0AB]">Active Staff Online</span>
+                            <span class="font-semibold text-[#F0EDE8]">{{ $systemHealth['online_staff'] ?? 0 }} Staff Active</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Recent Activity Timeline -->
-                <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs">
+                <div class="rounded-2xl border border-[#232934] bg-[#14181F] p-5 shadow-sm">
                     <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-base font-bold text-slate-900">Recent Activity</h2>
-                        <span class="text-xs font-medium text-slate-400">Realtime</span>
+                        <h2 class="text-base font-bold text-[#F0EDE8]">Recent Activity</h2>
+                        <span class="text-xs font-medium text-[#4B5260]">Realtime</span>
                     </div>
 
                     <div class="space-y-3">
                         @forelse ($recentActivities as $activity)
-                            <div class="flex items-start gap-3 rounded-xl bg-slate-50/70 p-3 transition hover:bg-slate-50">
-                                <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-brand-primary text-xs font-bold">
+                            <div class="flex items-start gap-3 rounded-xl bg-[#1A1F29] p-3 transition hover:bg-[#202632]">
+                                <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[#E8312B]/60 text-[#E8312B] text-xs font-bold">
                                     {{ strtoupper(substr($activity->user?->name ?? 'SYS', 0, 2)) }}
                                 </div>
                                 <div class="min-w-0 flex-1">
-                                    <div class="text-xs font-bold text-slate-800 truncate">{{ $activity->event }}</div>
-                                    <div class="mt-0.5 text-[11px] text-slate-400 truncate">
+                                    <div class="text-xs font-bold text-[#F0EDE8] truncate">{{ $activity->event }}</div>
+                                    <div class="mt-0.5 text-[11px] text-[#6B7280] truncate">
                                         {{ $activity->file_name ? 'File: '.$activity->file_name : 'By: '.($activity->user?->name ?? 'System') }}
                                     </div>
                                 </div>
-                                <span class="text-[10px] font-medium text-slate-400 shrink-0">
+                                <span class="text-[10px] font-medium text-[#4B5260] shrink-0">
                                     {{ $activity->created_at->diffForHumans(null, true, true) }}
                                 </span>
                             </div>
                         @empty
-                            <div class="text-center py-6 text-slate-400">
-                                <svg class="mx-auto h-8 w-8 text-slate-300 mb-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <div class="text-center py-6 text-[#6B7280]">
+                                <svg class="mx-auto h-8 w-8 text-[#232934] mb-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                                 </svg>
                                 <p class="text-xs font-semibold">No recent activity</p>
-                                <p class="text-[11px] text-slate-400 mt-0.5">Logged actions will appear here.</p>
+                                <p class="text-[11px] text-[#4B5260] mt-0.5">Logged actions will appear here.</p>
                             </div>
                         @endforelse
                     </div>

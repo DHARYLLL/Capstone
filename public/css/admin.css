@@ -8,16 +8,22 @@ html {
 }
 
 ::-webkit-scrollbar-track {
-    background: #f1f5f9;
+    background: #0E1117;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
+    background: #2B313D;
     border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #D8210B;
+    background: #E8312B;
+}
+
+/* Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #2B313D #0E1117;
 }
 
 .card,
