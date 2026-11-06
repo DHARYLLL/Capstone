@@ -363,13 +363,33 @@ php artisan test
 3. **Audit Logging**: Any administrative change to the knowledge base (manual chunk creation, staging approval, chunk update, or deletion) must create a record using `ActivityLog::record(...)`.
 4. **Soft Deletes**: Staff accounts are terminated via soft deletion (`SoftDeletes`) and can be restored via `/admin/staff/{id}/restore`.
 5. **No Direct Model Hallucination**: AI system prompts must enforce strict grounding on indexed facts and avoid making up business policies or prices not present in `BusinessKnowledge`.
-6. **Design Standards (Impeccable & Tailwind)**: All admin and staff control surfaces use a cohesive modern design system:
-   - Primary accents: Violet/Indigo palette (`from-violet-600 to-indigo-700`, `bg-violet-600`, `ring-violet-600/20`).
-   - Cards & Elevators: `rounded-2xl border border-slate-200/80 bg-white shadow-xs`.
-   - Typography: Clean `Inter`/`Outfit` hierarchy with bold titles and `text-slate-400` uppercase tracking labels.
-   - Status indicators: Color-coded pill badges with live pulsing dots for active operations (`Active`, `Online`, `Waiting`, `Pending`).
+6. **Design Standards (Impeccable & Tailwind)**: All auth, admin, and staff control surfaces follow a cohesive, production-grade design system:
+   - **Neutral Foundation**: Slate palette (`bg-slate-50`, `bg-white`, `border-slate-200/80`, `text-slate-900`) with high-contrast `bg-slate-900` primary buttons and brand marks.
+   - **Card & Radius Consistency**: Strict `rounded-2xl` hierarchy for outer cards with subtle `shadow-xs` / `shadow-sm`, and `rounded-xl` for interactive elements (inputs, action buttons).
+   - **Anti-Slop Discipline**:
+     - No ambient floating gradient blobs or blurry keyframe artifacts on authentication screens.
+     - No excessive frosted glassmorphism overlays on basic form cards.
+     - No repetitive pulsating status dots (status badges are calm, crisp, and semantic).
+     - Strict elimination of em-dashes (`—`) in titles, metadata, and labels in favor of standard hyphens or clean sentence structure.
 7. **Operator Live Desk Typing & Alerting System**:
    - Bi-directional typing heartbeats cached via Redis/database cache (`session_{id}_typing_customer` & `session_{id}_typing_agent`) for 4-second TTL.
    - Audio chime synthesizer via Web Audio API (no audio asset files needed, clean and lightweight).
    - Dynamic tab title flash (`(X) New Escalation! 💬`) and desktop push notifications via Web Notification API when new tickets enter the queue.
+
+---
+
+## 11. Design System & UI Refactoring Log
+
+### Completed UI Unslop & Alignment:
+1. **Authentication Screens (`/login`, `/forgot-password`, `/reset-password`)**:
+   - Converted form cards from translucent frosted glass to solid, crisp `rounded-2xl bg-white border border-slate-200/90 shadow-sm`.
+   - Replaced floating animated gradient blobs with a clean, stable slate background.
+   - Replaced gradient button with solid `bg-slate-900 hover:bg-slate-800` button.
+   - Replaced robotic hero buzzwords with natural, grounded product messaging (*"Multi-Branch Support Console"*).
+   - Eliminated em-dashes across all titles and metadata.
+2. **Admin Console & Layout (`/admin`)**:
+   - Standardized top control header with solid `bg-slate-900` brand mark and clean action buttons.
+   - Eliminated repetitive green pulse animations across the sidebar, header, and dashboard.
+   - Aligned sidebar navigation active state to `bg-slate-900 text-white font-bold` with quiet `hover:bg-slate-100` hover states.
+   - Standardized corner radii, borders, and badge tokens across all operational cards.
 

@@ -33,31 +33,28 @@
         <!-- Right: Status Pill, Queue Shortcut, and Profile Dropdown -->
         <div class="flex items-center gap-3">
             
-            <!-- Live Queue Pill with hover effect -->
+            <!-- Live Queue Pill -->
             <a href="{{ route('admin.chat') }}" 
-               class="group hidden sm:inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50/80 px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-2xs transition-all duration-200 hover:-translate-y-0.5 hover:border-emerald-300 hover:bg-emerald-50/60 hover:text-emerald-800 hover:shadow-xs active:translate-y-0">
-                <span class="relative flex h-2 w-2">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                </span>
+               class="group hidden sm:inline-flex items-center gap-2 rounded-xl border border-slate-200/90 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-100 hover:text-slate-900">
+                <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
                 <span>Live Queue</span>
-                <svg class="h-3.5 w-3.5 text-slate-400 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-emerald-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <svg class="h-3.5 w-3.5 text-slate-400 transition-transform group-hover:translate-x-0.5 group-hover:text-slate-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
                 </svg>
             </a>
 
-            <!-- User Profile Dropdown with enhanced hover -->
+            <!-- User Profile Dropdown -->
             <div class="dropdown dropdown-end">
                 <div tabindex="0" role="button" 
-                     class="group flex items-center gap-2.5 rounded-full border border-slate-200 bg-white p-1.5 pr-3 shadow-2xs transition-all duration-200 hover:-translate-y-0.5 hover:border-violet-300 hover:bg-violet-50/30 hover:shadow-md active:translate-y-0 cursor-pointer select-none">
-                    <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-violet-600 to-indigo-600 text-xs font-black text-white shadow-xs transition-transform duration-200 group-hover:scale-105 group-hover:shadow-violet-200">
+                     class="group flex items-center gap-2.5 rounded-xl border border-slate-200/90 bg-white p-1.5 pr-3 shadow-xs transition hover:border-slate-300 hover:bg-slate-50 cursor-pointer select-none">
+                    <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-xs font-bold text-white transition-transform group-hover:scale-105">
                         {{ $userInitials }}
                     </div>
                     <div class="hidden text-left leading-none md:block">
-                        <div class="text-xs font-bold text-slate-800 group-hover:text-violet-900 transition-colors">{{ $userName }}</div>
-                        <div class="text-[10px] font-semibold text-violet-600 uppercase tracking-wider mt-0.5">{{ $userRole }}</div>
+                        <div class="text-xs font-bold text-slate-800">{{ $userName }}</div>
+                        <div class="text-[10px] font-semibold text-slate-500 mt-0.5">{{ $userRole }}</div>
                     </div>
-                    <svg class="h-3.5 w-3.5 text-slate-400 shrink-0 transition-transform duration-200 group-hover:rotate-180 group-hover:text-violet-600" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                    <svg class="h-3.5 w-3.5 text-slate-400 shrink-0 transition-transform group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
                     </svg>
                 </div>

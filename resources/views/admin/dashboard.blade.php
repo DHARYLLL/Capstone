@@ -71,24 +71,24 @@
         <!-- Minimal Top Control Header -->
         <div class="flex flex-col gap-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs sm:flex-row sm:items-center sm:justify-between">
             <div class="flex items-center gap-4">
-                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-violet-600 to-indigo-700 text-lg font-black text-white shadow-xs">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-900 text-lg font-black text-white shadow-xs">
                     {{ strtoupper(substr($tenantName, 0, 2)) }}
                 </div>
                 <div>
                     <div class="flex items-center gap-2">
                         <h1 class="text-xl font-bold tracking-tight text-slate-900">{{ $tenantName }}</h1>
                         <span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-600/20">
-                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
                             Live
                         </span>
                     </div>
-                    <p class="text-xs font-medium text-slate-400">{{ $tenantType }} · Production Console</p>
+                    <p class="text-xs font-medium text-slate-400">{{ $tenantType }} - Production Console</p>
                 </div>
             </div>
 
             <!-- Quick Action Buttons -->
             <div class="flex flex-wrap items-center gap-2">
-                <a href="{{ route('admin.knowledge-base') }}" class="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-3.5 py-2 text-xs font-semibold text-white shadow-xs hover:bg-violet-700 transition">
+                <a href="{{ route('admin.knowledge-base') }}" class="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-3.5 py-2 text-xs font-semibold text-white shadow-xs hover:bg-slate-800 transition">
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                     </svg>
@@ -197,7 +197,7 @@
                             <h2 class="text-base font-bold text-slate-900">Query Resolution Breakdown</h2>
                             <p class="text-xs text-slate-400 mt-0.5">Automated AI vs human operator routing</p>
                         </div>
-                        <span class="inline-flex items-center gap-1 rounded-xl bg-violet-50 px-2.5 py-1 text-xs font-bold text-violet-700">
+                        <span class="inline-flex items-center gap-1 rounded-xl bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-800">
                             {{ $totalQueries > 0 ? $aiRate . '% AI Automated' : '0 Queries Recorded' }}
                         </span>
                     </div>
@@ -246,7 +246,7 @@
                         @foreach ($modules as $module)
                             <a href="{{ $module['href'] }}"
                                 @if (!empty($module['external'])) target="_blank" rel="noopener noreferrer" @endif
-                                class="group flex items-center justify-between rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs transition hover:-translate-y-0.5 hover:border-violet-300 hover:shadow-md">
+                                class="group flex items-center justify-between rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs transition hover:border-slate-300 hover:shadow-sm">
                                 <div class="flex items-center gap-3.5">
                                     <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl {{ $module['iconBg'] }} shadow-xs transition group-hover:scale-105">
                                         @if ($module['icon'] === 'kb')
@@ -272,7 +272,7 @@
                                         @endif
                                     </div>
                                     <div>
-                                        <h3 class="text-sm font-bold text-slate-900 group-hover:text-violet-600 transition">{{ $module['title'] }}</h3>
+                                        <h3 class="text-sm font-bold text-slate-900 group-hover:text-slate-800 transition">{{ $module['title'] }}</h3>
                                         <p class="text-xs text-slate-400">{{ $module['subtitle'] }}</p>
                                     </div>
                                 </div>
@@ -281,11 +281,11 @@
                                         {{ $module['badge'] }}
                                     </span>
                                     @if (!empty($module['external']))
-                                        <svg class="h-4 w-4 text-slate-300 transition group-hover:scale-110 group-hover:text-violet-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                        <svg class="h-4 w-4 text-slate-400 transition group-hover:text-slate-700" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
                                         </svg>
                                     @else
-                                        <svg class="h-4 w-4 text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-violet-600" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                                        <svg class="h-4 w-4 text-slate-400 transition group-hover:translate-x-0.5 group-hover:text-slate-700" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
                                         </svg>
                                     @endif
