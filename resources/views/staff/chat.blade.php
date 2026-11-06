@@ -8,7 +8,7 @@
         <!-- Minimal Top Control Header -->
         <div class="flex flex-col gap-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs sm:flex-row sm:items-center sm:justify-between">
             <div class="flex items-center gap-4">
-                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-violet-600 to-indigo-700 text-lg font-black text-white shadow-xs">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#D8210B] to-[#EE4E56] text-lg font-black text-white shadow-xs shadow-[#D8210B]/20">
                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a.75.75 0 0 1-.974-.94 4.09 4.09 0 0 0 .546-2.127C3.308 16.326 2 14.307 2 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
                     </svg>
@@ -35,8 +35,8 @@
                     <span class="h-2 w-2 rounded-full bg-amber-500"></span>
                     0 Waiting
                 </span>
-                <span id="header-active-badge" class="inline-flex items-center gap-1.5 rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-xs font-bold text-indigo-700">
-                    <span class="h-2 w-2 rounded-full bg-indigo-500 animate-pulse"></span>
+                <span id="header-active-badge" class="inline-flex items-center gap-1.5 rounded-xl border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-bold text-[#D8210B]">
+                    <span class="h-2 w-2 rounded-full bg-[#D8210B] animate-pulse"></span>
                     0 Active
                 </span>
             </div>
@@ -65,7 +65,7 @@
                 <!-- Chat Top Bar -->
                 <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/60" id="chat-header">
                     <div class="min-w-0 flex items-center gap-3">
-                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-100 text-xs font-bold text-violet-700" id="active-client-avatar">
+                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-100 text-xs font-bold text-[#D8210B]" id="active-client-avatar">
                             #
                         </div>
                         <div class="min-w-0">
@@ -78,7 +78,7 @@
 
                 <!-- Empty State Screen -->
                 <div id="chat-empty-state" class="absolute inset-0 flex flex-col items-center justify-center bg-white z-10 p-8 text-center space-y-3">
-                    <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-50 text-violet-600">
+                    <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-red-50 text-[#D8210B]">
                         <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a.75.75 0 0 1-.974-.94 4.09 4.09 0 0 0 .546-2.127C3.308 16.326 2 14.307 2 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
                         </svg>
@@ -97,9 +97,9 @@
                 <!-- Customer Typing Indicator Bar (Hidden by default) -->
                 <div id="customer-typing-bar" class="hidden px-5 py-2 border-t border-slate-100 bg-slate-50/80 flex items-center gap-2">
                     <div class="flex gap-1 items-center">
-                        <span class="h-1.5 w-1.5 rounded-full bg-violet-600 animate-bounce" style="animation-delay: -0.32s"></span>
-                        <span class="h-1.5 w-1.5 rounded-full bg-violet-600 animate-bounce" style="animation-delay: -0.16s"></span>
-                        <span class="h-1.5 w-1.5 rounded-full bg-violet-600 animate-bounce"></span>
+                        <span class="h-1.5 w-1.5 rounded-full bg-[#D8210B] animate-bounce" style="animation-delay: -0.32s"></span>
+                        <span class="h-1.5 w-1.5 rounded-full bg-[#D8210B] animate-bounce" style="animation-delay: -0.16s"></span>
+                        <span class="h-1.5 w-1.5 rounded-full bg-[#D8210B] animate-bounce"></span>
                     </div>
                     <span class="text-[11px] font-semibold text-slate-500" id="customer-typing-label">Customer is typing...</span>
                 </div>
@@ -108,9 +108,9 @@
                 <div class="p-3.5 border-t border-slate-100 bg-white" id="input-container">
                     <form id="operator-reply-form" class="flex gap-2">
                         <input type="text" id="reply-input" disabled placeholder="Claim this chat to write a reply..." 
-                            class="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-violet-500 focus:bg-white focus:ring-1 focus:ring-violet-500 focus:outline-none transition disabled:opacity-50">
+                            class="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-[#D8210B] focus:bg-white focus:ring-1 focus:ring-[#D8210B] focus:outline-none transition disabled:opacity-50">
                         <button type="submit" id="send-btn" disabled 
-                            class="inline-flex items-center gap-1.5 rounded-xl bg-violet-600 px-5 py-2.5 text-xs font-semibold text-white shadow-xs hover:bg-violet-700 transition disabled:opacity-50 disabled:pointer-events-none">
+                            class="inline-flex items-center gap-1.5 rounded-xl bg-[#D8210B] px-5 py-2.5 text-xs font-semibold text-white shadow-xs shadow-[#D8210B]/20 hover:bg-[#EE4E56] transition disabled:opacity-50 disabled:pointer-events-none">
                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
                             </svg>
@@ -129,7 +129,7 @@
                 <div class="p-5 flex-1 flex flex-col justify-between" id="control-panel">
                     <div class="space-y-4">
                         <button onclick="claimActiveChat()" id="claim-btn" disabled 
-                            class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-3 text-xs font-semibold text-white shadow-xs hover:bg-violet-700 transition disabled:opacity-50 disabled:pointer-events-none">
+                            class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-[#D8210B] px-4 py-3 text-xs font-semibold text-white shadow-xs shadow-[#D8210B]/20 hover:bg-[#EE4E56] transition disabled:opacity-50 disabled:pointer-events-none">
                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM4 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 10.374 21c-2.331 0-4.512-.645-6.374-1.765Z" />
                             </svg>
@@ -140,19 +140,19 @@
                             <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Quick canned responses</label>
                             <div class="space-y-1.5" id="canned-responses-list">
                                 <button type="button" onclick="insertCanned('Hello! I am reviewing your case now.')" 
-                                    class="canned-item w-full text-left rounded-xl border border-slate-200/80 bg-slate-50/50 px-3 py-2 text-xs font-medium text-slate-700 hover:border-violet-300 hover:bg-violet-50/40 hover:text-violet-700 transition disabled:opacity-50" disabled>
+                                    class="canned-item w-full text-left rounded-xl border border-slate-200/80 bg-slate-50/50 px-3 py-2 text-xs font-medium text-slate-700 hover:border-red-300 hover:bg-red-50/40 hover:text-[#D8210B] transition disabled:opacity-50" disabled>
                                     👋 Reviewing case now
                                 </button>
                                 <button type="button" onclick="insertCanned('We will schedule a site visit shortly.')" 
-                                    class="canned-item w-full text-left rounded-xl border border-slate-200/80 bg-slate-50/50 px-3 py-2 text-xs font-medium text-slate-700 hover:border-violet-300 hover:bg-violet-50/40 hover:text-violet-700 transition disabled:opacity-50" disabled>
+                                    class="canned-item w-full text-left rounded-xl border border-slate-200/80 bg-slate-50/50 px-3 py-2 text-xs font-medium text-slate-700 hover:border-red-300 hover:bg-red-50/40 hover:text-[#D8210B] transition disabled:opacity-50" disabled>
                                     📅 Schedule site visit
                                 </button>
                                 <button type="button" onclick="insertCanned('Could you upload or send a photo of the issue?')" 
-                                    class="canned-item w-full text-left rounded-xl border border-slate-200/80 bg-slate-50/50 px-3 py-2 text-xs font-medium text-slate-700 hover:border-violet-300 hover:bg-violet-50/40 hover:text-violet-700 transition disabled:opacity-50" disabled>
+                                    class="canned-item w-full text-left rounded-xl border border-slate-200/80 bg-slate-50/50 px-3 py-2 text-xs font-medium text-slate-700 hover:border-red-300 hover:bg-red-50/40 hover:text-[#D8210B] transition disabled:opacity-50" disabled>
                                     📸 Request photo / proof
                                 </button>
                                 <button type="button" onclick="insertCanned('Our team will email your final quotation today.')" 
-                                    class="canned-item w-full text-left rounded-xl border border-slate-200/80 bg-slate-50/50 px-3 py-2 text-xs font-medium text-slate-700 hover:border-violet-300 hover:bg-violet-50/40 hover:text-violet-700 transition disabled:opacity-50" disabled>
+                                    class="canned-item w-full text-left rounded-xl border border-slate-200/80 bg-slate-50/50 px-3 py-2 text-xs font-medium text-slate-700 hover:border-red-300 hover:bg-red-50/40 hover:text-[#D8210B] transition disabled:opacity-50" disabled>
                                     ✉️ Send email quote
                                 </button>
                             </div>
@@ -298,7 +298,7 @@
                     item.type = 'button';
                     item.className = `w-full p-3.5 rounded-xl border text-left transition ${
                         isSelected 
-                            ? 'bg-violet-50/60 border-violet-300 ring-1 ring-violet-300/40 shadow-xs' 
+                            ? 'bg-red-50/60 border-red-300 ring-1 ring-red-300/40 shadow-xs' 
                             : 'bg-white border-slate-200/70 hover:bg-slate-50 hover:border-slate-300'
                     }`;
 
@@ -325,7 +325,7 @@
             const waitingCount = sessions.filter(session => session.status === 'pending').length;
             const activeCount = sessions.filter(session => session.status === 'human_active').length;
             document.getElementById('header-waiting-badge').innerHTML = `<span class="h-2 w-2 rounded-full bg-amber-500"></span> ${waitingCount} Waiting`;
-            document.getElementById('header-active-badge').innerHTML = `<span class="h-2 w-2 rounded-full bg-indigo-500 animate-pulse"></span> ${activeCount} Active`;
+            document.getElementById('header-active-badge').innerHTML = `<span class="h-2 w-2 rounded-full bg-[#D8210B] animate-pulse"></span> ${activeCount} Active`;
         }
 
         function appendMessage(message) {
@@ -339,12 +339,12 @@
             
             const bubble = document.createElement('div');
             bubble.className = isAgent 
-                ? 'bg-gradient-to-br from-violet-600 to-indigo-700 text-white p-3.5 rounded-2xl rounded-tr-xs text-xs shadow-xs' 
+                ? 'bg-gradient-to-br from-[#D8210B] to-[#EE4E56] text-white p-3.5 rounded-2xl rounded-tr-xs text-xs shadow-xs' 
                 : 'bg-white border border-slate-200/80 p-3.5 rounded-2xl rounded-tl-xs text-xs text-slate-800 shadow-xs';
             
             const label = isAgent ? 'You (Operator)' : (isCustomer ? 'Customer' : 'Bot Assistant');
-            const labelColor = isAgent ? 'text-violet-200' : 'text-slate-400';
-            const timeColor = isAgent ? 'text-violet-200/70' : 'text-slate-400';
+            const labelColor = isAgent ? 'text-red-200' : 'text-slate-400';
+            const timeColor = isAgent ? 'text-red-200/70' : 'text-slate-400';
 
             bubble.innerHTML = `
                 <p class="text-[10px] font-bold uppercase tracking-wider mb-1 ${labelColor}">${label}</p>

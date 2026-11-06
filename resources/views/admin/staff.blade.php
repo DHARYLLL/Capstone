@@ -8,7 +8,7 @@
         <!-- Minimal Top Control Header -->
         <div class="flex flex-col gap-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs sm:flex-row sm:items-center sm:justify-between">
             <div class="flex items-center gap-4">
-                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-violet-600 to-indigo-700 text-lg font-black text-white shadow-xs">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#D8210B] to-[#EE4E56] text-lg font-black text-white shadow-xs shadow-[#D8210B]/20">
                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
                     </svg>
@@ -16,7 +16,7 @@
                 <div>
                     <div class="flex items-center gap-2">
                         <h1 class="text-xl font-bold tracking-tight text-slate-900">Staff & Roles</h1>
-                        <span class="inline-flex items-center gap-1 rounded-full bg-violet-50 px-2.5 py-0.5 text-xs font-semibold text-violet-700 ring-1 ring-violet-600/20">
+                        <span class="inline-flex items-center gap-1 rounded-full bg-red-50 px-2.5 py-0.5 text-xs font-semibold text-[#D8210B] ring-1 ring-red-600/20">
                             {{ count($staffMembers) }} Members
                         </span>
                     </div>
@@ -26,7 +26,7 @@
 
             <div class="flex flex-wrap items-center gap-2">
                 <button type="button" onclick="document.getElementById('add_staff_modal').showModal()" 
-                    class="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-xs font-semibold text-white shadow-xs hover:bg-violet-700 transition">
+                    class="inline-flex items-center gap-2 rounded-xl bg-[#D8210B] px-4 py-2.5 text-xs font-semibold text-white shadow-xs shadow-[#D8210B]/20 hover:bg-[#EE4E56] transition">
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                     </svg>
@@ -153,7 +153,7 @@
                             <tr class="hover:bg-slate-50/50 transition">
                                 <td class="py-3.5 px-4 font-bold text-slate-900">
                                     <div class="flex items-center gap-3">
-                                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-violet-100 text-xs font-bold text-violet-700">
+                                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-red-100 text-xs font-bold text-[#D8210B]">
                                             {{ $initials }}
                                         </div>
                                         <div>
@@ -248,7 +248,7 @@
                 <div>
                     <label for="staff-name" class="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wide">Full Name</label>
                     <input type="text" id="staff-name" name="name" value="{{ old('name') }}" required placeholder="e.g. Maria D." 
-                        class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-violet-500 focus:ring-1 focus:ring-violet-500 focus:outline-none transition">
+                        class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-[#D8210B] focus:ring-1 focus:ring-[#D8210B] focus:outline-none transition">
                     @error('name')
                         <span class="text-xs text-rose-500 mt-1 block">{{ $message }}</span>
                     @enderror
@@ -257,7 +257,7 @@
                 <div>
                     <label for="staff-email" class="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wide">Email Address</label>
                     <input type="email" id="staff-email" name="email" value="{{ old('email') }}" required placeholder="e.g. maria.d@dariv.com" 
-                        class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-violet-500 focus:ring-1 focus:ring-violet-500 focus:outline-none transition">
+                        class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-[#D8210B] focus:ring-1 focus:ring-[#D8210B] focus:outline-none transition">
                     @error('email')
                         <span class="text-xs text-rose-500 mt-1 block">{{ $message }}</span>
                     @enderror
@@ -266,7 +266,7 @@
                 <div>
                     <label for="staff-password" class="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wide">Account Password</label>
                     <input type="password" id="staff-password" name="password" required placeholder="••••••••" 
-                        class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-violet-500 focus:ring-1 focus:ring-violet-500 focus:outline-none transition">
+                        class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-[#D8210B] focus:ring-1 focus:ring-[#D8210B] focus:outline-none transition">
                     @error('password')
                         <span class="text-xs text-rose-500 mt-1 block">{{ $message }}</span>
                     @enderror
@@ -275,12 +275,12 @@
                 <div>
                     <label for="staff-password-confirmation" class="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wide">Confirm Password</label>
                     <input type="password" id="staff-password-confirmation" name="password_confirmation" required placeholder="••••••••"
-                        class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-violet-500 focus:ring-1 focus:ring-violet-500 focus:outline-none transition">
+                        class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-[#D8210B] focus:ring-1 focus:ring-[#D8210B] focus:outline-none transition">
                 </div>
 
                 <div>
                     <label for="staff-role" class="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wide">Role</label>
-                    <select id="staff-role" name="role" required class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800 focus:border-violet-500 focus:ring-1 focus:ring-violet-500 focus:outline-none transition">
+                    <select id="staff-role" name="role" required class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800 focus:border-[#D8210B] focus:ring-1 focus:ring-[#D8210B] focus:outline-none transition">
                         <option value="" disabled @selected(! old('role'))>Select Role...</option>
                         <option value="Administrator" @selected(old('role') === 'Administrator')>Administrator</option>
                         <option value="Staff" @selected(old('role') === 'Staff')>Staff</option>
@@ -297,7 +297,7 @@
                         Cancel
                     </button>
                     <button type="submit" 
-                        class="rounded-xl bg-violet-600 px-4 py-2.5 text-xs font-semibold text-white shadow-xs hover:bg-violet-700 transition">
+                        class="rounded-xl bg-[#D8210B] px-4 py-2.5 text-xs font-semibold text-white shadow-xs shadow-[#D8210B]/20 hover:bg-[#EE4E56] transition">
                         Add Staff
                     </button>
                 </div>
@@ -326,22 +326,22 @@
                 <div>
                     <label for="edit-staff-name" class="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wide">Full Name</label>
                     <input type="text" id="edit-staff-name" name="name" required 
-                        class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800 focus:border-violet-500 focus:ring-1 focus:ring-violet-500 focus:outline-none transition">
+                        class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800 focus:border-[#D8210B] focus:ring-1 focus:ring-[#D8210B] focus:outline-none transition">
                 </div>
                 <div>
                     <label for="edit-staff-email" class="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wide">Email Address</label>
                     <input type="email" id="edit-staff-email" name="email" required 
-                        class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800 focus:border-violet-500 focus:ring-1 focus:ring-violet-500 focus:outline-none transition">
+                        class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800 focus:border-[#D8210B] focus:ring-1 focus:ring-[#D8210B] focus:outline-none transition">
                 </div>
                 <div>
                     <label for="edit-staff-password" class="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wide">New Password</label>
                     <input type="password" id="edit-staff-password" name="password" placeholder="Leave blank to keep current password" 
-                        class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-violet-500 focus:ring-1 focus:ring-violet-500 focus:outline-none transition">
+                        class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-[#D8210B] focus:ring-1 focus:ring-[#D8210B] focus:outline-none transition">
                 </div>
                 <div>
                     <label for="edit-staff-role" class="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wide">Role</label>
                     <select id="edit-staff-role" name="role" required 
-                        class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800 focus:border-violet-500 focus:ring-1 focus:ring-violet-500 focus:outline-none transition">
+                        class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800 focus:border-[#D8210B] focus:ring-1 focus:ring-[#D8210B] focus:outline-none transition">
                         <option value="Administrator">Administrator</option>
                         <option value="Staff">Staff</option>
                         <option value="Lead Operator">Lead Operator</option>
@@ -354,7 +354,7 @@
                         Cancel
                     </button>
                     <button type="submit" 
-                        class="rounded-xl bg-violet-600 px-4 py-2.5 text-xs font-semibold text-white shadow-xs hover:bg-violet-700 transition">
+                        class="rounded-xl bg-[#D8210B] px-4 py-2.5 text-xs font-semibold text-white shadow-xs shadow-[#D8210B]/20 hover:bg-[#EE4E56] transition">
                         Save Changes
                     </button>
                 </div>

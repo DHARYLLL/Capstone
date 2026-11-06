@@ -11,12 +11,12 @@
 <aside class="sticky top-0 hidden h-screen w-72 shrink-0 flex-col overflow-hidden border-r border-gray-200 bg-base-100 md:flex">
     <div class="border-b border-gray-200 px-6 py-5">
         <a href="{{ route('staff.chat') }}" class="flex items-center gap-3">
-            <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 p-2 text-white shadow-sm">
+            <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-[#D8210B] to-[#EE4E56] p-2 text-white shadow-sm shadow-[#D8210B]/20">
                 <img src="{{ asset('images/logo.svg') }}" alt="DARIV Logo" class="h-full w-full object-contain filter invert">
             </div>
             <div>
                 <div class="text-base font-extrabold tracking-tight text-gray-900 leading-tight">DARIV</div>
-                <div class="text-[10px] font-bold text-indigo-600 uppercase tracking-widest">Staff Portal</div>
+                <div class="text-[10px] font-bold text-[#D8210B] uppercase tracking-widest">Staff Portal</div>
             </div>
         </a>
         <div class="mt-4 rounded-2xl border border-[#e2e8f0] bg-[#ffffff] px-4 py-3">
@@ -47,8 +47,8 @@
                     <a href="{{ $item['href'] }}"
                        class="flex items-center gap-3 rounded-2xl px-4 py-3 font-medium transition-colors
                               {{ $item['active']
-                                  ? 'bg-brand-primary font-semibold text-white shadow-sm'
-                                  : 'text-gray-700 hover:bg-[#f5f3ff] hover:text-brand-primary' }}">
+                                  ? 'bg-brand-primary font-semibold text-white shadow-sm shadow-brand-primary/20'
+                                  : 'text-gray-700 hover:bg-red-50 hover:text-brand-primary' }}">
                         <svg viewBox="0 0 24 24" class="h-5 w-5 shrink-0 fill-current" aria-hidden="true">
                             <path d="{{ $item['icon'] }}"/>
                         </svg>

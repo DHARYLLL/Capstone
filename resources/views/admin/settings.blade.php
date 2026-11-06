@@ -22,8 +22,8 @@
                 <p class="text-xs text-slate-500 mt-0.5">Manage your personal profile information and login security credentials.</p>
             </div>
             <div class="flex items-center gap-2">
-                <span class="inline-flex items-center gap-1.5 rounded-full bg-violet-50 px-3 py-1 text-xs font-bold text-violet-700 ring-1 ring-violet-200">
-                    <span class="h-1.5 w-1.5 rounded-full bg-violet-600"></span>
+                <span class="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-1 text-xs font-bold text-[#D8210B] ring-1 ring-red-200">
+                    <span class="h-1.5 w-1.5 rounded-full bg-[#D8210B]"></span>
                     {{ $userRole }}
                 </span>
             </div>
@@ -73,7 +73,7 @@
         <!-- CARD 1: Profile Information -->
         <div class="rounded-3xl border border-slate-200/80 bg-white p-6 sm:p-8 shadow-xs">
             <div class="flex items-center gap-3 pb-5 border-b border-slate-100">
-                <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-violet-600 to-indigo-600 text-white font-black text-sm shadow-xs">
+                <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-[#D8210B] to-[#EE4E56] text-white font-black text-sm shadow-xs shadow-[#D8210B]/20">
                     {{ $userInitials }}
                 </div>
                 <div>
@@ -90,7 +90,7 @@
                             Full Name <span class="text-rose-500">*</span>
                         </label>
                         <input type="text" id="name" name="name" required value="{{ old('name', $userName) }}" 
-                            class="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:border-violet-500 focus:outline-none transition shadow-2xs @error('name') border-rose-300 bg-rose-50/20 @enderror">
+                            class="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:border-[#D8210B] focus:outline-none transition shadow-2xs @error('name') border-rose-300 bg-rose-50/20 @enderror">
                         @error('name')
                             <p class="text-[11px] text-rose-600 font-semibold mt-1">{{ $message }}</p>
                         @enderror
@@ -101,7 +101,7 @@
                             Email Address <span class="text-rose-500">*</span>
                         </label>
                         <input type="email" id="email" name="email" required value="{{ old('email', $userEmail) }}" 
-                            class="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:border-violet-500 focus:outline-none transition shadow-2xs @error('email') border-rose-300 bg-rose-50/20 @enderror">
+                            class="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:border-[#D8210B] focus:outline-none transition shadow-2xs @error('email') border-rose-300 bg-rose-50/20 @enderror">
                         @error('email')
                             <p class="text-[11px] text-rose-600 font-semibold mt-1">{{ $message }}</p>
                         @enderror
@@ -109,7 +109,7 @@
                 </div>
 
                 <div class="flex justify-end pt-2">
-                    <button type="submit" class="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-5 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-violet-700 transition">
+                    <button type="submit" class="inline-flex items-center gap-2 rounded-xl bg-[#D8210B] px-5 py-2.5 text-xs font-bold text-white shadow-xs shadow-[#D8210B]/20 hover:bg-[#EE4E56] transition">
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
                         </svg>
@@ -143,7 +143,7 @@
                     </label>
                     <div class="relative">
                         <input type="password" id="current_password" name="current_password" required placeholder="Enter current password" 
-                            class="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 pr-10 text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:border-violet-500 focus:outline-none transition shadow-2xs @error('current_password') border-rose-300 bg-rose-50/20 @enderror">
+                            class="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 pr-10 text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:border-[#D8210B] focus:outline-none transition shadow-2xs @error('current_password') border-rose-300 bg-rose-50/20 @enderror">
                         <button type="button" onclick="togglePasswordVisibility('current_password', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition">
                             <svg class="h-4 w-4 eye-icon" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
@@ -164,7 +164,7 @@
                         </label>
                         <div class="relative">
                             <input type="password" id="password" name="password" required placeholder="Minimum 8 characters" oninput="evaluatePasswordStrength(this.value)"
-                                class="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 pr-10 text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:border-violet-500 focus:outline-none transition shadow-2xs @error('password') border-rose-300 bg-rose-50/20 @enderror">
+                                class="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 pr-10 text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:border-[#D8210B] focus:outline-none transition shadow-2xs @error('password') border-rose-300 bg-rose-50/20 @enderror">
                             <button type="button" onclick="togglePasswordVisibility('password', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition">
                                 <svg class="h-4 w-4 eye-icon" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
@@ -194,7 +194,7 @@
                         </label>
                         <div class="relative">
                             <input type="password" id="password_confirmation" name="password_confirmation" required placeholder="Repeat new password" oninput="checkPasswordMatch()"
-                                class="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 pr-10 text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:border-violet-500 focus:outline-none transition shadow-2xs">
+                                class="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 pr-10 text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:border-[#D8210B] focus:outline-none transition shadow-2xs">
                             <button type="button" onclick="togglePasswordVisibility('password_confirmation', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition">
                                 <svg class="h-4 w-4 eye-icon" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
@@ -234,13 +234,13 @@
                     icon.innerHTML = `
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" />
                     `;
-                    btn.classList.add('text-violet-600');
+                    btn.classList.add('text-[#D8210B]');
                 } else {
                     icon.innerHTML = `
                         <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                     `;
-                    btn.classList.remove('text-violet-600');
+                    btn.classList.remove('text-[#D8210B]');
                 }
             }
         }

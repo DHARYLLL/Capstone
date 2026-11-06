@@ -6,12 +6,12 @@
 @section('content')
 <div class="space-y-8">
     {{-- Header Banner with Date Controls & Export --}}
-    <section class="relative overflow-hidden rounded-[2rem] border border-slate-200/80 bg-gradient-to-br from-white via-slate-50 to-purple-50/40 p-6 shadow-sm lg:p-8">
-        <div class="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-purple-500/5 blur-3xl pointer-events-none"></div>
+    <section class="relative overflow-hidden rounded-[2rem] border border-slate-200/80 bg-gradient-to-br from-white via-slate-50 to-red-50/30 p-6 shadow-sm lg:p-8">
+        <div class="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-[#D8210B]/5 blur-3xl pointer-events-none"></div>
         <div class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between relative z-10">
             <div>
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-50 border border-purple-200/60 text-purple-700 text-xs font-bold tracking-wide uppercase mb-3">
-                    <span class="w-2 h-2 rounded-full bg-purple-600 animate-pulse"></span>
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-50 border border-red-200/60 text-[#D8210B] text-xs font-bold tracking-wide uppercase mb-3">
+                    <span class="w-2 h-2 rounded-full bg-[#D8210B] animate-pulse"></span>
                     AI Performance & Ingestion Intelligence
                 </div>
                 <h1 class="text-3xl font-black tracking-tight text-slate-900">Reporting &amp; Analytics</h1>
@@ -24,7 +24,7 @@
             <div class="flex flex-wrap items-center gap-3">
                 {{-- Date Filter Pill Group --}}
                 <div class="inline-flex items-center rounded-2xl bg-white p-1 border border-slate-200 shadow-sm" id="timeframe-selector">
-                    <button type="button" class="timeframe-btn active px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-purple-600 text-white shadow-sm" data-days="7">
+                    <button type="button" class="timeframe-btn active px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-[#D8210B] text-white shadow-sm" data-days="7">
                         7 Days
                     </button>
                     <button type="button" class="timeframe-btn px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 transition-all" data-days="30">
@@ -40,7 +40,7 @@
 
                 {{-- Export Button --}}
                 <button type="button" onclick="exportAnalyticsData()"
-                    class="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 shadow-sm transition hover:border-purple-300 hover:bg-purple-50 hover:text-purple-700 active:scale-95">
+                    class="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 shadow-sm transition hover:border-red-300 hover:bg-red-50 hover:text-[#D8210B] active:scale-95">
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
@@ -60,7 +60,7 @@
                 'Avg response' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />',
             ];
             $metricAccents = [
-                'Answered' => 'bg-purple-50 text-purple-600 border-purple-100',
+                'Answered' => 'bg-red-50 text-[#D8210B] border-red-100',
                 'Unanswered' => 'bg-amber-50 text-amber-600 border-amber-100',
                 'Human-routed' => 'bg-blue-50 text-blue-600 border-blue-100',
                 'Avg response' => 'bg-emerald-50 text-emerald-600 border-emerald-100',
@@ -68,7 +68,7 @@
         @endphp
 
         @foreach ($metrics as $metric)
-            <div class="group relative overflow-hidden rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-purple-300 hover:shadow-lg hover:shadow-purple-500/5">
+            <div class="group relative overflow-hidden rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-red-300 hover:shadow-lg hover:shadow-red-500/5">
                 <div class="flex items-start justify-between">
                     <div>
                         <span class="text-xs font-bold uppercase tracking-wider text-slate-400 block">{{ $metric['label'] }}</span>
@@ -76,7 +76,7 @@
                             {{ $metric['value'] }}
                         </div>
                     </div>
-                    <div class="flex h-12 w-12 items-center justify-center rounded-2xl border {{ $metricAccents[$metric['label']] ?? 'bg-purple-50 text-purple-600 border-purple-100' }} transition-transform duration-300 group-hover:scale-110">
+                    <div class="flex h-12 w-12 items-center justify-center rounded-2xl border {{ $metricAccents[$metric['label']] ?? 'bg-red-50 text-[#D8210B] border-red-100' }} transition-transform duration-300 group-hover:scale-110">
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             {!! $metricIcons[$metric['label']] ?? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />' !!}
                         </svg>
@@ -107,7 +107,7 @@
                 </div>
                 <div class="flex items-center gap-4 text-xs font-semibold text-slate-600">
                     <span class="inline-flex items-center gap-1.5">
-                        <span class="h-2.5 w-2.5 rounded-full bg-purple-600"></span> AI Automated
+                        <span class="h-2.5 w-2.5 rounded-full bg-[#D8210B]"></span> AI Automated
                     </span>
                     <span class="inline-flex items-center gap-1.5">
                         <span class="h-2.5 w-2.5 rounded-full bg-blue-500"></span> Human Operator
@@ -137,9 +137,9 @@
                         {{ array_sum(array_column($metrics, 'value')) > 0 ? $metrics[0]['value'] : 'Active' }}
                     </div>
                 </div>
-                <div class="rounded-2xl bg-purple-50 p-3">
-                    <div class="text-[11px] font-bold uppercase tracking-wider text-purple-600">Deflection Rate</div>
-                    <div class="text-xl font-black text-purple-700 mt-1">84.2%</div>
+                <div class="rounded-2xl bg-red-50 p-3">
+                    <div class="text-[11px] font-bold uppercase tracking-wider text-[#D8210B]">Deflection Rate</div>
+                    <div class="text-xl font-black text-[#D8210B] mt-1">84.2%</div>
                 </div>
             </div>
         </div>
@@ -154,26 +154,26 @@
                     <h2 class="text-lg font-bold text-slate-900">Top Query Intent Distribution</h2>
                     <p class="text-xs text-slate-400 mt-0.5">Most frequent topics requested in knowledge base queries</p>
                 </div>
-                <span class="rounded-full bg-purple-50 px-3 py-1 text-xs font-bold text-purple-700">Categorized</span>
+                <span class="rounded-full bg-red-50 px-3 py-1 text-xs font-bold text-[#D8210B]">Categorized</span>
             </div>
 
             <div class="mt-6 space-y-4">
                 @forelse ($intentDistribution as $intent)
-                    <div class="group rounded-2xl border border-slate-100 bg-slate-50/60 p-3.5 transition-all hover:border-purple-200 hover:bg-purple-50/30">
+                    <div class="group rounded-2xl border border-slate-100 bg-slate-50/60 p-3.5 transition-all hover:border-red-200 hover:bg-red-50/30">
                         <div class="flex justify-between items-center text-xs font-bold text-slate-800 mb-2">
                             <span class="flex items-center gap-2">
-                                <span class="h-2 w-2 rounded-full bg-purple-600"></span>
+                                <span class="h-2 w-2 rounded-full bg-[#D8210B]"></span>
                                 {{ $intent['intent'] }}
                             </span>
-                            <span class="font-mono text-purple-700 font-black">{{ $intent['total'] }} queries ({{ $intent['percentage'] }}%)</span>
+                            <span class="font-mono text-[#D8210B] font-black">{{ $intent['total'] }} queries ({{ $intent['percentage'] }}%)</span>
                         </div>
                         <div class="w-full bg-slate-200/70 h-2.5 rounded-full overflow-hidden">
-                            <div class="bg-gradient-to-r from-purple-600 to-indigo-500 h-full rounded-full transition-all duration-500" style="width: {{ $intent['percentage'] }}%;"></div>
+                            <div class="bg-gradient-to-r from-[#D8210B] to-[#EE4E56] h-full rounded-full transition-all duration-500" style="width: {{ $intent['percentage'] }}%;"></div>
                         </div>
                     </div>
                 @empty
                     <div class="text-center py-10">
-                        <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-purple-50 text-purple-600 mb-3">
+                        <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-red-50 text-[#D8210B] mb-3">
                             <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                             </svg>
@@ -236,7 +236,7 @@
 
                 <div class="mt-5 space-y-3 text-xs">
                     <div class="flex items-start gap-3 rounded-2xl border border-slate-100 bg-slate-50/70 p-3.5">
-                        <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-purple-100 text-purple-700 font-bold">
+                        <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-red-100 text-[#D8210B] font-bold">
                             ⚡
                         </div>
                         <div>
@@ -267,9 +267,9 @@
         // Query Volume Chart
         const ctxVolume = document.getElementById('queryVolumeChart');
         if (ctxVolume) {
-            const gradientPurple = ctxVolume.getContext('2d').createLinearGradient(0, 0, 0, 300);
-            gradientPurple.addColorStop(0, 'rgba(124, 58, 237, 0.35)');
-            gradientPurple.addColorStop(1, 'rgba(124, 58, 237, 0.0)');
+            const gradientRed = ctxVolume.getContext('2d').createLinearGradient(0, 0, 0, 300);
+            gradientRed.addColorStop(0, 'rgba(216, 33, 11, 0.35)');
+            gradientRed.addColorStop(1, 'rgba(216, 33, 11, 0.0)');
 
             const gradientBlue = ctxVolume.getContext('2d').createLinearGradient(0, 0, 0, 300);
             gradientBlue.addColorStop(0, 'rgba(59, 130, 246, 0.25)');
@@ -283,12 +283,12 @@
                         {
                             label: 'AI Automated Queries',
                             data: [45, 62, 78, 90, 85, 48, 52],
-                            borderColor: '#7c3aed',
+                            borderColor: '#D8210B',
                             borderWidth: 3,
-                            backgroundColor: gradientPurple,
+                            backgroundColor: gradientRed,
                             fill: true,
                             tension: 0.4,
-                            pointBackgroundColor: '#7c3aed',
+                            pointBackgroundColor: '#D8210B',
                             pointHoverRadius: 6,
                         },
                         {
@@ -340,7 +340,7 @@
                     labels: ['AI Resolved', 'Human Escalated', 'Unresolved'],
                     datasets: [{
                         data: [84, 12, 4],
-                        backgroundColor: ['#7c3aed', '#3b82f6', '#f59e0b'],
+                        backgroundColor: ['#D8210B', '#263049', '#F2D742'],
                         borderWidth: 0,
                         hoverOffset: 6
                     }]
@@ -367,10 +367,10 @@
         document.querySelectorAll('.timeframe-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 document.querySelectorAll('.timeframe-btn').forEach(b => {
-                    b.classList.remove('active', 'bg-purple-600', 'text-white', 'shadow-sm');
+                    b.classList.remove('active', 'bg-[#D8210B]', 'text-white', 'shadow-sm');
                     b.classList.add('text-slate-600');
                 });
-                this.classList.add('active', 'bg-purple-600', 'text-white', 'shadow-sm');
+                this.classList.add('active', 'bg-[#D8210B]', 'text-white', 'shadow-sm');
                 this.classList.remove('text-slate-600');
             });
         });

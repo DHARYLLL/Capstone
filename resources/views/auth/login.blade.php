@@ -72,8 +72,8 @@
                 {{-- Brand Mark (no status pill) --}}
                 <div class="flex items-center gap-3">
                     <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl
-                                bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900
-                                text-white text-sm font-black shadow-md shadow-slate-900/15
+                                bg-gradient-to-br from-[#D8210B] to-[#EE4E56]
+                                text-white text-sm font-black shadow-md shadow-red-950/20
                                 ring-1 ring-inset ring-white/10 select-none">
                         R
                     </div>
@@ -143,8 +143,8 @@
                                 aria-required="true"
                                 class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200
                                        bg-slate-50/80 text-sm text-slate-900 placeholder-slate-400
-                                       focus:bg-white focus:border-indigo-500
-                                       focus:ring-4 focus:ring-indigo-500/10 focus:outline-none
+                                       focus:bg-white focus:border-[#D8210B]
+                                       focus:ring-4 focus:ring-[#D8210B]/10 focus:outline-none
                                        transition-all duration-200 cursor-text">
                         </div>
                         @error('email')
@@ -173,8 +173,8 @@
                                 aria-required="true"
                                 class="w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-200
                                        bg-slate-50/80 text-sm text-slate-900 placeholder-slate-400
-                                       focus:bg-white focus:border-indigo-500
-                                       focus:ring-4 focus:ring-indigo-500/10 focus:outline-none
+                                       focus:bg-white focus:border-[#D8210B]
+                                       focus:ring-4 focus:ring-[#D8210B]/10 focus:outline-none
                                        transition-all duration-200 cursor-text">
                             <button type="button" id="toggle-password"
                                     onclick="togglePassword()"
@@ -203,16 +203,16 @@
                                 name="remember"
                                 value="1"
                                 @checked(old('remember'))
-                                class="h-3.5 w-3.5 rounded border-slate-300 text-indigo-600
-                                       focus:ring-2 focus:ring-indigo-500/30 focus:ring-offset-0
-                                       checked:bg-indigo-600 checked:border-indigo-600
+                                class="h-3.5 w-3.5 rounded border-slate-300 text-[#D8210B]
+                                       focus:ring-2 focus:ring-[#D8210B]/30 focus:ring-offset-0
+                                       checked:bg-[#D8210B] checked:border-[#D8210B]
                                        transition-colors duration-150 cursor-pointer">
                             <span class="text-xs font-medium text-slate-600 group-hover:text-slate-900 transition-colors">
                                 Keep me signed in
                             </span>
                         </label>
                         <a href="{{ route('password.request') }}"
-                           class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 hover:underline underline-offset-2 transition-colors cursor-pointer">
+                           class="text-xs font-semibold text-[#D8210B] hover:text-[#EE4E56] hover:underline underline-offset-2 transition-colors cursor-pointer">
                             Forgot password?
                         </a>
                     </div>
@@ -222,12 +222,12 @@
                         id="signin-btn"
                         type="submit"
                         class="relative w-full py-2.5 rounded-xl border-0 cursor-pointer
-                               bg-slate-900 hover:bg-slate-800
+                               bg-[#D8210B] hover:bg-[#EE4E56]
                                text-white font-semibold text-sm tracking-wide
                                shadow-sm
                                transition-colors duration-150 active:scale-[0.98]
                                flex items-center justify-center gap-2
-                               focus:outline-none focus:ring-4 focus:ring-slate-900/15"
+                               focus:outline-none focus:ring-4 focus:ring-[#D8210B]/20"
                         aria-label="Sign in to Dashboard">
                         <span id="signin-label">Sign In</span>
                         <svg id="signin-arrow" class="w-4 h-4 fill-none stroke-current" viewBox="0 0 24 24" aria-hidden="true">
@@ -241,7 +241,7 @@
             {{-- ── Registration link ─────────────────────────────────────────── --}}
             <p class="text-center text-xs text-slate-400">
                 Don't have an account?
-                <a href="#" class="font-semibold text-indigo-600 hover:text-indigo-800 hover:underline underline-offset-2 transition-colors cursor-pointer">
+                <a href="#" class="font-semibold text-[#D8210B] hover:text-[#EE4E56] hover:underline underline-offset-2 transition-colors cursor-pointer">
                     Contact your administrator
                 </a>
             </p>
@@ -249,9 +249,9 @@
             {{-- ── Legal microcopy ───────────────────────────────────────────── --}}
             <p class="text-center text-[11px] text-slate-400 leading-relaxed -mt-2">
                 By signing in you agree to our
-                <a href="#" class="font-medium text-slate-500 underline underline-offset-2 hover:text-indigo-600 transition-colors">Terms</a>
+                <a href="#" class="font-medium text-slate-500 underline underline-offset-2 hover:text-[#D8210B] transition-colors">Terms</a>
                 and
-                <a href="#" class="font-medium text-slate-500 underline underline-offset-2 hover:text-indigo-600 transition-colors">Privacy Notice</a>.
+                <a href="#" class="font-medium text-slate-500 underline underline-offset-2 hover:text-[#D8210B] transition-colors">Privacy Notice</a>.
             </p>
 
         </div>{{-- /form-card --}}
@@ -262,7 +262,7 @@
     ══════════════════════════════════════════════════════════════════════════ --}}
     <div class="hidden lg:block flex-1 relative z-10 p-6 xl:p-8" aria-hidden="true">
         <div class="w-full h-full rounded-2xl overflow-hidden relative group
-                    bg-slate-900 shadow-md ring-1 ring-slate-900/10">
+                    bg-[#263049] shadow-md ring-1 ring-[#263049]/20">
             <div class="w-full h-full overflow-hidden relative">
 
                 {{-- Hero image --}}

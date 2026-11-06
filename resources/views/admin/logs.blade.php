@@ -7,12 +7,12 @@
 <div class="space-y-8">
 
     {{-- Page Header Banner --}}
-    <section class="relative overflow-hidden rounded-[2rem] border border-slate-200/80 bg-gradient-to-br from-white via-slate-50 to-purple-50/40 p-6 shadow-sm lg:p-8">
-        <div class="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-purple-500/5 blur-3xl pointer-events-none"></div>
+    <section class="relative overflow-hidden rounded-[2rem] border border-slate-200/80 bg-gradient-to-br from-white via-slate-50 to-red-50/30 p-6 shadow-sm lg:p-8">
+        <div class="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-[#D8210B]/5 blur-3xl pointer-events-none"></div>
         <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between relative z-10">
             <div>
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-50 border border-purple-200/60 text-purple-700 text-xs font-bold tracking-wide uppercase mb-3">
-                    <span class="w-2 h-2 rounded-full bg-purple-600 animate-pulse"></span>
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-50 border border-red-200/60 text-[#D8210B] text-xs font-bold tracking-wide uppercase mb-3">
+                    <span class="w-2 h-2 rounded-full bg-[#D8210B] animate-pulse"></span>
                     Audit Trail &amp; Pipeline Telemetry
                 </div>
                 <h1 class="text-3xl font-black tracking-tight text-slate-900">Activity &amp; Ingestion Logs</h1>
@@ -38,7 +38,7 @@
                     'value' => $totalUploads,
                     'sub' => 'All time files logged',
                     'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />',
-                    'accent' => 'bg-purple-50 text-purple-600 border-purple-100',
+                    'accent' => 'bg-red-50 text-[#D8210B] border-red-100',
                 ],
                 [
                     'label' => 'Indexed Today',
@@ -65,7 +65,7 @@
         @endphp
 
         @foreach ($statsCards as $stat)
-            <div class="group relative overflow-hidden rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-purple-300 hover:shadow-lg hover:shadow-purple-500/5">
+            <div class="group relative overflow-hidden rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-red-300 hover:shadow-lg hover:shadow-red-500/5">
                 <div class="flex items-start justify-between">
                     <div>
                         <span class="text-xs font-bold uppercase tracking-wider text-slate-400 block">{{ $stat['label'] }}</span>
@@ -100,14 +100,14 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
                         <input type="text" id="log-search-input" placeholder="Search file or division..."
-                            class="w-full rounded-full border border-slate-200 bg-slate-50/50 py-1.5 pl-9 pr-4 text-xs text-slate-800 placeholder-slate-400 transition focus:border-purple-600 focus:bg-white focus:outline-none" />
+                            class="w-full rounded-full border border-slate-200 bg-slate-50/50 py-1.5 pl-9 pr-4 text-xs text-slate-800 placeholder-slate-400 transition focus:border-[#D8210B] focus:bg-white focus:outline-none" />
                     </div>
 
                     {{-- Filter Tabs --}}
                     <div class="inline-flex rounded-full bg-slate-100 p-1">
                         @foreach (['All' => null, 'Indexed' => 'indexed', 'Staged' => 'staged', 'Failed' => 'failed', 'Deleted' => 'deleted'] as $label => $filterKey)
                             <a href="{{ route('admin.logs', $filterKey ? ['filter' => $filterKey] : []) }}"
-                                class="px-3 py-1 text-xs font-bold rounded-full transition-all {{ $filter === $filterKey || ($filterKey === null && $filter === '') ? 'bg-purple-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900' }}">
+                                class="px-3 py-1 text-xs font-bold rounded-full transition-all {{ $filter === $filterKey || ($filterKey === null && $filter === '') ? 'bg-[#D8210B] text-white shadow-sm' : 'text-slate-600 hover:text-slate-900' }}">
                                 {{ $label }}
                             </a>
                         @endforeach
@@ -132,7 +132,7 @@
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     @forelse ($logs as $log)
-                        <tr class="log-row group transition-colors hover:bg-purple-50/30"
+                        <tr class="log-row group transition-colors hover:bg-red-50/30"
                             data-log-id="{{ $log->id }}"
                             data-filename="{{ $log->file_name ?? '—' }}"
                             data-division="{{ $log->division }}"
@@ -149,7 +149,7 @@
 
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-2.5">
-                                    <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-purple-50 text-purple-600">
+                                    <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-red-50 text-[#D8210B]">
                                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                         </svg>
@@ -169,7 +169,7 @@
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-800">
                                     @if(str_contains(strtolower($log->event), 'indexed'))
-                                        <span class="h-2 w-2 rounded-full bg-purple-600"></span>
+                                        <span class="h-2 w-2 rounded-full bg-[#D8210B]"></span>
                                     @elseif(str_contains(strtolower($log->event), 'upload'))
                                         <span class="h-2 w-2 rounded-full bg-blue-500"></span>
                                     @elseif(str_contains(strtolower($log->event), 'delete'))
@@ -202,7 +202,7 @@
 
                             <td class="px-6 py-4 whitespace-nowrap text-xs text-slate-600 font-medium">
                                 <div class="flex items-center gap-1.5">
-                                    <div class="h-5 w-5 rounded-full bg-purple-100 text-purple-700 font-black text-[10px] flex items-center justify-center">
+                                    <div class="h-5 w-5 rounded-full bg-red-100 text-[#D8210B] font-black text-[10px] flex items-center justify-center">
                                         {{ strtoupper(substr($log->user?->name ?? 'S', 0, 1)) }}
                                     </div>
                                     <span>{{ $log->user?->name ?? 'System AI' }}</span>
@@ -211,7 +211,7 @@
 
                             <td class="px-6 py-4 whitespace-nowrap text-right">
                                 <button type="button" onclick="openLogModal(this)"
-                                    class="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-bold text-slate-700 shadow-sm transition hover:border-purple-300 hover:bg-purple-50 hover:text-purple-700">
+                                    class="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-bold text-slate-700 shadow-sm transition hover:border-red-300 hover:bg-red-50 hover:text-[#D8210B]">
                                     <span>Inspect</span>
                                     <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
@@ -250,7 +250,7 @@
     <div class="relative w-full max-w-lg overflow-hidden rounded-3xl bg-white shadow-2xl ring-1 ring-slate-900/10">
         <div class="border-b border-slate-100 bg-slate-50/70 px-6 py-4 flex items-center justify-between">
             <div class="flex items-center gap-2">
-                <div class="flex h-8 w-8 items-center justify-center rounded-xl bg-purple-50 text-purple-600 font-bold">
+                <div class="flex h-8 w-8 items-center justify-center rounded-xl bg-red-50 text-[#D8210B] font-bold">
                     📋
                 </div>
                 <h3 class="text-base font-bold text-slate-900">Log Entry Details</h3>
@@ -294,7 +294,7 @@
             <div class="rounded-2xl border border-slate-100 bg-slate-50/60 p-3.5">
                 <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Pipeline Lifecycle &amp; Timestamp</span>
                 <div class="flex items-center justify-between text-slate-700">
-                    <span id="modal-log-event" class="font-bold text-purple-700">Event</span>
+                    <span id="modal-log-event" class="font-bold text-[#D8210B]">Event</span>
                     <span id="modal-log-time" class="text-slate-500 font-mono text-[11px]">Timestamp</span>
                 </div>
             </div>
@@ -302,7 +302,7 @@
 
         <div class="border-t border-slate-100 bg-slate-50/50 px-6 py-4 flex justify-end">
             <button type="button" onclick="closeLogModal()"
-                class="rounded-full bg-purple-600 px-5 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-purple-700">
+                class="rounded-full bg-[#D8210B] px-5 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-[#EE4E56]">
                 Close Inspection
             </button>
         </div>

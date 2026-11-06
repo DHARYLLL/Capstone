@@ -22,8 +22,8 @@
                 'title' => 'Knowledge Base',
                 'subtitle' => 'Docs, ingestion & sync',
                 'badge' => 'Files Ready',
-                'badgeColor' => 'bg-violet-50 text-violet-700 ring-violet-200',
-                'iconBg' => 'bg-violet-500 text-white',
+                'badgeColor' => 'bg-red-50 text-brand-primary ring-red-200',
+                'iconBg' => 'bg-brand-primary text-white',
                 'icon' => 'kb',
                 'href' => route('admin.knowledge-base'),
             ],
@@ -71,7 +71,7 @@
         <!-- Minimal Top Control Header -->
         <div class="flex flex-col gap-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs sm:flex-row sm:items-center sm:justify-between">
             <div class="flex items-center gap-4">
-                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-900 text-lg font-black text-white shadow-xs">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-primary text-lg font-black text-white shadow-xs">
                     {{ strtoupper(substr($tenantName, 0, 2)) }}
                 </div>
                 <div>
@@ -88,7 +88,7 @@
 
             <!-- Quick Action Buttons -->
             <div class="flex flex-wrap items-center gap-2">
-                <a href="{{ route('admin.knowledge-base') }}" class="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-3.5 py-2 text-xs font-semibold text-white shadow-xs hover:bg-slate-800 transition">
+                <a href="{{ route('admin.knowledge-base') }}" class="inline-flex items-center gap-2 rounded-xl bg-brand-primary px-3.5 py-2 text-xs font-semibold text-white shadow-xs hover:bg-brand-primary-dark transition">
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                     </svg>
@@ -168,7 +168,7 @@
             <!-- 4. Knowledge Base Files -->
             <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs transition hover:border-slate-300">
                 <div class="flex items-center justify-between">
-                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-50 text-violet-600">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-red-50 text-brand-primary">
                         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
                         </svg>
@@ -339,7 +339,7 @@
                     <div class="space-y-3">
                         @forelse ($recentActivities as $activity)
                             <div class="flex items-start gap-3 rounded-xl bg-slate-50/70 p-3 transition hover:bg-slate-50">
-                                <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-violet-100 text-violet-700 text-xs font-bold">
+                                <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-brand-primary text-xs font-bold">
                                     {{ strtoupper(substr($activity->user?->name ?? 'SYS', 0, 2)) }}
                                 </div>
                                 <div class="min-w-0 flex-1">

@@ -63,8 +63,8 @@
             {{-- Brand Mark --}}
             <div class="flex items-center gap-3">
                 <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl
-                            bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900
-                            text-white text-sm font-black shadow-md shadow-slate-900/15
+                            bg-gradient-to-br from-[#D8210B] to-[#EE4E56]
+                            text-white text-sm font-black shadow-md shadow-red-950/20
                             ring-1 ring-inset ring-white/10 select-none">
                     R
                 </div>
@@ -131,8 +131,8 @@
                             aria-required="true"
                             class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200
                                    bg-slate-50/80 text-sm text-slate-900 placeholder-slate-400
-                                   focus:bg-white focus:border-indigo-500
-                                   focus:ring-4 focus:ring-indigo-500/10 focus:outline-none
+                                   focus:bg-white focus:border-[#D8210B]
+                                   focus:ring-4 focus:ring-[#D8210B]/10 focus:outline-none
                                    transition-all duration-200 cursor-text">
                     </div>
                     @error('email')
@@ -149,12 +149,12 @@
                     id="send-btn"
                     type="submit"
                     class="relative w-full py-2.5 rounded-xl border-0 cursor-pointer
-                           bg-slate-900 hover:bg-slate-800
+                           bg-[#D8210B] hover:bg-[#EE4E56]
                            text-white font-semibold text-sm tracking-wide
                            shadow-sm
                            transition-colors duration-150 active:scale-[0.98]
                            flex items-center justify-center gap-2
-                           focus:outline-none focus:ring-4 focus:ring-slate-900/15"
+                           focus:outline-none focus:ring-4 focus:ring-[#D8210B]/20"
                     aria-label="Send password reset link">
                     <span id="send-label">Send Reset Link</span>
                     <svg id="send-icon" class="w-4 h-4 fill-none stroke-current" viewBox="0 0 24 24" aria-hidden="true">
@@ -167,7 +167,7 @@
             <p class="text-center text-xs text-slate-400">
                 Remember your password?
                 <a href="{{ route('login') }}"
-                   class="font-semibold text-indigo-600 hover:text-indigo-800 hover:underline underline-offset-2 transition-colors cursor-pointer">
+                   class="font-semibold text-[#D8210B] hover:text-[#EE4E56] hover:underline underline-offset-2 transition-colors cursor-pointer">
                     Back to sign in
                 </a>
             </p>

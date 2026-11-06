@@ -9,7 +9,7 @@
         <!-- Low-Profile Status & Control Bar -->
         <div class="flex flex-col gap-4 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs sm:flex-row sm:items-center sm:justify-between">
             <div class="flex items-center gap-3">
-                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-violet-600 to-indigo-600 text-white shadow-xs">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#D8210B] to-[#EE4E56] text-white shadow-xs shadow-[#D8210B]/20">
                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 0 1 .865-.501 48.172 48.172 0 0 0 3.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
                     </svg>
@@ -45,11 +45,11 @@
                 <div class="p-4 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
                     <div class="flex items-center gap-2">
                         <span class="text-xs font-bold uppercase tracking-wider text-slate-700">Active Queue</span>
-                        <span id="queue-count" class="rounded-md bg-violet-100 px-1.5 py-0.5 text-[10px] font-bold text-violet-700">
+                        <span id="queue-count" class="rounded-md bg-red-100 px-1.5 py-0.5 text-[10px] font-bold text-[#D8210B]">
                             {{ $sessions->count() }}
                         </span>
                     </div>
-                    <button onclick="refreshQueue()" class="text-slate-400 hover:text-violet-600 transition p-1 hover:rotate-180 duration-300" title="Refresh Queue">
+                    <button onclick="refreshQueue()" class="text-slate-400 hover:text-[#D8210B] transition p-1 hover:rotate-180 duration-300" title="Refresh Queue">
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
                         </svg>
@@ -63,7 +63,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
                         </svg>
                         <input type="text" id="queue-search" oninput="filterQueue(this.value)" placeholder="Filter conversations..." 
-                               class="w-full pl-8 pr-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:border-violet-500 focus:outline-none transition">
+                               class="w-full pl-8 pr-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:border-[#D8210B] focus:outline-none transition">
                     </div>
                 </div>
 
@@ -79,7 +79,7 @@
                 <!-- Chat Header -->
                 <div class="p-4 border-b border-slate-100 bg-slate-50/60 flex items-center justify-between gap-3" id="chat-header">
                     <div class="flex items-center gap-3 min-w-0">
-                        <div id="active-client-avatar" class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-violet-100 text-violet-700 text-xs font-bold">
+                        <div id="active-client-avatar" class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-red-100 text-[#D8210B] text-xs font-bold">
                             💬
                         </div>
                         <div class="min-w-0">
@@ -94,7 +94,7 @@
                     <!-- Header Fast Action Buttons -->
                     <div class="flex items-center gap-2 shrink-0">
                         <button onclick="claimActiveChat()" id="header-claim-btn" disabled 
-                                class="inline-flex items-center gap-1.5 rounded-xl bg-violet-600 px-3 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-violet-700 disabled:opacity-40 transition cursor-pointer disabled:cursor-not-allowed">
+                                class="inline-flex items-center gap-1.5 rounded-xl bg-[#D8210B] px-3 py-1.5 text-xs font-bold text-white shadow-xs shadow-[#D8210B]/20 hover:bg-[#EE4E56] disabled:opacity-40 transition cursor-pointer disabled:cursor-not-allowed">
                             <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
                             </svg>
@@ -109,7 +109,7 @@
 
                 <!-- Empty State Placeholder -->
                 <div id="chat-empty-state" class="absolute inset-0 top-[65px] flex flex-col items-center justify-center bg-white/95 z-10 p-8 text-center space-y-3">
-                    <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-tr from-violet-100 to-indigo-100 text-violet-600 text-2xl shadow-xs">
+                    <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-red-50 text-[#D8210B] text-2xl shadow-xs">
                         <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a.75.75 0 0 1-.974-.94 4.09 4.09 0 0 0 .546-2.127C3.308 16.326 2 14.307 2 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
                         </svg>
@@ -129,19 +129,19 @@
                 <div class="px-4 py-2 border-t border-slate-100 bg-white flex items-center gap-1.5 overflow-x-auto no-scrollbar" id="canned-chips">
                     <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 shrink-0 mr-1">Quick:</span>
                     <button type="button" onclick="insertCanned('Hello! I am reviewing your case now.')" 
-                            class="shrink-0 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-600 hover:border-violet-300 hover:bg-violet-50 hover:text-violet-700 transition">
+                            class="shrink-0 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-600 hover:border-red-300 hover:bg-red-50 hover:text-[#D8210B] transition">
                         👋 Reviewing case
                     </button>
                     <button type="button" onclick="insertCanned('Could you upload or send a photo of the area?')" 
-                            class="shrink-0 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-600 hover:border-violet-300 hover:bg-violet-50 hover:text-violet-700 transition">
+                            class="shrink-0 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-600 hover:border-red-300 hover:bg-red-50 hover:text-[#D8210B] transition">
                         📸 Request photos
                     </button>
                     <button type="button" onclick="insertCanned('We can schedule an on-site inspection for you.')" 
-                            class="shrink-0 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-600 hover:border-violet-300 hover:bg-violet-50 hover:text-violet-700 transition">
+                            class="shrink-0 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-600 hover:border-red-300 hover:bg-red-50 hover:text-[#D8210B] transition">
                         📅 Schedule inspection
                     </button>
                     <button type="button" onclick="insertCanned('Our estimator will email your official quotation today.')" 
-                            class="shrink-0 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-600 hover:border-violet-300 hover:bg-violet-50 hover:text-violet-700 transition">
+                            class="shrink-0 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-600 hover:border-red-300 hover:bg-red-50 hover:text-[#D8210B] transition">
                         ✉️ Send email quote
                     </button>
                 </div>
@@ -150,9 +150,9 @@
                 <div class="p-3 border-t border-slate-100 bg-white" id="input-container">
                     <form id="operator-reply-form" class="flex items-center gap-2">
                         <input type="text" id="reply-input" disabled placeholder="Claim this chat to write a reply..." 
-                               class="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:border-violet-500 focus:outline-none transition">
+                               class="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:border-[#D8210B] focus:outline-none transition">
                         <button type="submit" id="send-btn" disabled 
-                                class="inline-flex items-center gap-1.5 rounded-xl bg-violet-600 px-4 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-violet-700 disabled:opacity-40 transition cursor-pointer disabled:cursor-not-allowed">
+                                class="inline-flex items-center gap-1.5 rounded-xl bg-[#D8210B] px-4 py-2.5 text-xs font-bold text-white shadow-xs shadow-[#D8210B]/20 hover:bg-[#EE4E56] disabled:opacity-40 transition cursor-pointer disabled:cursor-not-allowed">
                             <span>Send</span>
                             <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
@@ -190,13 +190,13 @@
                             </div>
                             <div class="flex justify-between items-center">
                                 <span class="text-slate-400">Assigned To:</span>
-                                <span class="font-semibold text-violet-700" id="dossier-operator">Unassigned</span>
+                                <span class="font-semibold text-[#D8210B]" id="dossier-operator">Unassigned</span>
                             </div>
                         </div>
 
                         <!-- AI Context Card -->
-                        <div class="rounded-xl border border-violet-100 bg-violet-50/40 p-3.5">
-                            <div class="flex items-center gap-1.5 text-violet-700 text-xs font-bold mb-1">
+                        <div class="rounded-xl border border-red-100 bg-red-50/40 p-3.5">
+                            <div class="flex items-center gap-1.5 text-[#D8210B] text-xs font-bold mb-1">
                                 <span>🤖</span>
                                 <span>AI Assistant Routing</span>
                             </div>
@@ -209,7 +209,12 @@
                     <!-- Primary Action Controls -->
                     <div class="space-y-2 pt-4 border-t border-slate-100">
                         <button onclick="claimActiveChat()" id="claim-btn" disabled 
-                                class="w-full rounded-xl bg-violet-600 px-4 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-violet-700 disabled:opacity-40 transition flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed">
+                                class="w-full rounded-xl bg-[#D8210B] px-4 py-2.5 text-xs font-bold text-white shadow-xs shadow-[#D8210B]/20 hover:bg-[#EE4E56] disabled:opacity-40 transition flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM4 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 10.374 21c-2.331 0-4.512-.645-6.374-1.765Z" />
+                            </svg>
+                            <span id="claim-label">Claim Conversation</span>
+                        </button>
                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM4 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 10.374 21c-2.331 0-4.512-.645-6.374-1.765Z" />
                             </svg>
@@ -321,7 +326,7 @@
                 item.setAttribute('data-session-id', String(sessionId));
                 item.className = `p-3 rounded-xl border transition-all duration-150 cursor-pointer text-left ${
                     isSelected 
-                        ? 'bg-violet-50/70 border-violet-300 shadow-xs ring-1 ring-violet-200' 
+                        ? 'bg-red-50/70 border-red-300 shadow-xs ring-1 ring-red-200' 
                         : 'bg-white border-slate-200/80 hover:border-slate-300 hover:bg-slate-50/70'
                 }`;
                 item.addEventListener('click', (event) => {
@@ -482,9 +487,9 @@
                 } else if (sender === 'bot' || sender === 'ai') {
                     element.className = 'flex justify-start items-end gap-2.5 max-w-[85%]';
                     element.innerHTML = `
-                        <div class="h-7 w-7 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-xs shrink-0 shadow-2xs">🤖</div>
+                        <div class="h-7 w-7 rounded-lg bg-red-50 border border-red-100 flex items-center justify-center text-xs shrink-0 shadow-2xs">🤖</div>
                         <div class="bg-white border border-slate-200/80 p-3.5 rounded-2xl rounded-bl-xs text-xs text-slate-800 shadow-xs leading-relaxed">
-                            <p class="text-[10px] font-extrabold uppercase tracking-widest text-indigo-600 mb-1">RED AI Assistant</p>
+                            <p class="text-[10px] font-extrabold uppercase tracking-widest text-[#D8210B] mb-1">RED AI Assistant</p>
                             <div class="message-text"></div>
                             <span class="block text-[9px] text-slate-400 mt-1.5 text-right">${time}</span>
                         </div>
@@ -493,7 +498,7 @@
                 } else if (sender === 'operator' || sender === 'staff' || sender === 'agent') {
                     element.className = 'flex justify-end gap-2.5 max-w-[85%] ml-auto';
                     element.innerHTML = `
-                        <div class="bg-gradient-to-tr from-violet-600 to-indigo-600 text-white p-3.5 rounded-2xl rounded-br-xs text-xs shadow-xs leading-relaxed">
+                        <div class="bg-gradient-to-br from-[#D8210B] to-[#EE4E56] text-white p-3.5 rounded-2xl rounded-br-xs text-xs shadow-xs leading-relaxed">
                             <p class="text-[10px] font-extrabold uppercase tracking-widest text-white/80 mb-1">Operator (You)</p>
                             <div class="message-text"></div>
                             <span class="block text-[9px] text-white/60 mt-1.5 text-right">${time}</span>

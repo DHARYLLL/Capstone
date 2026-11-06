@@ -20,10 +20,13 @@
                     },
                     colors: {
                         brand: {
-                            primary: '#7c3aed',
-                            'primary-dark': '#6d28d9',
-                            'primary-light': '#f5f3ff',
-                            charcoal: '#1e293b',
+                            primary: '#D8210B',
+                            'primary-dark': '#b51a08',
+                            'primary-light': '#fef2f2',
+                            coral: '#EE4E56',
+                            gold: '#F2D742',
+                            charcoal: '#263049',
+                            navy: '#263049',
                             'bg-base': '#f8fafc',
                             'bg-card': '#ffffff',
                             border: '#e2e8f0',

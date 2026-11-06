@@ -45,7 +45,7 @@
         }
         .chat-end .chat-bubble {
             border-bottom-right-radius: 0.25rem;
-            background-color: #7c3aed;
+            background-color: #D8210B;
             color: #ffffff;
         }
         
@@ -83,7 +83,7 @@
         $unitName = 'DryMax Sealants';
         $unitType = 'Interior & Bathrooms';
         $unitIcon = '🚿';
-        $color = '#7c3aed';
+        $color = '#D8210B';
         $welcome = "Hi! Welcome to DryMax Sealants. 🚿 How can we help you with bathroom floor sealing, tile regrouting, or minor leaks today?";
         $suggestions = ["Bathroom sealing cost", "Tile regrouting rates", "Do you offer free estimates?", "Talk to a human"];
     }
@@ -137,7 +137,7 @@
             <!-- Suggestions list -->
             <div id="suggestions-container" class="flex flex-wrap gap-2 pt-1 pl-10">
                 @foreach($suggestions as $suggestion)
-                    <button type="button" onclick="handleSuggestion('{{ $suggestion }}')" class="btn btn-xs rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-600 shadow-sm hover:border-violet-500 hover:bg-violet-50 hover:text-violet-600 normal-case transition-all">
+                    <button type="button" onclick="handleSuggestion('{{ $suggestion }}')" class="btn btn-xs rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-600 shadow-sm hover:border-[#D8210B] hover:bg-red-50 hover:text-[#D8210B] normal-case transition-all">
                         {{ $suggestion }}
                     </button>
                 @endforeach
@@ -162,9 +162,9 @@
         <div class="border-t border-gray-100 bg-white p-4">
             <form id="chat-form" class="flex items-center gap-2">
                 @csrf
-                <input id="prompt" name="prompt" type="text" placeholder="Type a message..." autocomplete="off" class="input input-bordered h-11 w-full rounded-2xl border-gray-200 bg-gray-50/50 text-sm focus:border-violet-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-violet-500 transition-all placeholder:text-gray-400" />
+                <input id="prompt" name="prompt" type="text" placeholder="Type a message..." autocomplete="off" class="input input-bordered h-11 w-full rounded-2xl border-gray-200 bg-gray-50/50 text-sm focus:border-[#D8210B] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#D8210B] transition-all placeholder:text-gray-400" />
                 
-                <button type="submit" class="btn btn-square h-11 w-11 rounded-2xl bg-violet-600 text-white border-0 hover:bg-violet-700 active:scale-95 transition-all shadow-sm">
+                <button type="submit" class="btn btn-square h-11 w-11 rounded-2xl bg-[#D8210B] text-white border-0 hover:bg-[#EE4E56] active:scale-95 transition-all shadow-sm">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
                     </svg>
@@ -729,7 +729,7 @@
             const isBotMessage = !isUser && senderType === 'bot' && messageId !== null;
             const handoffPrompt = options.triggerHandoffPrompt ? `
                 <div class="mt-3">
-                    <button type="button" class="btn btn-sm bg-violet-600 text-white border-0 hover:bg-violet-700 rounded-lg px-4 py-2 text-xs font-semibold normal-case transition-all" data-handoff-prompt>
+                    <button type="button" class="btn btn-sm bg-[#D8210B] text-white border-0 hover:bg-[#EE4E56] rounded-lg px-4 py-2 text-xs font-semibold normal-case transition-all" data-handoff-prompt>
                         Connect with Human Staff
                     </button>
                 </div>
