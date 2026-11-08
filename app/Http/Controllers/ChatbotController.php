@@ -173,7 +173,22 @@ class ChatbotController extends Controller
                 ->where('token', $validated['session_token'])
                 ->where('company_id', $businessUnit->company_id)
                 ->where('business_unit_id', $businessUnit->id)
-                ->firstOrFail();
+                ->first();
+
+            if (! $session) {
+                return response()->json([
+                    'status' => 'session_unavailable',
+                    'message' => 'This chat session is no longer available.',
+                ]);
+            }
+
+            if (in_array($session->status, ['resolved', 'closed'], true)) {
+                return response()->json([
+                    'status' => 'session_closed',
+                    'message' => 'This chat session has ended.',
+                    'session_token' => $session->token,
+                ]);
+            }
         } else {
             if ($userIdentifier === '' || $userIdentifier === 'guest') {
                 $userIdentifier = 'guest_' . Str::uuid()->toString();
@@ -425,9 +440,16 @@ class ChatbotController extends Controller
         ]);
     }
 
-    public function notifyTyping(Request $request, int $sessionId): JsonResponse
+    public function notifyTyping(Request $request, string $sessionToken): JsonResponse
     {
-        $session = ChatSession::query()->whereKey($sessionId)->firstOrFail();
+        $session = ChatSession::query()
+            ->where('token', $sessionToken)
+            ->first();
+
+        if (! $session || in_array($session->status, ['resolved', 'closed'], true)) {
+            return response()->json(['status' => 'ignored']);
+        }
+
         // Mark customer as typing for 4 seconds
         Cache::put("session_{$session->id}_typing_customer", true, now()->addSeconds(4));
 

@@ -218,7 +218,9 @@ Route::controller(ChatbotController::class)->group(function (): void {
         ->where('sessionToken', '[A-Za-z0-9]{64}')
         ->middleware('throttle:120,1')
         ->name('chat.messages');
-    Route::post('/chat/{sessionId}/typing', 'notifyTyping')->name('chat.typing');
+    Route::post('/chat/{sessionToken}/typing', 'notifyTyping')
+        ->where('sessionToken', '[A-Za-z0-9]{64}')
+        ->name('chat.typing');
     Route::get('/api/chatbot/contact-info', [ChatbotController::class, 'getContactInfo'])->name('chatbot.contact-info');
     
     // 5. Cancel handoff endpoint
