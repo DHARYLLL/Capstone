@@ -200,7 +200,7 @@ class ChatbotController extends Controller
 
         if ($this->isHumanHandledSession($session)) {
             return response()->json([
-                'status' => 'queued_for_staff',
+                'status' => $session->status,
                 'message' => 'Message sent to staff.',
                 'session_token' => $session->token,
                 'message_id' => $customerMessage->id,
