@@ -200,7 +200,8 @@ class ChatbotController extends Controller
 
         if ($this->isHumanHandledSession($session)) {
             return response()->json([
-                'status' => 'success',
+                'status' => 'queued_for_staff',
+                'message' => 'Message sent to staff.',
                 'session_token' => $session->token,
                 'message_id' => $customerMessage->id,
             ]);
@@ -895,6 +896,7 @@ class ChatbotController extends Controller
                 'human_active',
                 'active',
                 'in_progress',
+                'claimed',
             ], true);
     }
 
