@@ -198,7 +198,7 @@ class ChatbotController extends Controller
             'intent' => $this->classifyIntent($promptText),
         ]);
 
-        if ($session->status === 'human_active') {
+        if ($this->isHumanHandledSession($session)) {
             return response()->json([
                 'status' => 'success',
                 'session_token' => $session->token,
@@ -884,6 +884,18 @@ class ChatbotController extends Controller
         $session->save();
 
         ActivityLog::record(null, 'Human handoff requested', 'Pending', null, 'DARIV', 'chat');
+    }
+
+    private function isHumanHandledSession(ChatSession $session): bool
+    {
+        return $session->assigned_user_id !== null
+            || in_array($session->status, [
+                'handoff_requested',
+                'handed_off',
+                'human_active',
+                'active',
+                'in_progress',
+            ], true);
     }
 
     private function classifyIntent(string $prompt): string
