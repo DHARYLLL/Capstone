@@ -217,6 +217,7 @@
         let agentJoinedNoticeShown = false;
         let lastKnownSessionStatus = null;
         let handoffRequestedAt = null;
+        let isAwaitingBotResponse = false;
 
         function isHumanHandoffStatus(status) {
             return ['waiting', 'human_active', 'active', 'claimed', 'pending'].includes(status);
@@ -492,6 +493,8 @@
             const assignedUserId = payload.assigned_user_id ?? null;
             const isHandoffActive = isHumanHandoffStatus(status);
             const wasWaitingForAgent = isHumanHandoffStatus(lastKnownSessionStatus);
+            const isWaitingForAssignment = ['waiting', 'pending'].includes(status)
+                && assignedUserId === null;
 
             if (status === 'bot_active' && wasWaitingForAgent) {
                 document.getElementById('cancel-handoff-container')?.remove();
@@ -518,20 +521,25 @@
                     }
                 }
 
-                if (assignedUserId === null && !handoffRequestedAt) {
+                if (isWaitingForAssignment && !handoffRequestedAt) {
                     handoffRequestedAt = Date.now();
                 }
 
-                if (assignedUserId === null && !transferNoticeVisible) {
+                if (isWaitingForAssignment && !transferNoticeVisible) {
                     appendSystemBubble('Connecting you to a live representative...');
                     transferNoticeVisible = true;
                 }
 
-                if (assignedUserId === null && Date.now() - handoffRequestedAt >= 30000) {
+                if (isWaitingForAssignment && Date.now() - handoffRequestedAt >= 30000) {
                     appendTimeoutNotice();
                 }
 
-                scheduleHandoffTimeout();
+                if (isWaitingForAssignment) {
+                    scheduleHandoffTimeout();
+                } else {
+                    clearHandoffTimeout();
+                    handoffRequestedAt = null;
+                }
                 chatStatus.textContent = 'A staff member is assisting you.';
             } else {
                 clearHandoffTimeout();
@@ -630,7 +638,7 @@
                 if (payload.agent_typing) {
                     typingIndicator.classList.remove('hidden');
                     scrollToBottom();
-                } else if (!isAwaitingBotResponse) {
+                } else if (!isAwaitingBotResponse || isHumanHandoffStatus(payload.status)) {
                     typingIndicator.classList.add('hidden');
                 }
 
@@ -849,6 +857,7 @@
             promptField.value = '';
 
             const isHumanChat = isHumanHandoffStatus(lastKnownSessionStatus);
+            isAwaitingBotResponse = !isHumanChat;
             if (!isHumanChat) {
                 typingIndicator.classList.remove('hidden');
             }
@@ -925,6 +934,7 @@
                 appendBubble('Something went wrong while sending your message.', false, 'bot');
                 chatStatus.textContent = 'The request could not be completed.';
             } finally {
+                isAwaitingBotResponse = false;
                 typingIndicator.classList.add('hidden');
                 scrollToBottom();
             }
