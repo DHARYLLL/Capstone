@@ -142,7 +142,7 @@ Company (Tenant)
 ### C. Live Operator Desk (HITL) Workflow
 1. Customer initiates handoff or low confidence triggers it.
 2. The session appears in the pending queue in **Admin Chat** (`/admin/chat`) and **Staff Chat** (`/staff/chat`).
-3. An operator clicks **Claim Session** (`POST /admin/chat/{session}/claim` or `/staff/chats/{session}/claim`).
+3. An operator clicks **Claim Session** (`POST /admin/chat/{sessionId}/claim` or `/staff/chats/{sessionId}/claim`).
    - Sets `assigned_user_id = auth->id()`, `status = 'human_active'`.
 4. Operator sends replies directly via `POST .../reply`.
 5. Customer widget periodically polls `GET /get-messages/{sessionId}` to fetch new incoming operator messages.
@@ -196,9 +196,9 @@ The Admin Overview (`/admin`) is completely data-driven and strictly scoped to t
 - `DELETE /admin/knowledge-base/staged/{id}`: Discard staged document.
 - `GET /admin/chat`: Admin live operator desk.
 - `GET /admin/chat/sessions`: JSON stream of live sessions & waiting count.
-- `POST /admin/chat/{session}/claim`: Claim session.
-- `POST /admin/chat/{session}/reply`: Send message as live agent.
-- `POST /admin/chat/{session}/resolve`: Mark session as resolved.
+- `POST /admin/chat/{sessionId}/claim`: Claim session.
+- `POST /admin/chat/{sessionId}/reply`: Send message as live agent.
+- `POST /admin/chat/{sessionId}/resolve`: Mark session as resolved.
 - `GET /admin/analytics`: Quantitative charts & metrics.
 - `GET /admin/staff`: List staff, view live statuses, add/edit/terminate/restore staff.
 - `GET /admin/logs`: Audit trail filterable by status (`indexed`, `staged`, `failed`, `deleted`).
@@ -207,9 +207,9 @@ The Admin Overview (`/admin`) is completely data-driven and strictly scoped to t
 ### Staff Console (`/staff/*` — Requires Auth / `Lead Operator`)
 - `GET /staff/chat`: Operator chat desk.
 - `GET /staff/chats`: List waiting and assigned chat sessions.
-- `POST /staff/chats/{session}/claim`: Claim incoming ticket.
-- `POST /staff/chats/{session}/messages`: Post operator reply.
-- `POST /staff/chats/{session}/resolve`: Resolve ticket.
+- `POST /staff/chats/{sessionId}/claim`: Claim incoming ticket.
+- `POST /staff/chats/{sessionId}/messages`: Post operator reply.
+- `POST /staff/chats/{sessionId}/resolve`: Resolve ticket.
 - `GET /staff/settings`: Operator profile settings.
 
 ---
@@ -392,4 +392,3 @@ php artisan test
    - Eliminated repetitive green pulse animations across the sidebar, header, and dashboard.
    - Aligned sidebar navigation active state to `bg-slate-900 text-white font-bold` with quiet `hover:bg-slate-100` hover states.
    - Standardized corner radii, borders, and badge tokens across all operational cards.
-

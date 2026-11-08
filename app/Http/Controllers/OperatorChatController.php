@@ -37,8 +37,12 @@ class OperatorChatController extends Controller
         ]);
     }
 
-    public function getMessages(ChatSession $session): JsonResponse
+    public function getMessages(int $sessionId): JsonResponse
     {
+        $session = ChatSession::query()
+            ->whereKey($sessionId)
+            ->firstOrFail();
+
         $messages = $session->chatMessages()->orderBy('created_at')->get()->map(function (ChatMessage $message): array {
             return [
                 'id' => $message->id,
@@ -60,8 +64,12 @@ class OperatorChatController extends Controller
         ]);
     }
 
-    public function reply(Request $request, ChatSession $session): JsonResponse
+    public function reply(Request $request, int $sessionId): JsonResponse
     {
+        $session = ChatSession::query()
+            ->whereKey($sessionId)
+            ->firstOrFail();
+
         $validated = $request->validate([
             'message' => ['required', 'string', 'max:5000'],
         ]);
