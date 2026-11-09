@@ -48,9 +48,10 @@ class StaffChatController extends Controller
         ]);
     }
 
-    public function messages(ChatSession $session): JsonResponse
+    public function messages(int $sessionId): JsonResponse
     {
         $this->touchLastSeen();
+        $session = $this->resolveSessionById($sessionId);
         $this->ensureCompanySession($session);
 
         $customerTyping = Cache::has("session_{$session->id}_typing_customer");
@@ -61,9 +62,10 @@ class StaffChatController extends Controller
         ]);
     }
 
-    public function sendTyping(ChatSession $session): JsonResponse
+    public function sendTyping(int $sessionId): JsonResponse
     {
         $this->touchLastSeen();
+        $session = $this->resolveSessionById($sessionId);
         $this->ensureCompanySession($session);
 
         Cache::put("session_{$session->id}_typing_agent", true, now()->addSeconds(4));
@@ -71,9 +73,10 @@ class StaffChatController extends Controller
         return response()->json(['status' => 'ok']);
     }
 
-    public function sessionStatus(ChatSession $session): JsonResponse
+    public function sessionStatus(int $sessionId): JsonResponse
     {
         $this->touchLastSeen();
+        $session = $this->resolveSessionById($sessionId);
         $this->ensureCompanySession($session);
 
         $customerTyping = Cache::has("session_{$session->id}_typing_customer");
@@ -86,9 +89,10 @@ class StaffChatController extends Controller
         ]);
     }
 
-    public function sendMessage(Request $request, ChatSession $session): JsonResponse
+    public function sendMessage(Request $request, int $sessionId): JsonResponse
     {
         $this->touchLastSeen();
+        $session = $this->resolveSessionById($sessionId);
         $this->ensureCompanySession($session);
         abort_unless($session->status === 'human_active' && $session->assigned_user_id === Auth::id(), 403);
 
@@ -104,13 +108,17 @@ class StaffChatController extends Controller
         return response()->json(['data' => $message], 201);
     }
 
-    public function claimSession(ChatSession $session): JsonResponse
+    public function claimSession(int $sessionId): JsonResponse
     {
         $this->touchLastSeen();
+        $session = $this->resolveSessionById($sessionId);
         $this->ensureCompanySession($session);
 
-        $claimedSession = DB::transaction(function () use ($session): ChatSession {
-            $lockedSession = ChatSession::query()->lockForUpdate()->findOrFail($session->id);
+        $claimedSession = DB::transaction(function () use ($sessionId): ChatSession {
+            $lockedSession = ChatSession::query()
+                ->lockForUpdate()
+                ->whereKey($sessionId)
+                ->firstOrFail();
 
             abort_unless(
                 $lockedSession->company_id === Auth::user()->company_id,
@@ -140,9 +148,10 @@ class StaffChatController extends Controller
         return response()->json(['success' => true, 'data' => $claimedSession]);
     }
 
-    public function resolveSession(ChatSession $session): JsonResponse
+    public function resolveSession(int $sessionId): JsonResponse
     {
         $this->touchLastSeen();
+        $session = $this->resolveSessionById($sessionId);
         $this->ensureCompanySession($session);
         abort_unless($session->assigned_user_id === Auth::id(), 403);
 
@@ -156,6 +165,13 @@ class StaffChatController extends Controller
     private function ensureCompanySession(ChatSession $session): void
     {
         abort_unless($session->company_id === Auth::user()->company_id, 404);
+    }
+
+    private function resolveSessionById(int $sessionId): ChatSession
+    {
+        return ChatSession::query()
+            ->whereKey($sessionId)
+            ->firstOrFail();
     }
 
     private function touchLastSeen(): void

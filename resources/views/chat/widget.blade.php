@@ -217,6 +217,11 @@
         let agentJoinedNoticeShown = false;
         let lastKnownSessionStatus = null;
         let handoffRequestedAt = null;
+        let isAwaitingBotResponse = false;
+
+        function isHumanHandoffStatus(status) {
+            return ['waiting', 'human_active', 'active', 'claimed', 'pending'].includes(status);
+        }
 
         // Extract user_id from query string or fallback to Blade value
         const urlParams = new URLSearchParams(window.location.search);
@@ -291,7 +296,7 @@
             }
 
             handoffTimeoutId = setTimeout(() => {
-                if (!['waiting', 'human_active', 'pending'].includes(lastKnownSessionStatus)) {
+                if (!isHumanHandoffStatus(lastKnownSessionStatus)) {
                     return;
                 }
 
@@ -486,9 +491,10 @@
 
         function handleSessionStatusChange(status, payload = {}) {
             const assignedUserId = payload.assigned_user_id ?? null;
-            const handoffStatuses = ['waiting', 'human_active', 'pending'];
-            const isHandoffActive = handoffStatuses.includes(status);
-            const wasWaitingForAgent = handoffStatuses.includes(lastKnownSessionStatus);
+            const isHandoffActive = isHumanHandoffStatus(status);
+            const wasWaitingForAgent = isHumanHandoffStatus(lastKnownSessionStatus);
+            const isWaitingForAssignment = ['waiting', 'pending'].includes(status)
+                && assignedUserId === null;
 
             if (status === 'bot_active' && wasWaitingForAgent) {
                 document.getElementById('cancel-handoff-container')?.remove();
@@ -506,26 +512,34 @@
                 if (assignedUserId !== null) {
                     removeConnectingNotice();
 
-                    if (!agentJoinedNoticeShown && (status === 'human_active' || lastKnownSessionStatus === 'waiting' || lastKnownSessionStatus === 'pending')) {
+                    if (!agentJoinedNoticeShown && (
+                        ['human_active', 'active', 'claimed'].includes(status)
+                        || ['waiting', 'pending'].includes(lastKnownSessionStatus)
+                    )) {
                         appendSystemBubble('An agent has joined the chat.');
                         agentJoinedNoticeShown = true;
                     }
                 }
 
-                if (assignedUserId === null && !handoffRequestedAt) {
+                if (isWaitingForAssignment && !handoffRequestedAt) {
                     handoffRequestedAt = Date.now();
                 }
 
-                if (assignedUserId === null && !transferNoticeVisible) {
+                if (isWaitingForAssignment && !transferNoticeVisible) {
                     appendSystemBubble('Connecting you to a live representative...');
                     transferNoticeVisible = true;
                 }
 
-                if (assignedUserId === null && Date.now() - handoffRequestedAt >= 30000) {
+                if (isWaitingForAssignment && Date.now() - handoffRequestedAt >= 30000) {
                     appendTimeoutNotice();
                 }
 
-                scheduleHandoffTimeout();
+                if (isWaitingForAssignment) {
+                    scheduleHandoffTimeout();
+                } else {
+                    clearHandoffTimeout();
+                    handoffRequestedAt = null;
+                }
                 chatStatus.textContent = 'A staff member is assisting you.';
             } else {
                 clearHandoffTimeout();
@@ -589,7 +603,7 @@
             renderMessageHistory(filteredMessages);
             handleSessionStatusChange(payload.status, payload);
 
-            if (payload.status === 'waiting' || payload.status === 'human_active' || payload.status === 'pending') {
+            if (isHumanHandoffStatus(payload.status)) {
                 startMessagePolling(activeSessionId);
             } else {
                 chatStatus.textContent = 'Chat restored.';
@@ -624,7 +638,7 @@
                 if (payload.agent_typing) {
                     typingIndicator.classList.remove('hidden');
                     scrollToBottom();
-                } else if (!isAwaitingBotResponse) {
+                } else if (!isAwaitingBotResponse || isHumanHandoffStatus(payload.status)) {
                     typingIndicator.classList.add('hidden');
                 }
 
@@ -841,10 +855,16 @@
 
             const customerBubble = appendBubble(prompt, true, 'customer');
             promptField.value = '';
-            
-            typingIndicator.classList.remove('hidden');
+
+            const isHumanChat = isHumanHandoffStatus(lastKnownSessionStatus);
+            isAwaitingBotResponse = !isHumanChat;
+            if (!isHumanChat) {
+                typingIndicator.classList.remove('hidden');
+            }
             scrollToBottom();
-            chatStatus.textContent = 'Generating a response...';
+            chatStatus.textContent = isHumanChat
+                ? 'Your message is being sent to staff...'
+                : 'Generating a response...';
 
             try {
                 const askEndpoint = '{{ isset($businessUnit) ? route("chat.ask", ["businessUnit" => $businessUnit->id]) : "" }}';
@@ -886,7 +906,7 @@
                     renderedIds.add(String(customerMessageId));
                 }
 
-                if (payload.status === 'waiting' || payload.status === 'human_active') {
+                if (isHumanHandoffStatus(payload.status)) {
                     lastKnownSessionStatus = payload.status;
                     handoffRequestedAt = Date.now();
                     handleSessionStatusChange(payload.status, payload);
@@ -914,6 +934,7 @@
                 appendBubble('Something went wrong while sending your message.', false, 'bot');
                 chatStatus.textContent = 'The request could not be completed.';
             } finally {
+                isAwaitingBotResponse = false;
                 typingIndicator.classList.add('hidden');
                 scrollToBottom();
             }

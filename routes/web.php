@@ -162,14 +162,25 @@ Route::prefix('staff')
     Route::get('/chat', [StaffChatController::class, 'index'])->name('chat');
     Route::get('/chats', [StaffChatController::class, 'sessions'])->name('chats.index');
     Route::get('/chats/pending-count', [StaffChatController::class, 'pendingCount'])->name('chats.pending-count');
-    Route::get('/chats/{session}/messages', [StaffChatController::class, 'messages'])->name('chats.messages');
-    Route::post('/chats/{session}/messages', [StaffChatController::class, 'sendMessage'])->name('chats.messages.store');
-    Route::post('/chats/{session}/claim', [StaffChatController::class, 'claimSession'])
+    Route::get('/chats/{sessionId}/messages', [StaffChatController::class, 'messages'])
+        ->whereNumber('sessionId')
+        ->name('chats.messages');
+    Route::post('/chats/{sessionId}/messages', [StaffChatController::class, 'sendMessage'])
+        ->whereNumber('sessionId')
+        ->name('chats.messages.store');
+    Route::post('/chats/{sessionId}/claim', [StaffChatController::class, 'claimSession'])
+        ->whereNumber('sessionId')
         ->middleware('throttle:10,1')
         ->name('chats.claim');
-    Route::post('/chats/{session}/resolve', [StaffChatController::class, 'resolveSession'])->name('chats.resolve');
-    Route::post('/chats/{session}/typing', [StaffChatController::class, 'sendTyping'])->name('chats.typing');
-    Route::get('/chats/{session}/status', [StaffChatController::class, 'sessionStatus'])->name('chats.status');
+    Route::post('/chats/{sessionId}/resolve', [StaffChatController::class, 'resolveSession'])
+        ->whereNumber('sessionId')
+        ->name('chats.resolve');
+    Route::post('/chats/{sessionId}/typing', [StaffChatController::class, 'sendTyping'])
+        ->whereNumber('sessionId')
+        ->name('chats.typing');
+    Route::get('/chats/{sessionId}/status', [StaffChatController::class, 'sessionStatus'])
+        ->whereNumber('sessionId')
+        ->name('chats.status');
 
     Route::view('/settings', 'staff.settings')
         ->middleware('role:Lead Operator,Administrator')
@@ -207,7 +218,9 @@ Route::controller(ChatbotController::class)->group(function (): void {
         ->where('sessionToken', '[A-Za-z0-9]{64}')
         ->middleware('throttle:120,1')
         ->name('chat.messages');
-    Route::post('/chat/{sessionId}/typing', 'notifyTyping')->name('chat.typing');
+    Route::post('/chat/{sessionToken}/typing', 'notifyTyping')
+        ->where('sessionToken', '[A-Za-z0-9]{64}')
+        ->name('chat.typing');
     Route::get('/api/chatbot/contact-info', [ChatbotController::class, 'getContactInfo'])->name('chatbot.contact-info');
     
     // 5. Cancel handoff endpoint
