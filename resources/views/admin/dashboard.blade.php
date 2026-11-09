@@ -108,62 +108,54 @@
         <!-- 4 Visual KPI Metric Cards -->
         <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <!-- 1. Answered Queries -->
-            <div class="rounded-2xl border border-[#232934] bg-[#14181F] p-5 shadow-sm transition hover:border-[#2B313D]">
-                <div class="flex items-center justify-between">
-                    <div class="flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-500/60 text-emerald-400">
-                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                        </svg>
-                    </div>
+            <div class="flex items-center gap-3.5 rounded-2xl border border-[#232934] bg-[#14181F] p-4.5 sm:p-5 shadow-sm transition hover:border-[#2B313D]">
+                <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-emerald-500/60 text-emerald-400">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
                 </div>
-                <div class="mt-4">
-                    <div class="text-2xl font-black tracking-tight text-[#F0EDE8]">{{ $kpis[0]['value'] }}</div>
-                    <div class="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mt-0.5">{{ $kpis[0]['label'] }}</div>
+                <div class="min-w-0">
+                    <div class="text-2xl font-black tracking-tight text-[#F0EDE8] leading-tight">{{ $kpis[0]['value'] }}</div>
+                    <div class="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mt-0.5 truncate">{{ $kpis[0]['label'] }}</div>
                 </div>
             </div>
 
             <!-- 2. Unanswered Queries -->
-            <div class="rounded-2xl border border-[#232934] bg-[#14181F] p-5 shadow-sm transition hover:border-[#2B313D]">
-                <div class="flex items-center justify-between">
-                    <div class="flex h-10 w-10 items-center justify-center rounded-xl border border-[#F5A623]/60 text-[#F5A623]">
-                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
-                        </svg>
-                    </div>
+            <div class="flex items-center gap-3.5 rounded-2xl border border-[#232934] bg-[#14181F] p-4.5 sm:p-5 shadow-sm transition hover:border-[#2B313D]">
+                <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#F5A623]/60 text-[#F5A623]">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                    </svg>
                 </div>
-                <div class="mt-4">
-                    <div class="text-2xl font-black tracking-tight text-[#F0EDE8]">{{ $kpis[1]['value'] }}</div>
-                    <div class="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mt-0.5">{{ $kpis[1]['label'] }}</div>
+                <div class="min-w-0">
+                    <div class="text-2xl font-black tracking-tight text-[#F0EDE8] leading-tight">{{ $kpis[1]['value'] }}</div>
+                    <div class="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mt-0.5 truncate">{{ $kpis[1]['label'] }}</div>
                 </div>
             </div>
 
             <!-- 3. Human Routed Queries -->
-            <div class="rounded-2xl border border-[#232934] bg-[#14181F] p-5 shadow-sm transition hover:border-[#2B313D]">
-                <div class="flex items-center justify-between">
-                    <div class="flex h-10 w-10 items-center justify-center rounded-xl border border-blue-500/60 text-blue-400">
-                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-                        </svg>
-                    </div>
+            <div class="flex items-center gap-3.5 rounded-2xl border border-[#232934] bg-[#14181F] p-4.5 sm:p-5 shadow-sm transition hover:border-[#2B313D]">
+                <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-blue-500/60 text-blue-400">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                    </svg>
                 </div>
-                <div class="mt-4">
-                    <div class="text-2xl font-black tracking-tight text-[#F0EDE8]">{{ $kpis[2]['value'] }}</div>
-                    <div class="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mt-0.5">{{ $kpis[2]['label'] }}</div>
+                <div class="min-w-0">
+                    <div class="text-2xl font-black tracking-tight text-[#F0EDE8] leading-tight">{{ $kpis[2]['value'] }}</div>
+                    <div class="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mt-0.5 truncate">{{ $kpis[2]['label'] }}</div>
                 </div>
             </div>
 
             <!-- 4. Knowledge Base Files -->
-            <div class="rounded-2xl border border-[#232934] bg-[#14181F] p-5 shadow-sm transition hover:border-[#2B313D]">
-                <div class="flex items-center justify-between">
-                    <div class="flex h-10 w-10 items-center justify-center rounded-xl border border-[#E8312B]/60 text-[#E8312B]">
-                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
-                        </svg>
-                    </div>
+            <div class="flex items-center gap-3.5 rounded-2xl border border-[#232934] bg-[#14181F] p-4.5 sm:p-5 shadow-sm transition hover:border-[#2B313D]">
+                <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#E8312B]/60 text-[#E8312B]">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                    </svg>
                 </div>
-                <div class="mt-4">
-                    <div class="text-2xl font-black tracking-tight text-[#F0EDE8]">{{ $kpis[3]['value'] }}</div>
-                    <div class="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mt-0.5">{{ $kpis[3]['label'] }}</div>
+                <div class="min-w-0">
+                    <div class="text-2xl font-black tracking-tight text-[#F0EDE8] leading-tight">{{ $kpis[3]['value'] }}</div>
+                    <div class="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mt-0.5 truncate">{{ $kpis[3]['label'] }}</div>
                 </div>
             </div>
         </div>
