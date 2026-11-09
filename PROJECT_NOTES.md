@@ -388,8 +388,15 @@ php artisan test
    - Replaced robotic hero buzzwords with natural, grounded product messaging (*"Multi-Branch Support Console"*).
    - Eliminated em-dashes across all titles and metadata.
 2. **Admin Console & Layout (`/admin`)**:
-   - Standardized top control header with solid `bg-slate-900` brand mark and clean action buttons.
-   - Eliminated repetitive green pulse animations across the sidebar, header, and dashboard.
-   - Aligned sidebar navigation active state to `bg-slate-900 text-white font-bold` with quiet `hover:bg-slate-100` hover states.
-   - Standardized corner radii, borders, and badge tokens across all operational cards.
+   - Standardized top control header with refined subtitle spacing and uniform action buttons (`px-3.5 py-2`).
+   - Cleaned up KPI metric cards to use horizontal media-object layout with numbers positioned directly beside icons.
+   - Refined Query Resolution Breakdown card spacing: improved progress distribution bar gutters and 3-column legend stats spacing (`gap-3 sm:gap-4`, `pt-4`).
+   - Refactored Operational Modules cards grid with consistent card padding (`p-4.5`), improved flex alignment, and icon-to-label breathing room.
+   - Polished System Status card row padding (`py-2.5` with clean dividers) and Recent Activity timeline spacing and item layout.
+3. **Knowledge Base Console (`/admin/knowledge-base`)**:
+   - Migrated entire view to dark theme palette (`#14181F`, `#1A1F29`, `#232934`, `#2B313D`, text `#F0EDE8`, `#9AA0AB`, `#6B7280`).
+   - Replaced light-gradient hero header with dark control card and primary brand action (`#D8210B` with `#EE4E56` hover).
+   - Modernized the PDF/CSV drag-and-drop zone with dark dashed border and high-contrast hover feedback.
+   - Refactored 4 KPI stat cards (*Queued*, *Processing*, *Indexed*, *Total Records*) to use the horizontal media-object layout matching the dashboard.
+   - Restyled the Ingestion Pipeline Monitor and Indexed Knowledge Explorer (Card & Table views, Search bar, BU filter select, Modals).
 
