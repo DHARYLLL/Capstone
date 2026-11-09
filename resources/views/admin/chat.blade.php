@@ -7,30 +7,30 @@
     <div class="space-y-5">
         
         <!-- Low-Profile Status & Control Bar -->
-        <div class="flex flex-col gap-4 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex flex-col gap-4 rounded-2xl border border-[#232934] bg-[#14181F] p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
             <div class="flex items-center gap-3">
-                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#D8210B] to-[#EE4E56] text-white shadow-xs shadow-[#D8210B]/20">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#D8210B] to-[#EE4E56] text-white shadow-sm shadow-[#D8210B]/20">
                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 0 1 .865-.501 48.172 48.172 0 0 0 3.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
                     </svg>
                 </div>
                 <div>
-                    <h1 class="text-base font-black tracking-tight text-slate-900 leading-tight">Live Operator Console</h1>
-                    <p class="text-xs text-slate-400">Manage real-time escalations, customer inquiries, and AI handoffs</p>
+                    <h1 class="text-base font-bold tracking-tight text-[#F0EDE8] leading-tight">Live Operator Console</h1>
+                    <p class="text-xs text-[#6B7280]">Manage real-time escalations, customer inquiries, and AI handoffs</p>
                 </div>
             </div>
 
             <!-- Queue Counter Badges -->
             <div class="flex flex-wrap items-center gap-2">
-                <span id="header-waiting-badge" class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700 ring-1 ring-amber-500/20">
-                    <span class="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                <span id="header-waiting-badge" class="inline-flex items-center gap-1.5 rounded-full bg-[#F2D742]/10 border border-[#F2D742]/30 px-3 py-1 text-xs font-bold text-[#F2D742]">
+                    <span class="h-1.5 w-1.5 rounded-full bg-[#F2D742] animate-pulse"></span>
                     {{ $waitingCount }} Waiting Handoff
                 </span>
-                <span id="header-active-badge" class="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700 ring-1 ring-blue-500/20">
+                <span id="header-active-badge" class="inline-flex items-center gap-1.5 rounded-full bg-blue-500/10 border border-blue-500/30 px-3 py-1 text-xs font-bold text-blue-400">
                     <span class="h-1.5 w-1.5 rounded-full bg-blue-500"></span>
                     {{ $activeCount }} Active Chats
                 </span>
-                <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 text-xs font-semibold text-emerald-400">
                     <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
                     Live Sync
                 </span>
@@ -41,15 +41,15 @@
         <div class="grid gap-5 xl:grid-cols-[320px_1fr_300px] h-[calc(100vh-190px)] min-h-[600px]">
             
             <!-- 1. Left Column: Queue & Triage -->
-            <div class="flex flex-col rounded-2xl border border-slate-200/80 bg-white shadow-xs overflow-hidden">
-                <div class="p-4 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
+            <div class="flex flex-col rounded-2xl border border-[#232934] bg-[#14181F] shadow-sm overflow-hidden">
+                <div class="p-4 border-b border-[#232934] bg-[#14181F] flex items-center justify-between">
                     <div class="flex items-center gap-2">
-                        <span class="text-xs font-bold uppercase tracking-wider text-slate-700">Active Queue</span>
-                        <span id="queue-count" class="rounded-md bg-red-100 px-1.5 py-0.5 text-[10px] font-bold text-[#D8210B]">
+                        <span class="text-xs font-bold uppercase tracking-wider text-[#F0EDE8]">Active Queue</span>
+                        <span id="queue-count" class="rounded-md bg-[#D8210B]/20 border border-[#D8210B]/40 px-1.5 py-0.5 text-[10px] font-bold text-[#EE4E56]">
                             {{ $sessions->count() }}
                         </span>
                     </div>
-                    <button onclick="refreshQueue()" class="text-slate-400 hover:text-[#D8210B] transition p-1 hover:rotate-180 duration-300" title="Refresh Queue">
+                    <button onclick="refreshQueue()" class="text-[#6B7280] hover:text-[#EE4E56] transition p-1 hover:rotate-180 duration-300" title="Refresh Queue">
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
                         </svg>
@@ -57,13 +57,13 @@
                 </div>
 
                 <!-- Queue Filter / Search -->
-                <div class="p-3 border-b border-slate-100">
+                <div class="p-3 border-b border-[#232934]">
                     <div class="relative">
-                        <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#6B7280]" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
                         </svg>
                         <input type="text" id="queue-search" oninput="filterQueue(this.value)" placeholder="Filter conversations..." 
-                               class="w-full pl-8 pr-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:border-[#D8210B] focus:outline-none transition">
+                               class="w-full pl-8 pr-3 py-1.5 rounded-xl border border-[#232934] bg-[#1A1F29] text-xs text-[#F0EDE8] placeholder-[#6B7280] focus:border-[#D8210B] focus:outline-none transition">
                     </div>
                 </div>
 
@@ -74,85 +74,85 @@
             </div>
 
             <!-- 2. Center Column: Live Conversation Timeline & Composer -->
-            <div class="flex flex-col rounded-2xl border border-slate-200/80 bg-white shadow-xs overflow-hidden relative">
+            <div class="flex flex-col rounded-2xl border border-[#232934] bg-[#14181F] shadow-sm overflow-hidden relative">
                 
                 <!-- Chat Header -->
-                <div class="p-4 border-b border-slate-100 bg-slate-50/60 flex items-center justify-between gap-3" id="chat-header">
+                <div class="p-4 border-b border-[#232934] bg-[#14181F] flex items-center justify-between gap-3" id="chat-header">
                     <div class="flex items-center gap-3 min-w-0">
-                        <div id="active-client-avatar" class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-red-100 text-[#D8210B] text-xs font-bold">
+                        <div id="active-client-avatar" class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#D8210B]/20 border border-[#D8210B]/40 text-[#EE4E56] text-xs font-bold">
                             💬
                         </div>
                         <div class="min-w-0">
                             <div class="flex items-center gap-2">
-                                <h3 class="font-bold text-slate-900 text-sm truncate" id="active-client-name">No Chat Selected</h3>
+                                <h3 class="font-bold text-[#F0EDE8] text-sm truncate" id="active-client-name">No Chat Selected</h3>
                                 <span id="session-badge" class="hidden rounded-full px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wide"></span>
                             </div>
-                            <p class="text-xs text-slate-400 truncate mt-0.5" id="active-client-status">Select an active conversation to begin live assistance</p>
+                            <p class="text-xs text-[#6B7280] truncate mt-0.5" id="active-client-status">Select an active conversation to begin live assistance</p>
                         </div>
                     </div>
 
                     <!-- Header Fast Action Buttons -->
                     <div class="flex items-center gap-2 shrink-0">
                         <button onclick="claimActiveChat()" id="header-claim-btn" disabled 
-                                class="inline-flex items-center gap-1.5 rounded-xl bg-[#D8210B] px-3 py-1.5 text-xs font-bold text-white shadow-xs shadow-[#D8210B]/20 hover:bg-[#EE4E56] disabled:opacity-40 transition cursor-pointer disabled:cursor-not-allowed">
+                                class="inline-flex items-center gap-1.5 rounded-xl bg-[#D8210B] px-3 py-1.5 text-xs font-bold text-white shadow-sm shadow-[#D8210B]/20 hover:bg-[#EE4E56] disabled:opacity-40 transition cursor-pointer disabled:cursor-not-allowed">
                             <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
                             </svg>
                             <span id="header-claim-label">Claim Session</span>
                         </button>
                         <button onclick="resolveActiveChat()" id="header-resolve-btn" disabled 
-                                class="inline-flex items-center gap-1.5 rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700 hover:bg-emerald-100 disabled:opacity-40 transition cursor-pointer disabled:cursor-not-allowed">
+                                class="inline-flex items-center gap-1.5 rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-3 py-1.5 text-xs font-bold text-emerald-400 hover:bg-emerald-500/20 disabled:opacity-40 transition cursor-pointer disabled:cursor-not-allowed">
                             ✓ Resolve
                         </button>
                     </div>
                 </div>
 
                 <!-- Empty State Placeholder -->
-                <div id="chat-empty-state" class="absolute inset-0 top-[65px] flex flex-col items-center justify-center bg-white/95 z-10 p-8 text-center space-y-3">
-                    <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-red-50 text-[#D8210B] text-2xl shadow-xs">
+                <div id="chat-empty-state" class="absolute inset-0 top-[65px] flex flex-col items-center justify-center bg-[#14181F]/95 z-10 p-8 text-center space-y-3">
+                    <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#1A1F29] border border-[#232934] text-[#EE4E56] text-2xl shadow-sm">
                         <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a.75.75 0 0 1-.974-.94 4.09 4.09 0 0 0 .546-2.127C3.308 16.326 2 14.307 2 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
                         </svg>
                     </div>
                     <div>
-                        <h3 class="text-sm font-bold text-slate-800">Select a Conversation</h3>
-                        <p class="text-xs text-slate-400 mt-1 max-w-xs">Pick a waiting client inquiry from the queue on the left to monitor or take over live.</p>
+                        <h3 class="text-sm font-bold text-[#F0EDE8]">Select a Conversation</h3>
+                        <p class="text-xs text-[#6B7280] mt-1 max-w-xs">Pick a waiting client inquiry from the queue on the left to monitor or take over live.</p>
                     </div>
                 </div>
 
                 <!-- Chat Timeline Stream -->
-                <div class="flex-1 overflow-y-auto p-5 space-y-4 bg-slate-50/30" id="chat-timeline">
+                <div class="flex-1 overflow-y-auto p-5 space-y-4 bg-[#14181F]" id="chat-timeline">
                     <!-- Messages injected dynamically -->
                 </div>
 
                 <!-- Quick Response Action Chips -->
-                <div class="px-4 py-2 border-t border-slate-100 bg-white flex items-center gap-1.5 overflow-x-auto no-scrollbar" id="canned-chips">
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 shrink-0 mr-1">Quick:</span>
+                <div class="px-4 py-2 border-t border-[#232934] bg-[#1A1F29] flex items-center gap-1.5 overflow-x-auto no-scrollbar" id="canned-chips">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-[#6B7280] shrink-0 mr-1">Quick:</span>
                     <button type="button" onclick="insertCanned('Hello! I am reviewing your case now.')" 
-                            class="shrink-0 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-600 hover:border-red-300 hover:bg-red-50 hover:text-[#D8210B] transition">
+                            class="shrink-0 rounded-full border border-[#232934] bg-[#14181F] px-2.5 py-1 text-[11px] font-medium text-[#9AA0AB] hover:border-[#D8210B] hover:text-[#EE4E56] transition">
                         👋 Reviewing case
                     </button>
                     <button type="button" onclick="insertCanned('Could you upload or send a photo of the area?')" 
-                            class="shrink-0 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-600 hover:border-red-300 hover:bg-red-50 hover:text-[#D8210B] transition">
+                            class="shrink-0 rounded-full border border-[#232934] bg-[#14181F] px-2.5 py-1 text-[11px] font-medium text-[#9AA0AB] hover:border-[#D8210B] hover:text-[#EE4E56] transition">
                         📸 Request photos
                     </button>
                     <button type="button" onclick="insertCanned('We can schedule an on-site inspection for you.')" 
-                            class="shrink-0 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-600 hover:border-red-300 hover:bg-red-50 hover:text-[#D8210B] transition">
+                            class="shrink-0 rounded-full border border-[#232934] bg-[#14181F] px-2.5 py-1 text-[11px] font-medium text-[#9AA0AB] hover:border-[#D8210B] hover:text-[#EE4E56] transition">
                         📅 Schedule inspection
                     </button>
                     <button type="button" onclick="insertCanned('Our estimator will email your official quotation today.')" 
-                            class="shrink-0 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-600 hover:border-red-300 hover:bg-red-50 hover:text-[#D8210B] transition">
+                            class="shrink-0 rounded-full border border-[#232934] bg-[#14181F] px-2.5 py-1 text-[11px] font-medium text-[#9AA0AB] hover:border-[#D8210B] hover:text-[#EE4E56] transition">
                         ✉️ Send email quote
                     </button>
                 </div>
 
                 <!-- Message Composer Input Bar -->
-                <div class="p-3 border-t border-slate-100 bg-white" id="input-container">
+                <div class="p-3 border-t border-[#232934] bg-[#14181F]" id="input-container">
                     <form id="operator-reply-form" class="flex items-center gap-2">
                         <input type="text" id="reply-input" disabled placeholder="Claim this chat to write a reply..." 
-                               class="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:border-[#D8210B] focus:outline-none transition">
+                               class="flex-1 rounded-xl border border-[#232934] bg-[#1A1F29] px-4 py-2.5 text-xs text-[#F0EDE8] placeholder-[#6B7280] focus:border-[#D8210B] focus:outline-none transition">
                         <button type="submit" id="send-btn" disabled 
-                                class="inline-flex items-center gap-1.5 rounded-xl bg-[#D8210B] px-4 py-2.5 text-xs font-bold text-white shadow-xs shadow-[#D8210B]/20 hover:bg-[#EE4E56] disabled:opacity-40 transition cursor-pointer disabled:cursor-not-allowed">
+                                class="inline-flex items-center gap-1.5 rounded-xl bg-[#D8210B] px-4 py-2.5 text-xs font-bold text-white shadow-sm shadow-[#D8210B]/20 hover:bg-[#EE4E56] disabled:opacity-40 transition cursor-pointer disabled:cursor-not-allowed">
                             <span>Send</span>
                             <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
@@ -163,58 +163,53 @@
             </div>
 
             <!-- 3. Right Column: Customer Dossier & AI Context Panel -->
-            <div class="flex flex-col rounded-2xl border border-slate-200/80 bg-white shadow-xs overflow-hidden">
-                <div class="p-4 border-b border-slate-100 bg-slate-50/50">
-                    <h2 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Session Dossier</h2>
+            <div class="flex flex-col rounded-2xl border border-[#232934] bg-[#14181F] shadow-sm overflow-hidden">
+                <div class="p-4 border-b border-[#232934] bg-[#14181F]">
+                    <h2 class="text-xs font-bold text-[#F0EDE8] uppercase tracking-wider">Session Dossier</h2>
                 </div>
 
                 <div class="p-4 flex-1 flex flex-col justify-between overflow-y-auto space-y-4" id="control-panel">
                     
                     <!-- Customer Details Card -->
                     <div class="space-y-3">
-                        <div class="rounded-xl border border-slate-200/70 bg-slate-50/60 p-3.5">
-                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Customer Profile</span>
-                            <div class="text-sm font-bold text-slate-800" id="dossier-name">Anonymous Client</div>
-                            <div class="text-xs text-slate-500 mt-0.5" id="dossier-session-id">Session #—</div>
+                        <div class="rounded-xl border border-[#232934] bg-[#1A1F29] p-3.5">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-[#6B7280] block mb-1">Customer Profile</span>
+                            <div class="text-sm font-bold text-[#F0EDE8]" id="dossier-name">Anonymous Client</div>
+                            <div class="text-xs text-[#9AA0AB] mt-0.5" id="dossier-session-id">Session #—</div>
                         </div>
 
                         <!-- Tenant & Channel -->
-                        <div class="rounded-xl border border-slate-200/70 bg-slate-50/60 p-3.5 space-y-2 text-xs">
+                        <div class="rounded-xl border border-[#232934] bg-[#1A1F29] p-3.5 space-y-2 text-xs">
                             <div class="flex justify-between items-center">
-                                <span class="text-slate-400">Tenant:</span>
-                                <span class="font-bold text-slate-700">DARIV Waterproofing</span>
+                                <span class="text-[#6B7280]">Tenant:</span>
+                                <span class="font-bold text-[#F0EDE8]">DARIV Waterproofing</span>
                             </div>
                             <div class="flex justify-between items-center">
-                                <span class="text-slate-400">Channel:</span>
-                                <span class="font-semibold text-slate-700">Web Chat Widget</span>
+                                <span class="text-[#6B7280]">Channel:</span>
+                                <span class="font-semibold text-[#F0EDE8]">Web Chat Widget</span>
                             </div>
                             <div class="flex justify-between items-center">
-                                <span class="text-slate-400">Assigned To:</span>
-                                <span class="font-semibold text-[#D8210B]" id="dossier-operator">Unassigned</span>
+                                <span class="text-[#6B7280]">Assigned To:</span>
+                                <span class="font-semibold text-[#EE4E56]" id="dossier-operator">Unassigned</span>
                             </div>
                         </div>
 
                         <!-- AI Context Card -->
-                        <div class="rounded-xl border border-red-100 bg-red-50/40 p-3.5">
-                            <div class="flex items-center gap-1.5 text-[#D8210B] text-xs font-bold mb-1">
+                        <div class="rounded-xl border border-[#D8210B]/30 bg-[#D8210B]/10 p-3.5">
+                            <div class="flex items-center gap-1.5 text-[#EE4E56] text-xs font-bold mb-1">
                                 <span>🤖</span>
                                 <span>AI Assistant Routing</span>
                             </div>
-                            <p class="text-xs text-slate-600 leading-relaxed" id="dossier-ai-summary">
+                            <p class="text-xs text-[#9AA0AB] leading-relaxed" id="dossier-ai-summary">
                                 Customer requested human operator support. AI answered prior questions using uploaded knowledge docs.
                             </p>
                         </div>
                     </div>
 
                     <!-- Primary Action Controls -->
-                    <div class="space-y-2 pt-4 border-t border-slate-100">
+                    <div class="space-y-2 pt-4 border-t border-[#232934]">
                         <button onclick="claimActiveChat()" id="claim-btn" disabled 
-                                class="w-full rounded-xl bg-[#D8210B] px-4 py-2.5 text-xs font-bold text-white shadow-xs shadow-[#D8210B]/20 hover:bg-[#EE4E56] disabled:opacity-40 transition flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed">
-                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM4 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 10.374 21c-2.331 0-4.512-.645-6.374-1.765Z" />
-                            </svg>
-                            <span id="claim-label">Claim Conversation</span>
-                        </button>
+                                class="w-full rounded-xl bg-[#D8210B] px-4 py-2.5 text-xs font-bold text-white shadow-sm shadow-[#D8210B]/20 hover:bg-[#EE4E56] disabled:opacity-40 transition flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed">
                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM4 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 10.374 21c-2.331 0-4.512-.645-6.374-1.765Z" />
                             </svg>
@@ -222,8 +217,8 @@
                         </button>
                         
                         <button onclick="resolveActiveChat()" id="resolve-btn" disabled 
-                                class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-40 transition flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed">
-                            <svg class="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                class="w-full rounded-xl border border-[#232934] bg-[#1A1F29] px-4 py-2.5 text-xs font-bold text-[#F0EDE8] hover:border-emerald-500/50 hover:text-emerald-400 disabled:opacity-40 transition flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed">
+                            <svg class="h-4 w-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                             </svg>
                             Mark as Resolved
@@ -299,12 +294,12 @@
             
             if (sessions.length === 0) {
                 list.innerHTML = `
-                    <div class="text-center py-10 text-slate-400">
-                        <svg class="mx-auto h-8 w-8 text-slate-300 mb-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <div class="text-center py-10 text-[#6B7280]">
+                        <svg class="mx-auto h-8 w-8 text-[#6B7280]/60 mb-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 0 1 1.037-.443 48.282 48.282 0 0 0 5.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
                         </svg>
-                        <p class="text-xs font-bold text-slate-600">Queue is Clear</p>
-                        <p class="text-[11px] text-slate-400 mt-0.5">No active handoffs waiting.</p>
+                        <p class="text-xs font-bold text-[#F0EDE8]">Queue is Clear</p>
+                        <p class="text-[11px] text-[#6B7280] mt-0.5">No active handoffs waiting.</p>
                     </div>
                 `;
                 return;
@@ -326,8 +321,8 @@
                 item.setAttribute('data-session-id', String(sessionId));
                 item.className = `p-3 rounded-xl border transition-all duration-150 cursor-pointer text-left ${
                     isSelected 
-                        ? 'bg-red-50/70 border-red-300 shadow-xs ring-1 ring-red-200' 
-                        : 'bg-white border-slate-200/80 hover:border-slate-300 hover:bg-slate-50/70'
+                        ? 'bg-[#1A1F29] border-[#D8210B] shadow-sm ring-1 ring-[#D8210B]' 
+                        : 'bg-[#1A1F29] border-[#232934] hover:border-[#2B313D] hover:bg-[#202632]'
                 }`;
                 item.addEventListener('click', (event) => {
                     const selectedSessionId = event.currentTarget.dataset.sessionId;
@@ -346,20 +341,20 @@
 
                 item.innerHTML = `
                     <div class="flex items-start gap-2.5">
-                        <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${waiting ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'} text-xs font-bold">
+                        <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${waiting ? 'bg-[#F2D742]/20 border border-[#F2D742]/40 text-[#F2D742]' : 'bg-blue-500/20 border border-blue-500/40 text-blue-400'} text-xs font-bold">
                             ${initials}
                         </div>
                         <div class="min-w-0 flex-1">
                             <div class="flex justify-between items-center gap-1">
-                                <span class="font-bold text-slate-800 text-xs truncate">${session.customer_name}</span>
+                                <span class="font-bold text-[#F0EDE8] text-xs truncate">${session.customer_name}</span>
                                 <span class="inline-flex rounded-full px-1.5 py-0.5 text-[9px] font-bold ${
-                                    waiting ? 'bg-amber-50 text-amber-700 ring-1 ring-amber-500/20' : 'bg-blue-50 text-blue-700 ring-1 ring-blue-500/20'
+                                    waiting ? 'bg-[#F2D742]/10 border border-[#F2D742]/30 text-[#F2D742]' : 'bg-blue-500/10 border border-blue-500/30 text-blue-400'
                                 }">
                                     ${waiting ? 'WAITING' : 'ACTIVE'}
                                 </span>
                             </div>
-                            <p class="text-[11px] text-slate-400 truncate mt-0.5">${session.latest_message || 'No messages yet'}</p>
-                            ${!waiting && session.assigned_user_name ? `<p class="text-[10px] font-semibold text-blue-600 truncate mt-1">Assigned: ${session.assigned_user_name}</p>` : ''}
+                            <p class="text-[11px] text-[#6B7280] truncate mt-0.5">${session.latest_message || 'No messages yet'}</p>
+                            ${!waiting && session.assigned_user_name ? `<p class="text-[10px] font-semibold text-blue-400 truncate mt-1">Assigned: ${session.assigned_user_name}</p>` : ''}
                         </div>
                     </div>
                 `;
@@ -392,7 +387,7 @@
                 }
 
                 document.getElementById('queue-count').innerText = String(allSessions.length);
-                document.getElementById('header-waiting-badge').innerHTML = `<span class="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse"></span>${payload.waiting_count} Waiting Handoff`;
+                document.getElementById('header-waiting-badge').innerHTML = `<span class="h-1.5 w-1.5 rounded-full bg-[#F2D742] animate-pulse"></span>${payload.waiting_count} Waiting Handoff`;
                 document.getElementById('header-active-badge').innerHTML = `<span class="h-1.5 w-1.5 rounded-full bg-blue-500"></span>${payload.active_count} Active Chats`;
 
                 if (activeId && !allSessions.some(session => String(session.id) === String(activeId))) {
@@ -447,7 +442,7 @@
             badge.classList.remove('hidden');
             const isWaiting = activeSession.status === 'waiting' || ['waiting', 'pending', 'queued'].includes(activeSession.raw_status);
             badge.className = `rounded-full px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wide ${
-                isWaiting ? 'bg-amber-50 text-amber-700 ring-1 ring-amber-500/20' : 'bg-blue-50 text-blue-700 ring-1 ring-blue-500/20'
+                isWaiting ? 'bg-[#F2D742]/10 border border-[#F2D742]/30 text-[#F2D742]' : 'bg-blue-500/10 border border-blue-500/30 text-blue-400'
             }`;
             badge.innerText = isWaiting ? 'WAITING HANDOFF' : 'OPERATOR ACTIVE';
         }
@@ -470,7 +465,6 @@
             document.getElementById('claim-btn').disabled = !activeSession || claimed;
             document.getElementById('resolve-btn').disabled = !claimed;
             document.getElementById('reply-input').placeholder = claimed ? 'Type a live message (Enter to send)...' : 'Claim this conversation to reply...';
-            document.getElementById('reply-input').classList.toggle('bg-slate-50', !claimed);
         }
 
         function renderTimeline(messages = []) {
@@ -483,36 +477,36 @@
 
                 if (sender === 'system') {
                     element.className = 'flex justify-center my-2';
-                    element.innerHTML = `<span class="bg-slate-100 border border-slate-200/60 text-[10px] font-bold text-slate-500 uppercase tracking-wider px-3 py-1 rounded-full">${message.message_text}</span>`;
+                    element.innerHTML = `<span class="bg-[#1A1F29] border border-[#232934] text-[10px] font-bold text-[#9AA0AB] uppercase tracking-wider px-3 py-1 rounded-full">${message.message_text}</span>`;
                 } else if (sender === 'bot' || sender === 'ai') {
                     element.className = 'flex justify-start items-end gap-2.5 max-w-[85%]';
                     element.innerHTML = `
-                        <div class="h-7 w-7 rounded-lg bg-red-50 border border-red-100 flex items-center justify-center text-xs shrink-0 shadow-2xs">🤖</div>
-                        <div class="bg-white border border-slate-200/80 p-3.5 rounded-2xl rounded-bl-xs text-xs text-slate-800 shadow-xs leading-relaxed">
-                            <p class="text-[10px] font-extrabold uppercase tracking-widest text-[#D8210B] mb-1">RED AI Assistant</p>
+                        <div class="h-7 w-7 rounded-lg bg-[#D8210B]/20 border border-[#D8210B]/40 flex items-center justify-center text-xs shrink-0 shadow-sm">🤖</div>
+                        <div class="bg-[#1A1F29] border border-[#232934] p-3.5 rounded-2xl rounded-bl-xs text-xs text-[#F0EDE8] shadow-sm leading-relaxed">
+                            <p class="text-[10px] font-extrabold uppercase tracking-widest text-[#EE4E56] mb-1">RED AI Assistant</p>
                             <div class="message-text"></div>
-                            <span class="block text-[9px] text-slate-400 mt-1.5 text-right">${time}</span>
+                            <span class="block text-[9px] text-[#6B7280] mt-1.5 text-right">${time}</span>
                         </div>
                     `;
                     element.querySelector('.message-text').textContent = message.message_text;
                 } else if (sender === 'operator' || sender === 'staff' || sender === 'agent') {
                     element.className = 'flex justify-end gap-2.5 max-w-[85%] ml-auto';
                     element.innerHTML = `
-                        <div class="bg-gradient-to-br from-[#D8210B] to-[#EE4E56] text-white p-3.5 rounded-2xl rounded-br-xs text-xs shadow-xs leading-relaxed">
-                            <p class="text-[10px] font-extrabold uppercase tracking-widest text-white/80 mb-1">Operator (You)</p>
+                        <div class="bg-gradient-to-br from-[#D8210B] to-[#EE4E56] text-white p-3.5 rounded-2xl rounded-br-xs text-xs shadow-sm leading-relaxed">
+                            <p class="text-[10px] font-extrabold uppercase tracking-widest text-white/90 mb-1">Operator (You)</p>
                             <div class="message-text"></div>
-                            <span class="block text-[9px] text-white/60 mt-1.5 text-right">${time}</span>
+                            <span class="block text-[9px] text-white/70 mt-1.5 text-right">${time}</span>
                         </div>
                     `;
                     element.querySelector('.message-text').textContent = message.message_text;
                 } else {
                     element.className = 'flex justify-start items-end gap-2.5 max-w-[85%]';
                     element.innerHTML = `
-                        <div class="h-7 w-7 rounded-lg bg-slate-200 text-slate-700 flex items-center justify-center text-xs font-bold shrink-0 shadow-2xs">CL</div>
-                        <div class="bg-slate-100 border border-slate-200/60 p-3.5 rounded-2xl rounded-tl-xs text-xs text-slate-800 leading-relaxed">
-                            <p class="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 mb-1">Customer</p>
+                        <div class="h-7 w-7 rounded-lg bg-[#232934] text-[#F0EDE8] flex items-center justify-center text-xs font-bold shrink-0 border border-[#2B313D]">CL</div>
+                        <div class="bg-[#1A1F29] border border-[#232934] p-3.5 rounded-2xl rounded-tl-xs text-xs text-[#F0EDE8] leading-relaxed">
+                            <p class="text-[10px] font-extrabold uppercase tracking-widest text-[#9AA0AB] mb-1">Customer</p>
                             <div class="message-text"></div>
-                            <span class="block text-[9px] text-slate-400 mt-1.5">${time}</span>
+                            <span class="block text-[9px] text-[#6B7280] mt-1.5">${time}</span>
                         </div>
                     `;
                     element.querySelector('.message-text').textContent = message.message_text;
